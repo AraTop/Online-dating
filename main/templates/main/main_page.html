@@ -1,0 +1,99 @@
+{% extends 'users/base.html' %}     
+{% block content %}
+{% if user.is_authenticated %}
+<style>
+   .color_noting{
+      background-color: rgb(214, 230, 253);
+   }
+   .color_backgraung{
+      background-color: rgb(198, 198, 198);
+   }
+   .com_color{
+      background-color: rgb(151, 255, 206);
+   }
+   .sub_color{
+      background-color: rgb(216, 229, 255);
+   }
+   .posts_color{
+      background-color: rgb(185, 255, 230);
+   }
+   .mm{
+      background-color: rgb(255, 198, 252);
+      transition: color 0.6s;
+   }
+
+   .mm:hover{
+      color: #000000;
+      background-color: #d796ff;
+   }
+
+   .mmmmm{
+      color: #5e5e5e;
+      background-color: #56ffd8;
+   }
+
+   .mmmmm:hover{
+      color: #5e5e5e;
+      background-color: #49bfff;
+   }
+
+   .button{
+  color: #ffffff;
+  background: scroll;
+  background-color: rgb(255, 162, 0);
+}
+   .profile{
+      color: #ffffff;
+      background-color: rgb(255, 118, 44);
+      
+   }
+   h1{
+      color: #ffffff;
+   }
+   .notifications{
+      background-color: #ffe417;
+   }
+</style>
+<div class="container">
+   <div class="row">
+      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
+         <div class="card mb-4 box-shadow">
+            <div class="card-body profile" id="auto-resize-card">
+               {% if object.profile_icon %}
+                  <img src="{{ object.profile_icon.url }}" style="height: 20px;">
+               {% endif %}
+               <a href="/users/settings/"><h1>My Profile</h1></a>
+            </div>
+            <div class="card-body notifications" id="auto-resize-card">
+               <a href="/users/settings/"><h3>notifications</h3></a>
+            </div>
+            <div class="card-body" id="auto-resize-card">
+               <a href="/friends/list"><h4>Friends</h4></a>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
+               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
+               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
+            </div>
+        </div>
+     </div>
+      <div class="card mb-4 box-shadow" style="width: 610px; display: block; top: 10px; height: 400px;">
+      {% if all_posts %}
+      {% for post in all_posts.all %}
+         <div class="card mb-4 box-shadow posts_color">
+            <div class="card-body" id="auto-resize-card">
+                  <p class="card-text">{{post.time_the_comment}}</p>
+                  <p class="card-text">{{post.name}}</p>
+                  {% if post.photo_post %}
+                     <img src="{{ post.photo_post.url }}" style="width: 550px; display: block; right: 60px; top: 220px; height: 270px;">
+                  {% endif %}
+                  <p class="card-text">{{ post.description }}</p>
+      {% endfor %}
+      {% endif %}
+   </div>
+</div>
+{% else %}
+<h3>Создать аккаунт, или войдите</h3>
+{% endif %}
+{% endblock %}

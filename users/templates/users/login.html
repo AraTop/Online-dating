@@ -1,0 +1,37 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<style>
+  .form-container {
+    display: flex;
+    justify-content: flex-end; /* Перемещает контейнер вправо */
+    align-items: center;
+    height: 80vh; /* Высота контейнера равна высоте окна браузера */
+    padding-right: 10%; /* Отступ справа от контейнера */
+}
+
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
+}
+</style>
+<div class="form-container">
+    <form class="form-signin" method="POST" action="/users/login/">
+      {% csrf_token %}
+      <h1 class="h3 mb-3 font-weight-normal">Пожалуйста войдите</h1>
+      {% for one in form %}
+        {{ one.label_tag }} <br>
+        {{ one }}
+        <br>
+      {% endfor %}
+      <div class="checkbox mb-3">
+        <label>
+            Нет аккаунта? <a href="/users/register/">Зарегистрируйтесь</a>
+        </label>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Отправить</button>
+      <p class="mt-5 mb-3 text-muted">&copy; 2024</p>
+    </form>
+</div>
+  {% endblock %}

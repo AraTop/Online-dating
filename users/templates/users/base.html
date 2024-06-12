@@ -1,0 +1,96 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>iNtROY</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/album.css' %}" rel="stylesheet">
+  </head>
+<style>
+.menu_color{
+  background-color: rgb(255, 248, 240);
+}
+.header {
+  background-color: rgb(255, 248, 240); 
+  color: #000000; 
+  padding: 10px 0;
+  z-index: 1000; 
+}
+.black-line {
+  border-top: 1px solid black; 
+  margin: 0;
+  }
+.lowercase-text {
+  text-transform: lowercase;
+}
+</style>
+  <body>
+    <header style="position: fixed; width: 100%; background-color: #f8f9fa; z-index: 1000;">
+      <div class="header col-md-48 card" style="position: fixed; width: 1757px; position: absolute; top:-27px; right: -10.9px;"> 
+        <div class="container col-md-12 ">
+          <div class="row menu_color">
+            <div class="col-sm-8 col-md-7 py-4">
+              <a href="/"><h5>Ашот</h5></a>
+            </div>
+            <div class="col-sm-4 offset-md-1">
+              <ul class="list-unstyled" style="width: 700px; display: block; position: absolute; right: -535px; top:22px; margin: auto;">
+                {% if user.is_authenticated %}
+                  <li>
+                    {% if user.nickname %}
+                      <details><summary class="text-muted lowercase-text">{{ user.nickname }}</summary>
+                    {% else %}
+                      <details><summary class="text-muted lowercase-text">Укажите nickname</summary>
+                    {% endif %}
+                      <li><a class="text-muted right-align" href="http://127.0.0.1:8000/">Главная страница</a></li>
+                      <a class="text-muted" href="http://127.0.0.1:8000/users/settings/">Настройки аккаунта</a><br>
+                      <a class="text-muted" href="http://127.0.0.1:8000/users/logout/">Выйти</a>
+                    </details>
+                  </li> 
+                {% else %}
+                  <li>
+                    <details><summary class="text-muted">Здравствуй гость</summary>
+                      <a  class="text-muted" href="http://127.0.0.1:8000/users/login/">Войти</a> <br> <a class="text-muted" href="http://127.0.0.1:8000/users/register">Зарегистрироватся</a>
+                    </details>
+                  </li>   
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main role="main">
+      <section class="border-top">
+        <br>
+        <br>
+        <br>
+      </section>
+      <div class="album py-5 bg-light">
+        <div class="container">
+          <div class="row">
+            {% block content %}
+            
+            {% endblock %}
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/holder.min.js' %}"></script>
+  </body>
+</html>
