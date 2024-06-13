@@ -1,0 +1,112 @@
+{% extends 'users/base.html' %}     
+{% block content %}
+<style>
+   .color_noting{
+      background-color: rgb(214, 230, 253);
+   }
+   .color_backgraung{
+      background-color: rgb(198, 198, 198);
+   }
+   .com_color{
+      background-color: rgb(151, 255, 206);
+   }
+   .sub_color{
+      background-color: rgb(216, 229, 255);
+   }
+   .posts_color{
+      background-color: rgb(185, 255, 230);
+   }
+   .mm{
+      background-color: rgb(255, 198, 252);
+      transition: color 0.6s;
+   }
+
+   .mm:hover{
+      color: #000000;
+      background-color: #d796ff;
+   }
+
+   .mmmmm{
+      color: #5e5e5e;
+      background-color: #56ffd8;
+   }
+
+   .mmmmm:hover{
+      color: #5e5e5e;
+      background-color: #49bfff;
+   }
+
+   .button{
+  color: #ffffff;
+  background: scroll;
+  background-color: rgb(255, 162, 0);
+}
+   .profile{
+      color: #ffffff;
+      background-color: rgb(255, 118, 44);
+      
+   }
+   h1{
+      color: #ffffff;
+   }
+   .notifications{
+      background-color: #ffe417;
+   }
+   .color_1{
+      background-color: #4f4f4f;
+   }
+   .color_2{
+      color: #ffffff;
+   }
+</style>
+<div class="container">
+   <div class="row">
+      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
+         <div class="card mb-4 box-shadow">
+            <div class="card-body profile" id="auto-resize-card">
+               {% if object.profile_icon %}
+                  <img src="{{ object.profile_icon.url }}" style="height: 20px;">
+               {% endif %}
+               <a href="/users/settings/"><h2>My Profile</h2></a>
+            </div>
+            <div class="card-body notifications" id="auto-resize-card">
+               <a href="/users/settings/"><h3>notifications</h3></a>
+            </div>
+            <div class="card-body" id="auto-resize-card">
+               <a href="/friends/list"><h4>Friends</h4></a>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
+               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
+               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
+            </div>
+        </div>
+     </div>
+         <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
+               <div class="card-body" id="auto-resize-card">
+                  <div style="float: left; margin-right: 20px;">
+                        {% if friend.friend.profile_photo %}
+                           <img src="{{ friend.friend.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
+                        {% endif %}
+                  </div>
+                  <div style="float: left;">
+                     {% if friend %}
+                        <p class="color_2">{{ friend.friend.first_name }} {{ friend.friend.last_name }}</p>
+                        <a href="#"><h6>Написать сообщение</h6></a>
+                     {% else %}
+                        его нет
+                     {% endif %}
+                  </div>
+                  <div style="float: right;">
+                     <details><summary class="color_2">Жмяк</summary>
+                        <a href="/remove/{{ friend.friend.pk }}" class="btn btn-danger">Удалить</a>
+                      </details>
+                  </div>
+                  <div style="clear: both;"></div>
+               </div>
+            <hr>
+         </div> 
+      </div> 
+</div>
+{% endblock %} 

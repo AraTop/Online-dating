@@ -48,3 +48,8 @@ class ProfileView(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
+
+
+class UserDetailView(DeleteView):
+    model = User
+    template_name = 'users/users_detail.html'

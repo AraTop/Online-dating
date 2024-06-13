@@ -84,33 +84,28 @@
         </div>
      </div>
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
-            {% if friends %}
-               {% for friend in friends %}
                <div class="card-body" id="auto-resize-card">
                   <div style="float: left; margin-right: 20px;">
-                        {% if friend.user.profile_photo %}
-                           <img src="{{ friend.user.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
+                        {% if object.profile_photo %}
+                           <img src="{{ object.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
                         {% endif %}
                   </div>
                   <div style="float: left;">
-                        <a href="/users/{{ friend.friend.pk }}/"><p class="card-text color_2">{{ friend.friend.first_name }} {{ friend.friend.last_name }}</p></a>
+                        <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>
                         <a href="#"><h6>Написать сообщение</h6></a>
+                  </div><br><br><br>
+                  <div style="float: left;">
+                     <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>
+                     <a href="#"><h6>Написать сообщение</h6></a>
                   </div>
                   <div style="float: right;">
                      <details><summary class="color_2">Жмяк</summary>
-                        <form action="{% url 'friends:remove_friend' friend_id=friend.friend.pk %}" method="post">
-                           {% csrf_token %}
-                           <input type="submit" value="Удалить друга" class="btn btn-danger">
+                        <a href="/remove/{{ object.pk }}" class="btn btn-danger">Удалить</a>
                       </details>
                   </div>
                   <div style="clear: both;"></div>
                </div>
-            {% endfor %}
-            <hr>
-         </div>
- {% else %}
-     <h3>У вас нет друзей, можете найти их <a href="/search">Жмяк</a></h3>
- {% endif %}
-   </div>   
+         </div> 
+      </div> 
 </div>
 {% endblock %} 
