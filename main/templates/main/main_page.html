@@ -62,14 +62,14 @@
                {% if object.profile_icon %}
                   <img src="{{ object.profile_icon.url }}" style="height: 20px;">
                {% endif %}
-               <a href="/users/{{object.pk}}/"><h1>My Profile</h1></a>
+               <a href="/users/{{user.pk}}/"><h1>My Profile</h1></a>
             </div>
             <div class="card-body notifications" id="auto-resize-card">
                <a href="/users/settings/"><h3>notifications</h3></a>
             </div>
             <div class="card-body" id="auto-resize-card">
                <a href="/friends/list"><h4>Friends</h4></a>
-               <p class="card-text">Описание: {{ object.description }}</p>
+               <a href="/users/settings"><p class="card-text">Settings</p></a>
                <p class="card-text">Описание: {{ object.description }}</p>
                <p class="card-text">Описание: {{ object.description }}</p>
                <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>

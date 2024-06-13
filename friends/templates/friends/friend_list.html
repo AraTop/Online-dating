@@ -53,10 +53,13 @@
       background-color: #ffe417;
    }
    .color_1{
-      background-color: #4f4f4f;
+      background-color: #7e7e7e;
    }
    .color_2{
       color: #ffffff;
+   }
+   .panel{
+      background-color: #b0b0b0;
    }
 </style>
 <div class="container">
@@ -74,7 +77,7 @@
             </div>
             <div class="card-body" id="auto-resize-card">
                <a href="/friends/list"><h4>Friends</h4></a>
-               <p class="card-text">Описание: {{ object.description }}</p>
+               <a href="/users/settings"><p class="card-text">Settings</p></a>
                <p class="card-text">Описание: {{ object.description }}</p>
                <p class="card-text">Описание: {{ object.description }}</p>
                <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
@@ -84,6 +87,18 @@
         </div>
      </div>
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
+            <div class="card-body panel" id="auto-resize-card">
+               <div style="float: left; margin-right: 20px;">
+                  <a href="/friends/list" class="color_2">Все друзья {{ friends_count }}</a>
+               </div>
+               <div style="float: left;">
+                  <a href="/friends/friend_request" class="color_2">Заявки в друзья {{ friend_requests_count }}</a>
+               </div>
+               <div style="float: right;">
+                  <a href="" class="color_2">Найти друзей</a>
+               </div>
+               <div style="clear: both;"></div>
+            </div>
             {% if friends %}
                {% for friend in friends %}
                <div class="card-body" id="auto-resize-card">
@@ -104,9 +119,9 @@
                       </details>
                   </div>
                   <div style="clear: both;"></div>
+               <hr>
                </div>
             {% endfor %}
-            <hr>
          </div>
  {% else %}
      <h3>У вас нет друзей, можете найти их <a href="/search">Жмяк</a></h3>

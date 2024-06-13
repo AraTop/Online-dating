@@ -53,3 +53,19 @@ class ProfileView(UpdateView):
 class UserDetailView(DeleteView):
     model = User
     template_name = 'users/users_detail.html'
+    context_object_name = 'user_detail'
+
+    def get_context_data(self, **kwargs):
+        # Получаем контекст из базового класса
+        context = super().get_context_data(**kwargs)
+        
+        # Получаем объект пользователя, чьи данные просматриваются
+        user_detail = self.get_object()
+        
+        # Проверяем, если текущий пользователь просматривает свой собственный профиль
+        if self.request.user == user_detail:
+            context['current_user'] = self.request.user
+        else:
+            context['current_user'] = None  # Или можно вообще не добавлять эту переменную
+        
+        return context

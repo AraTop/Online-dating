@@ -58,6 +58,9 @@
    .color_2{
       color: #ffffff;
    }
+   .panel{
+      background-color: #b0b0b0;
+   }
 </style>
 <div class="container">
    <div class="row">
@@ -75,8 +78,8 @@
             <div class="card-body" id="auto-resize-card">
                <a href="/friends/list"><h4>Friends</h4></a>
                <a href="/users/settings"><p class="card-text">Settings</p></a>
-               <p class="card-text">Описание {{ object.description }}</p>
-               <p class="card-text">Описание {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
+               <p class="card-text">Описание: {{ object.description }}</p>
                <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
                <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
                <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
@@ -84,33 +87,43 @@
         </div>
      </div>
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
+            <div class="card-body panel" id="auto-resize-card">
+               <div style="float: left; margin-right: 20px;">
+                  <a href="/friends/list" class="color_2">Все друзья {{ friends_count }}</a>
+               </div>
+               <div style="float: left;">
+                  <a href="" class="color_2">Заявки в друзья {{ friends_request_count }}</a>
+               </div>
+               <div style="float: right;">
+                  <a href="" class="color_2">Найти друзей</a>
+               </div>
+               <div style="clear: both;"></div>
+            </div>
+            {% if friend_requests %}
+               {% for friend in friend_requests %}
                <div class="card-body" id="auto-resize-card">
                   <div style="float: left; margin-right: 20px;">
-                     {% if object.profile_photo %}
-                        <img src="{{ object.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
-                     {% endif %}
+                        {% if friend.user.profile_photo %}
+                           <img src="{{ friend.user.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
+                        {% endif %}
                   </div>
-                  {% if not current_user %}
+                  <div style="float: left;">
+                        <a href="/users/{{ friend.friend.pk }}/"><p class="card-text color_2">{{ friend.friend.first_name }} {{ friend.friend.last_name }}</p></a>
+                        <a href="#"><h6>Написать сообщение</h6></a>
+                  </div>
                   <div style="float: right;">
                      <details><summary class="color_2">Жмяк</summary>
-                        <a href="/remove/{{ object.pk }}" class="btn btn-danger">Удалить</a>
+                        <a href="/friends/friend_add/{{friend.friend.pk }}" class="btn btn-success">Принять заявку</a>
                       </details>
                   </div>
-                  {% else %}
-
-                  {% endif %}
-                  <div style="float: left;">
-                     <h4 class="color_2">{{ object.nickname }}</h4>
-                     <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>
-                     <a href="#"><h6>Написать сообщение</h6></a>
-                  </div><br><br><br><br><br>
-                  <div style="float: left;">
-                     <p class="color_2">{{ object.description }} {{ object.last_name }}</p>
-                     <a href="#"><h6>Написать сообщение</h6></a>
-                  </div>   
                   <div style="clear: both;"></div>
                </div>
-         </div> 
-      </div> 
+            {% endfor %}
+            <hr>
+         </div>
+ {% else %}
+     <h3>У вас нет Заявок</h3>
+ {% endif %}
+   </div>   
 </div>
 {% endblock %} 
