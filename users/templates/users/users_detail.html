@@ -95,7 +95,9 @@
                   {% if is_friend %}
                      <div style="float: right;">
                         <details><summary class="color_2">Жмяк</summary>
-                           <a href="/remove/{{ object.pk }}" class="btn btn-danger">Удалить</a>
+                           <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
+                              {% csrf_token %}
+                              <input type="submit" value="Удалить друга" class="btn btn-danger">
                         </details>
                      </div>
                   {% endif %}

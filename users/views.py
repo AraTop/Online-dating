@@ -73,25 +73,20 @@ class UserDetailView(DetailView):
         # Проверяем, есть ли заявка в друзья от текущего пользователя к пользователю user_detail
         friend_request_sent = Friend.objects.filter(
             user=current_user, friend=user_detail, status='pending'
-        ).values_list('pk', flat=True)
+        )
         
         # Проверяем, есть ли заявка в друзья от пользователя user_detail к текущему пользователю
         friend_request_received = Friend.objects.filter(
             user=user_detail, friend=current_user, status='pending'
-        ).first()
+        )
         
         # Добавляем полученные данные в контекст
-        
         context['is_friend'] = is_friend
-        
+
         if friend_request_sent:
             context['friend_request_sent'] = user_detail.pk
 
         if friend_request_received:
             context['friend_request_received'] = current_user.pk
-
-        print(f'is_friend - {is_friend}')
-        print(f'friend_request_sent - {friend_request_sent}')
-        print(f'friend_request_received - {friend_request_received}')
 
         return context
