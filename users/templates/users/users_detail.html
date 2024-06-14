@@ -64,19 +64,20 @@
       <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
          <div class="card mb-4 box-shadow">
             <div class="card-body profile" id="auto-resize-card">
-               {% if object.profile_icon %}
-                  <img src="{{ object.profile_icon.url }}" style="height: 20px;">
+               {% if current_user.profile_icon %}
+                  <img src="{{ current_user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
                {% endif %}
-               <a href="/users/settings/"><h2>My Profile</h2></a>
+               <a href="/users/{{ current_user.pk }}"><h2>Мой профиль</h2></a>
             </div>
             <div class="card-body notifications" id="auto-resize-card">
-               <a href="/users/settings/"><h3>notifications</h3></a>
+               <a href="/users/settings/"><h3>Уведомления</h3></a>
             </div>
             <div class="card-body" id="auto-resize-card">
-               <a href="/friends/list"><h4>Friends</h4></a>
-               <a href="/users/settings"><p class="card-text">Settings</p></a>
-               <p class="card-text">Описание {{ object.description }}</p>
-               <p class="card-text">Описание {{ object.description }}</p>
+               <a href="/friends/list"><h4>Друзья</h4></a>
+               <a href="/friends/list"><h5>Сообщения</h5></a>
+               <a href="/users/settings"><p class="card-text">Настройки</p></a>
+               <p class="card-text">Описание</p>
+               <p class="card-text">Описание</p>
                <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
                <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
                <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
@@ -86,28 +87,47 @@
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
                <div class="card-body" id="auto-resize-card">
                   <div style="float: left; margin-right: 20px;">
-                     {% if object.profile_photo %}
-                        <img src="{{ object.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
+                     {% if object.profile_icon %}
+                        <img src="{{ object.profile_icon.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
                      {% endif %}
                   </div>
                   {% if not current_user %}
-                  <div style="float: right;">
-                     <details><summary class="color_2">Жмяк</summary>
-                        <a href="/remove/{{ object.pk }}" class="btn btn-danger">Удалить</a>
-                      </details>
-                  </div>
+                  {% if is_friend %}
+                     <div style="float: right;">
+                        <details><summary class="color_2">Жмяк</summary>
+                           <a href="/remove/{{ object.pk }}" class="btn btn-danger">Удалить</a>
+                        </details>
+                     </div>
+                  {% endif %}
+                  {% if friend_request_sent %}
+                     <div style="float: right;">
+                        <details><summary class="color_2">Жмяк</summary>
+                           <a href="/friends/friend_reject/{{friend_request_sent }}" class="btn btn-danger">Отклонить заявку</a>
+                        </details>
+                     </div>
+                  {% endif %}
+                  {% if friend_request_received %}
+                     <div style="float: right;">
+                        <details><summary class="color_2">Жмяк</summary>
+                           <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
+                        </details>
+                     </div>
+                  {% endif %}
                   {% else %}
 
                   {% endif %}
                   <div style="float: left;">
                      <h4 class="color_2">{{ object.nickname }}</h4>
                      <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>
+                  </div><br><br><br><br>
+                  <div style="overflow:auto;">
+                     <div style="float: left;" class="card-body">
+                         <p class="color_2">{{ object.description }}</p>
+                     </div>
+                 </div>
+                  <div class="card-body">
                      <a href="#"><h6>Написать сообщение</h6></a>
-                  </div><br><br><br><br><br>
-                  <div style="float: left;">
-                     <p class="color_2">{{ object.description }} {{ object.last_name }}</p>
-                     <a href="#"><h6>Написать сообщение</h6></a>
-                  </div>   
+                  </div> 
                   <div style="clear: both;"></div>
                </div>
          </div> 

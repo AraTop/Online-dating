@@ -61,23 +61,32 @@
    .panel{
       background-color: #b0b0b0;
    }
+   .color_3 {
+   color: #f6f6f6;
+   background-color: #595959;
+   border-radius: 9px;
+   }
+   .color_3:hover {
+   background-color: #c7c7c7; /* Цвет фона при наведении */
+   }    
 </style>
 <div class="container">
    <div class="row">
       <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
          <div class="card mb-4 box-shadow">
             <div class="card-body profile" id="auto-resize-card">
-               {% if object.profile_icon %}
-                  <img src="{{ object.profile_icon.url }}" style="height: 20px;">
+               {% if user_request.profile_icon %}
+                  <img src="{{ user_request.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
                {% endif %}
-               <a href="/users/settings/"><h2>My Profile</h2></a>
+               <a href="/users/{{ user_request.pk }}"><h2>Мой профиль</h2></a>
             </div>
             <div class="card-body notifications" id="auto-resize-card">
-               <a href="/users/settings/"><h3>notifications</h3></a>
+               <a href="/users/settings/"><h3>Уведомления</h3></a>
             </div>
             <div class="card-body" id="auto-resize-card">
-               <a href="/friends/list"><h4>Friends</h4></a>
-               <a href="/users/settings"><p class="card-text">Settings</p></a>
+               <a href="/friends/list"><h4>Друзья</h4></a>
+               <a href="/friends/list"><h5>Сообщения</h5></a>
+               <a href="/users/settings"><p class="card-text">Настройки</p></a>
                <p class="card-text">Описание: {{ object.description }}</p>
                <p class="card-text">Описание: {{ object.description }}</p>
                <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
@@ -89,10 +98,13 @@
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
             <div class="card-body panel" id="auto-resize-card">
                <div style="float: left; margin-right: 20px;">
-                  <a href="/friends/list" class="color_2">Все друзья {{ friends_count }}</a>
+                  <a href="/friends/list" class="color_3">Все друзья {{ friends_count }}</a>
+               </div>
+               <div style="float: left; margin-right: 20px;">
+                  <a href="/friends/friend_request" class="color_2">Заявки в друзья {{ friend_requests_count }}</a>
                </div>
                <div style="float: left;">
-                  <a href="/friends/friend_request" class="color_2">Заявки в друзья {{ friend_requests_count }}</a>
+                  <a href="/friends/friend_outgoing/" class="color_2">Исходящие {{ friends_outgoing_count }}</a>
                </div>
                <div style="float: right;">
                   <a href="" class="color_2">Найти друзей</a>
@@ -103,17 +115,17 @@
                {% for friend in friends %}
                <div class="card-body" id="auto-resize-card">
                   <div style="float: left; margin-right: 20px;">
-                        {% if friend.user.profile_photo %}
-                           <img src="{{ friend.user.profile_photo.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
-                        {% endif %}
+                     {% if friend.profile_icon %}
+                        <img src="{{ friend.profile_icon.url }}" style="width: 75px; height: 75px; border-radius: 40%; object-fit: cover;">
+                     {% endif %}
                   </div>
                   <div style="float: left;">
-                        <a href="/users/{{ friend.friend.pk }}/"><p class="card-text color_2">{{ friend.friend.first_name }} {{ friend.friend.last_name }}</p></a>
+                        <a href="/users/{{ friend.pk }}/"><p class="card-text color_2">{{ friend.first_name }} {{ friend.last_name }}</p></a>
                         <a href="#"><h6>Написать сообщение</h6></a>
                   </div>
                   <div style="float: right;">
                      <details><summary class="color_2">Жмяк</summary>
-                        <form action="{% url 'friends:remove_friend' friend_id=friend.friend.pk %}" method="post">
+                        <form action="{% url 'friends:remove_friend' friend_id=friend.pk %}" method="post">
                            {% csrf_token %}
                            <input type="submit" value="Удалить друга" class="btn btn-danger">
                       </details>

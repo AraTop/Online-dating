@@ -1,8 +1,9 @@
 from django.urls import path
+from project import settings
 from users import views
 from users.views import LoginView, LogoutView
 from users.apps import UsersConfig
-
+from django.conf.urls.static import static
 
 app_name = UsersConfig.name
 
@@ -14,3 +15,5 @@ urlpatterns = [
    path('delete/<int:pk>/', views.UserDeleteView.as_view(), name='user_delete'),
    path('<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

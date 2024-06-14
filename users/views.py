@@ -2,12 +2,13 @@ from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
+from friends.models import Friend
 from users.forms import UserForm, UserProfileForm
 from users.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
+from django.db.models import Q
 
 class LoginView(BaseLoginView):
     template_name = 'users/login.html'
@@ -50,22 +51,47 @@ class ProfileView(UpdateView):
         return self.request.user
 
 
-class UserDetailView(DeleteView):
+class UserDetailView(DetailView):
     model = User
     template_name = 'users/users_detail.html'
-    context_object_name = 'user_detail'
 
     def get_context_data(self, **kwargs):
-        # Получаем контекст из базового класса
         context = super().get_context_data(**kwargs)
         
-        # Получаем объект пользователя, чьи данные просматриваются
+        # Получаем пользователя, чей профиль просматривается
         user_detail = self.get_object()
         
-        # Проверяем, если текущий пользователь просматривает свой собственный профиль
-        if self.request.user == user_detail:
-            context['current_user'] = self.request.user
-        else:
-            context['current_user'] = None  # Или можно вообще не добавлять эту переменную
+        # Текущий пользователь, просматривающий профиль
+        current_user = self.request.user
         
+        # Проверяем, является ли текущий пользователь другом пользователя user_detail
+        is_friend = Friend.objects.filter(
+            Q(user=user_detail, friend=current_user, status='accepted') |
+            Q(user=current_user, friend=user_detail, status='accepted')
+        ).exists()
+        
+        # Проверяем, есть ли заявка в друзья от текущего пользователя к пользователю user_detail
+        friend_request_sent = Friend.objects.filter(
+            user=current_user, friend=user_detail, status='pending'
+        ).values_list('pk', flat=True)
+        
+        # Проверяем, есть ли заявка в друзья от пользователя user_detail к текущему пользователю
+        friend_request_received = Friend.objects.filter(
+            user=user_detail, friend=current_user, status='pending'
+        ).first()
+        
+        # Добавляем полученные данные в контекст
+        
+        context['is_friend'] = is_friend
+        
+        if friend_request_sent:
+            context['friend_request_sent'] = user_detail.pk
+
+        if friend_request_received:
+            context['friend_request_received'] = current_user.pk
+
+        print(f'is_friend - {is_friend}')
+        print(f'friend_request_sent - {friend_request_sent}')
+        print(f'friend_request_received - {friend_request_received}')
+
         return context
