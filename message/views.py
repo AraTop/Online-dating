@@ -7,32 +7,41 @@ from django.db.models import Q
 
 @login_required
 def inbox(request):
-    # Получаем список всех контактов, с которыми была переписка
+    contacts_with_unread_messages = []
     contacts = User.objects.filter(
-        Q(sent_messages__receiver=request.user) | Q(received_messages__sender=request.user)
+        Q(sent_messages__receiver=request.user) |
+        Q(received_messages__sender=request.user)
     ).distinct()
 
-    # Формируем список контактов с пометкой о наличии непрочитанных сообщений
     contacts_with_unread_messages = []
+
     for contact in contacts:
-        if request.user == contact:
-            # Пропускаем текущего пользователя
-            continue
-        
-        # Получаем последнее сообщение от контакта
+        # Получение последнего сообщения
         last_message = Message.objects.filter(
-            Q(sender=contact, receiver=request.user) | Q(sender=request.user, receiver=contact)
+            Q(sender=contact, receiver=request.user) |
+            Q(sender=request.user, receiver=contact)
         ).order_by('-timestamp').first()
 
-        # Проверяем, есть ли непрочитанные сообщения от контакта
-        unread_count = Message.objects.filter(sender=contact, receiver=request.user, is_read=False).count()
+        unread_count = Message.objects.filter(receiver=request.user, sender=contact, is_read=False).count()
 
-        # Добавляем контакт в список с пометкой о непрочитанных сообщениях
+        unread_count = Message.objects.filter(
+            sender=contact,
+            receiver=request.user,
+            is_read=False
+        ).count()
+
         contacts_with_unread_messages.append({
             'contact': contact,
-            'unread_count': unread_count,
             'last_message': last_message,
+            'unread_count': unread_count,
+            'last_message_sender': last_message.sender if last_message else None  # Отправитель последнего сообщения
         })
+
+    # Сортировка контактов по времени последнего сообщения, чтобы новые были сверху
+    contacts_with_unread_messages.sort(
+        key=lambda x: x['last_message'].timestamp if x['last_message'] else None,
+        reverse=True
+    )
 
     return render(request, 'message/inbox.html', {'contacts_with_unread_messages': contacts_with_unread_messages})
 

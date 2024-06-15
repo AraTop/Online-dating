@@ -61,7 +61,7 @@
 </style>
 <div class="container">
    <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
+      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
          <div class="card mb-4 box-shadow">
             <div class="card-body profile" id="auto-resize-card">
                {% if current_user.profile_icon %}
@@ -88,6 +88,8 @@
                   <div style="float: left; margin-right: 20px;">
                      {% if object.profile_icon %}
                         <img src="{{ object.profile_icon.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
+                     {% else %}
+                        <img src="/static/images/default-profile.png" style="width: 150px; height: 150px; border-radius: 50%;">
                      {% endif %}
                   </div>
                   {% if not current_user %}
@@ -127,7 +129,7 @@
                      </div>
                  </div>
                   <div class="card-body">
-                     <a href="#"><h6>Написать сообщение</h6></a>
+                     <a href="/message/dialog/{{ object.pk }}"><h6>Написать сообщение</h6></a>
                   </div> 
                   <div style="clear: both;"></div>
                </div>
