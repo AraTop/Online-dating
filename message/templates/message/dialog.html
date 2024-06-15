@@ -1,0 +1,29 @@
+{% extends 'users/base.html' %}
+{% block content %}
+  <h2>Chat with {{ other_user.first_name }}</h2>
+  <div id="messages">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="{% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+          <p><strong>{{ message.sender.first_name }}</strong>: {{ message.timestamp }}</p>
+          <p>{{ message.content }}</p>
+          {% if not message.is_read and message.receiver == request.user %}
+            <p><em>Unread</em></p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+        <h5>У вас нет переписки этим пользователем</h5>
+        <p>Можете написать ему что то</p>
+    {% endif %}
+  </div>
+  <hr>
+  <h3>Send a message</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send</button>
+  </form>
+  <br>
+  <a href="{% url 'inbox' %}">Back to Inbox</a>
+{% endblock %}

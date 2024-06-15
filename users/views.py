@@ -89,4 +89,5 @@ class UserDetailView(DetailView):
         if friend_request_received:
             context['friend_request_received'] = current_user.pk
 
+        context['current_user'] = current_user
         return context

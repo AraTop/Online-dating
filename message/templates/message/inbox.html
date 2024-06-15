@@ -1,4 +1,4 @@
-{% extends 'users/base.html' %}     
+{% extends 'users/base.html' %}
 {% block content %}
 {% if user.is_authenticated %}
 <style>
@@ -49,14 +49,20 @@
    }
    h1{
       color: #ffffff;
-   }
+  }
    .notifications{
       background-color: #ffe417;
-   }
-</style>
+  }
+   .color_3{
+    background-color: #9fc5c8;
+  }
+  .color_dialog{
+    background-color: #ababab;
+  }
+</style>  
 <div class="container">
    <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 512px;">
+      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 360px; top: 10px; margin: auto; height: 512px;">
          <div class="card mb-4 box-shadow">
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
@@ -78,21 +84,24 @@
             </div>
         </div>
      </div>
-      <div class="card mb-4 box-shadow" style="width: 610px; display: block; top: 10px; height: 400px;">
-      {% if all_posts %}
-      {% for post in all_posts.all %}
-         <div class="card mb-4 box-shadow posts_color">
-            <div class="card-body" id="auto-resize-card">
-                  <p class="card-text">{{post.time_the_comment}}</p>
-                  <p class="card-text">{{post.name}}</p>
-                  {% if post.photo_post %}
-                     <img src="{{ post.photo_post.url }}" style="width: 550px; display: block; right: 60px; top: 220px; height: 270px;">
-                  {% endif %}
-                  <p class="card-text">{{ post.description }}</p>
-      {% endfor %}
-      {% endif %}
-   </div>
-</div>
+     <div class="card mb-4 box-shadow color_3" style="width: 440px; display: block; right: 460px; top: 10px; margin: auto; height: 512px;">
+        {% for item in contacts_with_unread_messages %}
+          <div class="card-body color_dialog" id="auto-resize-card">
+              <div style="float: left; margin-right: 20px;">
+                {% if item.contact.profile_icon %}
+                  <img src="{{ item.contact.profile_icon.url }}" style="width: 75px; height: 75px; border-radius: 40%; object-fit: cover;">
+                {% endif %}
+              </div>
+              <a href="{% url 'dialog' item.contact.id %}">
+                {{ item.contact.first_name }} {{ item.contact.last_name }}<br>
+                {{ item.last_message.content|slice:":" }}
+                {% if item.unread_count > 0 %}
+                  <span style="color: red;">({{ item.unread_count }} new)</span>
+                {% endif %}
+              </a>
+          </div>
+        {% endfor %}
+      </div>
 {% else %}
 <h3>Создать аккаунт, или войдите</h3>
 {% endif %}

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
 
     'users',
     'main',
-    'friends'
+    'friends',
+    'message',
 ]
 
 MIDDLEWARE = [
