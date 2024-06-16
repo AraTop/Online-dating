@@ -5,6 +5,7 @@ from .models import Message
 from .forms import MessageForm
 from django.db.models import Q
 
+
 @login_required
 def inbox(request):
     contacts_with_unread_messages = []
@@ -72,3 +73,22 @@ def dialog(request, user_id):
         'other_user': other_user,
         'form': form
     })
+
+@login_required
+def delete_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+    message.delete()
+    return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)
+
+
+@login_required
+def edit_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST, instance=message)
+        if form.is_valid():
+            form.save()
+            return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)
+
+    return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)

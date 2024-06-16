@@ -119,6 +119,14 @@
                   {% else %}
 
                   {% endif %}
+                  {% if no_friend %}
+                     <div style="float: right;">
+                        <details><summary class="color_2">Жмяк</summary>
+                           <a href="/friends/add/{{ no_friend.pk }}" class="btn btn-success">Добавить в друзья</a>
+                        </details>
+                     </div>
+                  {% endif %}
+
                   <div style="float: left;">
                      <h4 class="color_2">{{ object.nickname }}</h4>
                      <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>

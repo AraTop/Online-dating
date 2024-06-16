@@ -42,6 +42,7 @@
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 10px;
+    position: relative; /* Это нужно для позиционирования иконок */
   }
   .message-sent {
     background-color: #e6ffe6;
@@ -62,6 +63,7 @@
   .message .message-content {
     max-width: 80%;
     word-wrap: break-word;
+    position: relative;
   }
   .form-container {
     display: flex;
@@ -94,32 +96,55 @@
   .form-container button:hover {
     background-color: #45a049;
   }
+
+  /* Стили для иконок редактирования и удаления */
+  .icon-container {
+    position: absolute;
+    bottom: -5px; /* Отступ от нижнего края сообщения */
+    right: 5px; /* Отступ от правого края сообщения */
+    display: none; /* Иконки скрыты по умолчанию */
+    gap: 5px; /* Расстояние между иконками */
+  }
+  .icon-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+  }
+  .icon-container button:hover {
+    color: #000;
+  }
+  .message:hover .icon-container {
+    display: flex; /* Показываем иконки при наведении на сообщение */
+  }
 </style>
+
 <div class="container">
-   <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 360px; top: 10px; margin: auto; height: 522px;">
-         <div class="card mb-4 box-shadow">
-            <div class="card-body profile" id="auto-resize-card">
-               {% if user.profile_icon %}
-                  <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
-               {% endif %}
-               <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
-            </div>
-            <div class="card-body notifications" id="auto-resize-card">
-               <a href="/users/settings/"><h3>Уведомления</h3></a>
-            </div>
-            <div class="card-body" id="auto-resize-card">
-               <a href="/friends/list"><h4>Друзья</h4></a>
-               <a href="/message/inbox"><h5>Сообщения</h5></a>
-               <a href="/users/settings"><p class="card-text">Настройки</p></a>
-               <p class="card-text">Описание: {{ object.description }}</p>
-               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
-               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
-               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
-            </div>
+  <div class="row">
+    <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 360px; top: 10px; margin: auto; height: 522px;">
+      <div class="card mb-4 box-shadow">
+        <div class="card-body profile" id="auto-resize-card">
+          {% if user.profile_icon %}
+            <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
+          {% endif %}
+          <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
         </div>
-     </div>
-     <div class="card mb-4 box-shadow color_3" style="width: 440px; display: block; right: 460px; top: 10px; margin: auto; height: 502px;">
+        <div class="card-body notifications" id="auto-resize-card">
+          <a href="/users/settings/"><h3>Уведомления</h3></a>
+        </div>
+        <div class="card-body" id="auto-resize-card">
+          <a href="/friends/list"><h4>Друзья</h4></a>
+          <a href="/message/inbox"><h5>Сообщения</h5></a>
+          <a href="/users/settings"><p class="card-text">Настройки</p></a>
+          <p class="card-text">Описание: {{ object.description }}</p>
+          <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
+          <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
+          <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
+        </div>
+      </div>
+    </div>
+    <div class="card mb-4 box-shadow color_3" style="width: 440px; display: block; right: 460px; top: 10px; margin: auto; height: 502px;">
       <div class="chat-container">
         <div class="messages-container" id="messages">
           {% if messages %}
@@ -136,6 +161,20 @@
                   {% if not message.is_read and message.receiver == request.user %}
                     <p><em>Unread</em></p>
                   {% endif %}
+
+                  {% if message.sender == request.user %}
+                  <div class="icon-container">
+                    <!-- Иконка редактирования -->
+                    <form method="post" action="{% url 'edit_message' message.id %}">
+                      {% csrf_token %}
+                      <button type="submit">✏️</button>
+                    </form>
+                    <!-- Иконка удаления -->
+                    <a href="/message/delete_message/{{ message.pk }}/" onclick="return confirm('Вы уверены, что хотите удалить это сообщение?');">
+                      🗑️
+                    </a>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
             {% endfor %}
@@ -145,15 +184,24 @@
           {% endif %}
         </div>
         <div class="form-container">
-            <a href="/message/inbox"><span>&larr; Назад</span></a>
-          <form method="post">
+          <a href="/message/inbox"><span>&larr; Назад</span></a>
+          <form method="post" id="message-form">
             {% csrf_token %}
-            <input type="text" name="content" placeholder="Введите сообщение" required>
+            <input type="text" name="content" id="message-content" placeholder="Введите сообщение" required>
+            <input type="hidden" name="message_id" id="message-id">
             <button type="submit">Отправить</button>
           </form>
         </div>
       </div>
     </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const messagesContainer = document.getElementById('messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
+  </script>
 {% else %}
 <h3>Создать аккаунт, или войдите</h3>
 {% endif %}

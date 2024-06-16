@@ -7,22 +7,35 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friend
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 
 class AddFriendView(LoginRequiredMixin, CreateView):
     model = Friend
-    fields = ['__all__']  # Здесь можно добавить нужные поля, если они есть
-    success_url = reverse_lazy('friends:friend_list')
+    fields = ['user','status', 'friend']
+    success_url = reverse_lazy('friends:friend_list')  # Здесь можно добавить нужные поля, если они есть
 
     def form_valid(self, form):
-        friend_username = self.kwargs['username']
-        friend = get_object_or_404(User, username=friend_username)
-        form.instance.user = self.request.user
-        form.instance.friend = friend
-        # Проверка на существование дружбы с обеих сторон
+        friend_pk = self.kwargs['pk']
+        friend = get_object_or_404(User, pk=friend_pk)
+
+        # Проверяем, существует ли уже запрос или отношение дружбы
         if Friend.objects.filter(user=self.request.user, friend=friend).exists():
+            messages.info(self.request, 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.')
             return redirect(self.success_url)
-        # Создание обратного отношения дружбы
-        Friend.objects.create(user=self.request.user, friend=friend)
+
+        # Создаем новый запрос на добавление в друзья
+        friend_request, created = Friend.objects.get_or_create(
+            user=self.request.user,
+            friend=friend,
+            status='Pending'  # Устанавливаем approved в False
+        )
+
+        if created:
+            messages.success(self.request, 'Запрос на добавление в друзья отправлен.')
+        else:
+            messages.info(self.request, 'Запрос на добавление в друзья уже отправлен.')
+
         return super().form_valid(form)
 
 
