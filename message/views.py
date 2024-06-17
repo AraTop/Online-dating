@@ -71,7 +71,8 @@ def dialog(request, user_id):
     return render(request, 'message/dialog.html', {
         'messages': messages,
         'other_user': other_user,
-        'form': form
+        'form': form,
+        'other_user': other_user
     })
 
 @login_required

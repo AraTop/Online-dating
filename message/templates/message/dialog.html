@@ -118,6 +118,10 @@
   .message:hover .icon-container {
     display: flex; /* Показываем иконки при наведении на сообщение */
   }
+  .panel{
+    background-color: #ffffff ;
+    height: 60px;
+  }
 </style>
 <div class="container">
   <div class="row">
@@ -145,6 +149,23 @@
     </div>
     <div class="card mb-4 box-shadow color_3" style="width: 440px; display: block; right: 460px; top: 10px; margin: auto; height: 502px;">
       <div class="chat-container">
+          <div class="panel">
+            <div style="float: left; margin-right: 100px;">
+              <a href="/message/inbox/">&larr; Назад</a>
+            </div>
+            <div style="float: left;">
+              <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
+              <small>был в сети 5 минут назад</small>
+            </div>
+            <div style="float: right;">
+              {% if other_user.profile_icon %}
+                <a href="/users/{{ other_user.pk }}"><img src="{{ other_user.profile_icon.url }}" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
+              {% else %}
+                <img src="/static/images/default-profile.png" alt="Default Profile" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;">
+              {% endif %}
+            </div>
+            <div style="clear: both;"><hr></div>
+          </div>
         <div class="messages-container" id="messages">
           {% if messages %}
             {% for message in messages %}
@@ -179,7 +200,6 @@
           {% endif %}
         </div>
         <div class="form-container">
-          <a href="/message/inbox"><span>&larr; Назад</span></a>
           <form method="post" id="message-form">
             {% csrf_token %}
             <input type="hidden" name="message_id" id="message-id">
@@ -194,6 +214,10 @@
 </div>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const messagesContainer = document.getElementById('messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
   // Функция для предотвращения отправки формы по нажатию Enter
   document.getElementById('message-content').addEventListener('keydown', function(event) {
     if (event.keyCode === 13) {
