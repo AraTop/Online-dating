@@ -92,7 +92,7 @@
                         <img src="/static/images/default-profile.png" style="width: 150px; height: 150px; border-radius: 50%;">
                      {% endif %}
                   </div>
-                  {% if not current_user %}
+                  {% if not user %}
                   {% if is_friend %}
                      <div style="float: right;">
                         <details><summary class="color_2">Жмяк</summary>
@@ -115,9 +115,6 @@
                            <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
                         </details>
                      </div>
-                  {% endif %}
-                  {% else %}
-
                   {% endif %}
                   {% if no_friend %}
                      <div style="float: right;">
@@ -148,6 +145,9 @@
                          xhr.send(JSON.stringify({}));
                      });
                      </script>
+                  {% else %}
+
+                  {% endif %}
 
                   <div style="float: left;">
                      <h4 class="color_2">{{ object.nickname }}</h4>
