@@ -64,10 +64,10 @@
       <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
          <div class="card mb-4 box-shadow">
             <div class="card-body profile" id="auto-resize-card">
-               {% if current_user.profile_icon %}
-                  <img src="{{ current_user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
+               {% if user.profile_icon %}
+                  <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
                {% endif %}
-               <a href="/users/{{ current_user.pk }}"><h2>Мой профиль</h2></a>
+               <a href="/users/{{ user.pk }}"><h2>Мой профиль</h2></a>
             </div>
             <div class="card-body notifications" id="auto-resize-card">
                <a href="/users/settings/"><h3>Уведомления</h3></a>
@@ -104,9 +104,9 @@
                   {% endif %}
                   {% if friend_request_sent %}
                      <div style="float: right;">
-                        <details><summary class="color_2">Жмяк</summary>
-                           <a href="/friends/friend_reject/{{friend_request_sent }}" class="btn btn-danger">Отклонить заявку</a>
-                        </details>
+                           <details><summary class="color_2">Жмяк</summary>
+                              <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
+                           </details>
                      </div>
                   {% endif %}
                   {% if friend_request_received %}
@@ -122,10 +122,32 @@
                   {% if no_friend %}
                      <div style="float: right;">
                         <details><summary class="color_2">Жмяк</summary>
-                           <a href="/friends/add/{{ no_friend.pk }}" class="btn btn-success">Добавить в друзья</a>
+                           <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
                         </details>
                      </div>
+                  {% else %}
                   {% endif %}
+                  <script>
+                     document.getElementById('add-friend-btn').addEventListener('click', function(event) {
+                         event.preventDefault(); // Предотвращаем стандартное поведение ссылки
+                         
+                         var friendId = this.getAttribute('data-friend-id');
+                         var xhr = new XMLHttpRequest();
+                         xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
+                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+                         xhr.onreadystatechange = function() {
+                             if (xhr.readyState === XMLHttpRequest.DONE) {
+                                 if (xhr.status === 200) {
+                                     location.reload(); // Перезагружаем страницу после успешного добавления в друзья
+                                 } else {
+                                     alert('Произошла ошибка: ' + xhr.responseText);
+                                 }
+                             }
+                         };
+                         xhr.send(JSON.stringify({}));
+                     });
+                     </script>
 
                   <div style="float: left;">
                      <h4 class="color_2">{{ object.nickname }}</h4>

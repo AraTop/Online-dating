@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 app_name = FriendsConfig.name
 
 urlpatterns = [
-    path('add/<int:pk>/', views.AddFriendView.as_view(), name='add_friend'),
+    path('add/<int:pk>/', views.AddFriendView, name='add_friend'),
     path('remove/<int:friend_id>/', views.RemoveFriendView.as_view(), name='remove_friend'),
     path('list/', views.FriendListView.as_view(), name='friend_list'),
     path('friend_request/', views.friend_requests, name='friend_request'),

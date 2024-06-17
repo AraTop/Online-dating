@@ -82,7 +82,6 @@ class UserDetailView(DetailView):
         
         # Добавляем полученные данные в контекст
         context['is_friend'] = is_friend
-        
         if friend_request_sent:
             context['friend_request_sent'] = user_detail.pk
         
@@ -94,5 +93,5 @@ class UserDetailView(DetailView):
                 if not friend_request_received.exists():
                     context['no_friend'] = user_detail
 
-        context['current_user'] = current_user
+        context['user'] = current_user
         return context

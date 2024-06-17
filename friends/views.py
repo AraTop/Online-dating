@@ -1,5 +1,5 @@
 from django.http import HttpResponseForbidden
-from django.views.generic import CreateView, DeleteView, ListView, DetailView
+from django.views.generic import CreateView, DeleteView, ListView, DetailView, View
 from users.models import User
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
@@ -8,67 +8,68 @@ from .models import Friend
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 
 
-class AddFriendView(LoginRequiredMixin, CreateView):
-    model = Friend
-    fields = ['user','status', 'friend']
-    success_url = reverse_lazy('friends:friend_list')  # Здесь можно добавить нужные поля, если они есть
+@login_required
+def AddFriendView(request, pk):
+    friend_pk = pk
+    friend = get_object_or_404(User, pk=friend_pk)
+    
+    # Проверяем, существует ли уже запрос или отношение дружбы
+    if Friend.objects.filter(user=request.user, friend=friend).exists():
+        messages.info(request, 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.')
+        return JsonResponse({'status': 'exists', 'message': 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.'})
 
-    def form_valid(self, form):
-        friend_pk = self.kwargs['pk']
-        friend = get_object_or_404(User, pk=friend_pk)
+    # Создаем новый запрос на добавление в друзья
+    friend_request, created = Friend.objects.get_or_create(
+        user=request.user,
+        friend=friend,
+        status='pending'
+    )
 
-        # Проверяем, существует ли уже запрос или отношение дружбы
-        if Friend.objects.filter(user=self.request.user, friend=friend).exists():
-            messages.info(self.request, 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.')
-            return redirect(self.success_url)
-
-        # Создаем новый запрос на добавление в друзья
-        friend_request, created = Friend.objects.get_or_create(
-            user=self.request.user,
-            friend=friend,
-            status='Pending'  # Устанавливаем approved в False
-        )
-
-        if created:
-            messages.success(self.request, 'Запрос на добавление в друзья отправлен.')
-        else:
-            messages.info(self.request, 'Запрос на добавление в друзья уже отправлен.')
-
-        return super().form_valid(form)
+    if created:
+        messages.success(request, 'Запрос на добавление в друзья отправлен.')
+        return JsonResponse({'status': 'created', 'message': 'Запрос на добавление в друзья отправлен.'})
+    else:
+        messages.info(request, 'Запрос на добавление в друзья уже отправлен.')
+        return JsonResponse({'status': 'exists', 'message': 'Запрос на добавление в друзья уже отправлен.'})
 
 
-class RemoveFriendView(LoginRequiredMixin, DeleteView):
-    model = Friend
+class RemoveFriendView(LoginRequiredMixin, View):
     success_url = reverse_lazy('friends:friend_list')
 
-    def get_object(self, queryset=None):
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         # Получаем текущего пользователя
         current_user = self.request.user
-
-        # Получаем ID друга из URL
         friend_id = self.kwargs['friend_id']
         
-        # Находим объект User для друга
+        # Получаем друга, которого нужно удалить
         friend = get_object_or_404(User, id=friend_id)
-        
-        # Пытаемся найти запись дружбы с текущим пользователем
-        try:
-            return Friend.objects.get(user=current_user, friend=friend)
-        except Friend.DoesNotExist:
-            # Если такой записи нет, проверяем обратную связь
-            return get_object_or_404(Friend, user=friend, friend=current_user)
 
-    def delete(self, request, *args, **kwargs):
-        # Получаем объект дружбы
-        friend_obj = self.get_object()
+        # Находим запись дружбы
+        friend_obj = None
+        try:
+            friend_obj = Friend.objects.get(user=current_user, friend=friend)
+        except Friend.DoesNotExist:
+            friend_obj = get_object_or_404(Friend, user=friend, friend=current_user)
+
+        # Изменяем статус на 'pending'
+        friend_obj.status = 'pending'
+        friend_obj.save()
         
-        # Удаляем объект дружбы
-        friend_obj.delete()
-        
-        # Возвращаемся на страницу списка друзей
-        return super().delete(request, *args, **kwargs)
+        # Добавляем сообщение об успехе
+        messages.success(request, 'Дружба удалена. Заявка на добавление в друзья отправлена.')
+
+        # Проверка на AJAX-запрос
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'pending', 'message': 'Дружба удалена. Заявка на добавление в друзья отправлена.'})
+        else:
+            # Перенаправляем на предыдущую страницу или на список друзей
+            return redirect(request.META.get('HTTP_REFERER', self.success_url))
 
 
 class FriendListView(LoginRequiredMixin, ListView):
@@ -154,19 +155,24 @@ def friend_outgoing(request):
 def friend_add(request, pk):
     friend = get_object_or_404(User, id=pk)
     Friends = Friend.objects.filter(friend=friend).first()
-    # Получаем запрос в друзья по идентификатору pk
+    
+    # Находим первый запрос на добавление в друзья
     friend_request = get_object_or_404(Friend, id=Friends.pk)
-
-    # Изменяем статус на 'accepted'
+    
     if friend_request.status == 'pending':
         friend_request.status = 'accepted'
         friend_request.save()
+        messages.success(request, f'Теперь вы друзья с {friend.username}.')
 
-    return redirect('friends:friend_list')
+    else:
+        messages.error(request, 'Запрос на добавление в друзья не найден.')
+    
+    # Перенаправляем на предыдущую страницу или на список друзей
+    return redirect(request.META.get('HTTP_REFERER', 'friends:friend_list'))
 
 @login_required
 def friend_reject(request, pk):
     friend = get_object_or_404(User, id=pk)
     Friend.objects.filter(user=request.user, friend=friend).delete()
     
-    return redirect('friends:friend_list')
+    return redirect(request.META.get('HTTP_REFERER', 'friends:friend_list'))
