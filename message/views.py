@@ -4,7 +4,7 @@ from users.models import User
 from .models import Message
 from .forms import MessageForm
 from django.db.models import Q
-
+from django.http import JsonResponse
 
 @login_required
 def inbox(request):
@@ -80,15 +80,17 @@ def delete_message(request, message_id):
     message.delete()
     return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)
 
-
 @login_required
 def edit_message(request, message_id):
-    message = get_object_or_404(Message, id=message_id, sender=request.user)
-
+    message = get_object_or_404(Message, id=message_id)
+    
     if request.method == 'POST':
-        form = MessageForm(request.POST, instance=message)
-        if form.is_valid():
-            form.save()
-            return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)
-
-    return redirect('dialog', user_id=message.receiver.id if message.sender == request.user else message.sender.id)
+        new_content = request.POST.get('content', '')
+        message.content = new_content
+        message.save()
+    
+    # Получаем ID пользователя, с которым ведется диалог
+    dialog_user_id = message.receiver_id
+    
+    # После редактирования возвращаем пользователя на страницу диалога
+    return redirect('dialog', user_id=dialog_user_id)

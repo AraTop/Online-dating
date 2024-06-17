@@ -92,7 +92,7 @@
                         <img src="/static/images/default-profile.png" style="width: 150px; height: 150px; border-radius: 50%;">
                      {% endif %}
                   </div>
-                  {% if not user %}
+                  {% if user %}
                   {% if is_friend %}
                      <div style="float: right;">
                         <details><summary class="color_2">Жмяк</summary>
@@ -146,7 +146,6 @@
                      });
                      </script>
                   {% else %}
-
                   {% endif %}
 
                   <div style="float: left;">

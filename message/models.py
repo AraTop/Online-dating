@@ -9,7 +9,7 @@ class Message(models.Model):
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.sender.username} -> {self.receiver.username}: {self.content[:20]}'
+        return f'{self.sender.first_name} -> {self.receiver.first_name}: {self.content[:20]}'
 
     class Meta:
         ordering = ['timestamp']
