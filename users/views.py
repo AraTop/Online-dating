@@ -1,6 +1,6 @@
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from friends.models import Friend
@@ -9,6 +9,11 @@ from users.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 class LoginView(BaseLoginView):
     template_name = 'users/login.html'
@@ -95,3 +100,31 @@ class UserDetailView(DetailView):
 
         context['user'] = current_user
         return context
+
+@csrf_exempt
+def update_status(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            # Отладка: печать заголовков и тела запроса
+            # print(f'Headers: {request.headers}')
+            # print(f'Body: {request.body}')
+            
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError as e:
+                # print(f'JSONDecodeError: {e}')
+                return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+            if 'status' not in data:
+                return JsonResponse({'status': 'error', 'message': 'Missing status field'}, status=400)
+
+            user = request.user
+            if data['status'] == 'offline':
+                user.is_online = False
+            else:
+                user.last_activity = timezone.now()
+                user.is_online = True
+            user.save()
+            return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    return JsonResponse({'status': 'error', 'message': 'Not authenticated'}, status=401)

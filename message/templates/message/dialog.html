@@ -130,6 +130,8 @@
         <div class="card-body profile" id="auto-resize-card">
           {% if user.profile_icon %}
             <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
+            {% else %}
+              <img src="/static/images/default-profile.png" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;"> 
           {% endif %}
           <a href="/users/{{ user.pk }}/"><h2>Мой профиль</h2></a>
         </div>
@@ -155,7 +157,11 @@
             </div>
             <div style="float: left;">
               <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
-              <small>был в сети 5 минут назад</small>
+              {% if other_user.is_online %}
+                <small>online</small>
+                {% else %}
+                  <small>Был в сети {{ other_user.last_activity }}</small>
+              {% endif %}
             </div>
             <div style="float: right;">
               {% if other_user.profile_icon %}

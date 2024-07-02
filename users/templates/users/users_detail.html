@@ -58,6 +58,28 @@
    .color_2{
       color: #ffffff;
    }
+   .online-icon {
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: green;
+    background-color: green;
+}
+.profile-picture-wrapper {
+    background-color: #7e7e7e;
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+}
 </style>
 <div class="container">
    <div class="row">
@@ -85,12 +107,19 @@
      </div>
          <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
                <div class="card-body" id="auto-resize-card">
-                  <div style="float: left; margin-right: 20px;">
-                     {% if object.profile_icon %}
-                        <img src="{{ object.profile_icon.url }}" style="width: 150px; height: 150px; border-radius: 50%;">
-                     {% else %}
-                        <img src="/static/images/default-profile.png" style="width: 150px; height: 150px; border-radius: 50%;">
-                     {% endif %}
+                  <div class="profile" style="float: left; margin-right: 20px;">
+                     <div class="profile-picture-wrapper">
+                        {% if object.profile_icon %}
+                           <img src="{{ object.profile_icon.url }}" class="profile-picture">
+                        {% else %}
+                           <img src="/static/images/default-profile.png" class="profile-picture">
+                        {% endif %}
+                        {% if object.is_online %}
+                              <img src="/static/images/online-icon.png" class="online-icon" alt="Online">
+                           {% else %}
+
+                        {% endif %}
+                     </div>
                   </div>
                   {% if user %}
                   {% if is_friend %}

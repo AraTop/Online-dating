@@ -15,6 +15,8 @@ class User(AbstractUser):
     balance = models.FloatField(verbose_name='Баланс', **NULLABLE, default=0)
     profile_icon = models.ImageField(upload_to='users/', verbose_name='Фотография профиля', **NULLABLE)
     description = models.TextField(verbose_name='Описание профиля', **NULLABLE)
+    last_activity = models.DateTimeField(auto_now=True)
+    is_online = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

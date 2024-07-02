@@ -92,5 +92,37 @@
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/holder.min.js' %}"></script>
+    <form method="post">
+      {% csrf_token %}
+    </form>
+    <script>
+      function updateUserStatus() {
+          fetch('/users/update_status/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              },
+              body: JSON.stringify({ 'status': 'online' }) // Отправка статуса "online"
+          }).then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.log('Fetch Error:', error));
+      }
+  
+      setInterval(updateUserStatus, 5000); // Пинг каждые 5 секунд
+  
+      window.addEventListener("beforeunload", function (event) {
+          fetch('/users/update_status/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+              },
+              body: JSON.stringify({ 'status': 'offline' }) // Отправка статуса "offline"
+          }).then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.log('Fetch Error:', error));
+      });
+  </script>
   </body>
 </html>
