@@ -27,7 +27,13 @@ class LoginView(BaseLoginView):
 
 @method_decorator(login_required, name='dispatch')
 class LogoutView(BaseLogoutView):
-    pass
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            user = request.user
+            user.is_online = False
+            user.last_activity = timezone.now()
+            user.save()
+        return super().dispatch(request, *args, **kwargs)
 
 
 class RegisterView(CreateView):
@@ -102,17 +108,14 @@ class UserDetailView(DetailView):
         return context
 
 @csrf_exempt
+@login_required
 def update_status(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
-            # Отладка: печать заголовков и тела запроса
-            # print(f'Headers: {request.headers}')
-            # print(f'Body: {request.body}')
             
             try:
                 data = json.loads(request.body)
             except json.JSONDecodeError as e:
-                # print(f'JSONDecodeError: {e}')
                 return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
             if 'status' not in data:

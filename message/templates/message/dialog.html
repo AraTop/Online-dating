@@ -167,7 +167,7 @@
               {% if other_user.profile_icon %}
                 <a href="/users/{{ other_user.pk }}"><img src="{{ other_user.profile_icon.url }}" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
               {% else %}
-                <img src="/static/images/default-profile.png" alt="Default Profile" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;">
+              <a href="/users/{{ other_user.pk }}"><img src="/static/images/default-profile.png" alt="Default Profile" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
               {% endif %}
             </div>
             <div style="clear: both;"><hr></div>

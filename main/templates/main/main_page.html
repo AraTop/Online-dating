@@ -61,6 +61,8 @@
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
                   <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
+                  {% else %}
+                    <img src="/static/images/default-profile.png" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;"> 
                {% endif %}
                <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
             </div>

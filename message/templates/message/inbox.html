@@ -237,14 +237,14 @@
                           <div class="status-icon"></div> <!-- Green icon -->
                         </div>
                       {% else %}
-                          
+                      
                       {% endif %}
                       <p class="last-message">{{ item.last_message.content|slice:":50" }}</p>
+                      {% if item.unread_count > 0 %}
+                        <span class="unread-count">{{ item.unread_count }} new</span>
+                      {% endif %}
                   </div>
               </a>
-              {% if item.unread_count > 0 %}
-                  <span class="unread-count">{{ item.unread_count }} new</span>
-              {% endif %}
           </div>
           </div>
         {% endfor %}

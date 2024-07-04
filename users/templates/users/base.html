@@ -52,7 +52,10 @@
                     {% endif %}
                       <li><a class="text-muted right-align" href="http://127.0.0.1:8000/">Главная страница</a></li>
                       <a class="text-muted" href="http://127.0.0.1:8000/users/settings/">Настройки аккаунта</a><br>
-                      <a class="text-muted" href="http://127.0.0.1:8000/users/logout/">Выйти</a>
+                      <form id="logout-form" action="{% url 'users:logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                      </form>
+                      <a id="logout-link" class="text-muted" href="#" onclick="document.getElementById('logout-form').submit();">Выйти</a>
                     </details>
                   </li> 
                 {% else %}
@@ -96,33 +99,33 @@
       {% csrf_token %}
     </form>
     <script>
-      function updateUserStatus() {
-          fetch('/users/update_status/', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-              },
-              body: JSON.stringify({ 'status': 'online' }) // Отправка статуса "online"
-          }).then(response => response.json())
-            .then(data => console.log('Response:', data))
-            .catch(error => console.log('Fetch Error:', error));
-      }
-  
-      setInterval(updateUserStatus, 5000); // Пинг каждые 5 секунд
-  
-      window.addEventListener("beforeunload", function (event) {
-          fetch('/users/update_status/', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-              },
-              body: JSON.stringify({ 'status': 'offline' }) // Отправка статуса "offline"
-          }).then(response => response.json())
-            .then(data => console.log('Response:', data))
-            .catch(error => console.log('Fetch Error:', error));
-      });
-  </script>
+    function updateUserStatus() {
+        fetch('/users/update_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ 'status': 'online' }) // Отправка статуса "online"
+        }).then(response => response.json())
+          .then(data => console.log('Response:', data))
+          .catch(error => console.log('Fetch Error:', error));
+    }
+
+    setInterval(updateUserStatus, 5000); // Пинг каждые 5 секунд
+
+    window.addEventListener("beforeunload", function (event) {
+        fetch('/users/update_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({ 'status': 'offline' }) // Отправка статуса "offline"
+        }).then(response => response.json())
+          .then(data => console.log('Response:', data))
+          .catch(error => console.log('Fetch Error:', error));
+    });
+</script>
   </body>
 </html>
