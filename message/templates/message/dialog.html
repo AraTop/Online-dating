@@ -158,9 +158,9 @@
             <div style="float: left;">
               <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
               {% if other_user.is_online %}
-                <small>online</small>
+                <small style="margin-left: 50px;">online</small>
                 {% else %}
-                  <small>Был в сети {{ other_user.last_activity }}</small>
+                  <small style="margin-left: -25px;">Был в сети {{ other_user.last_activity }}</small>
               {% endif %}
             </div>
             <div style="float: right;">

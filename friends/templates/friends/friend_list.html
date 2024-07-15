@@ -1,175 +1,222 @@
-{% extends 'users/base.html' %}     
+{% extends 'users/base.html' %}
+
 {% block content %}
 <style>
-   .color_noting{
-      background-color: rgb(214, 230, 253);
-   }
-   .color_backgraung{
-      background-color: rgb(198, 198, 198);
-   }
-   .com_color{
-      background-color: rgb(151, 255, 206);
-   }
-   .sub_color{
-      background-color: rgb(216, 229, 255);
-   }
-   .posts_color{
-      background-color: rgb(185, 255, 230);
-   }
-   .mm{
-      background-color: rgb(255, 198, 252);
-      transition: color 0.6s;
-   }
-
-   .mm:hover{
-      color: #000000;
-      background-color: #d796ff;
-   }
-
-   .mmmmm{
-      color: #5e5e5e;
-      background-color: #56ffd8;
-   }
-
-   .mmmmm:hover{
-      color: #5e5e5e;
-      background-color: #49bfff;
-   }
-
-   .button{
-  color: #ffffff;
-  background: scroll;
-  background-color: rgb(255, 162, 0);
+  :root {
+  --sidebar-width: 300px; /* Фиксированная ширина левой панели */
 }
-   .profile{
-      color: #ffffff;
-      background-color: rgb(255, 118, 44);
-      
-   }
-   h1{
-      color: #ffffff;
-   }
-   .notifications{
-      background-color: #ffe417;
-   }
-   .color_1{
-      background-color: #7e7e7e;
-   }
-   .color_2{
-      color: #ffffff;
-   }
-   .panel{
-      background-color: #b0b0b0;
-   }
-   .color_3 {
-   color: #f6f6f6;
-   background-color: #595959;
-   border-radius: 9px;
-   }
-   .color_3:hover {
-   background-color: #c7c7c7; /* Цвет фона при наведении */
-   }
-   .online-icon {
-    position: absolute;
-    bottom: 10px;
-    right: 0px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: rgb(85, 255, 77);
-    border: 1px solid rgb(95, 255, 20);
-   }
-   .profile-picture-wrapper {
-    background-color: #7e7e7e;
-    position: relative;
-    width: 70px;
-    height: 70px;
-   }
-   .profile-picture {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: block;
-   }
-</style>
-<div class="container">
-   <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
-         <div class="card mb-4 box-shadow">
-            <div class="card-body profile" id="auto-resize-card">
-               {% if user_request.profile_icon %}
-                  <img src="{{ user_request.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
-                  {% else %}
-                    <img src="/static/images/default-profile.png" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;"> 
-               {% endif %}
-               <a href="/users/{{ user_request.pk }}"><h2>Мой профиль</h2></a>
-            </div>
-            <div class="card-body notifications" id="auto-resize-card">
-               <a href="/users/settings/"><h3>Уведомления</h3></a>
-            </div>
-            <div class="card-body" id="auto-resize-card">
-               <a href="/friends/list"><h4>Друзья</h4></a>
-               <a href="/message/inbox"><h5>Сообщения</h5></a>
-               <a href="/users/settings"><p class="card-text">Настройки</p></a>
-               <p class="card-text">Описание: {{ object.description }}</p>
-               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
-               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
-               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
-            </div>
-        </div>
-     </div>
-         <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
-            <div class="card-body panel" id="auto-resize-card">
-               <div style="float: left; margin-right: 20px;">
-                  <a href="/friends/list" class="color_3">Все друзья {{ friends_count }}</a>
-               </div>
-               <div style="float: left; margin-right: 20px;">
-                  <a href="/friends/friend_request" class="color_2">Заявки в друзья {{ friend_requests_count }}</a>
-               </div>
-               <div style="float: left;">
-                  <a href="/friends/friend_outgoing/" class="color_2">Исходящие {{ friends_outgoing_count }}</a>
-               </div>
-               <div style="float: right;">
-                  <a href="" class="color_2">Найти друзей</a>
-               </div>
-               <div style="clear: both;"></div>
-            </div>
-            {% if friends %}
-               {% for friend in friends %}
-               <div class="card-body" id="auto-resize-card">
-                  <div class="profile" style="float: left; margin-right: 20px;">
-                     <div class="profile-picture-wrapper">
-                        {% if friend.profile_icon %}
-                           <img src="{{ friend.profile_icon.url }}" class="profile-picture">
-                           {% else %}
-                              <img src="/static/images/default-profile.png" class="profile-picture">
-                        {% endif %}
-                        {% if friend.is_online %}
-                              <img src="/static/images/online-icon.png" class="online-icon" alt="Online">
-                           {% else %}
 
-                        {% endif %}
-                     </div>
-                  </div>
-                  <div style="float: left;">
-                        <a href="/users/{{ friend.pk }}/"><p class="card-text color_2">{{ friend.first_name }} {{ friend.last_name }}</p></a>
-                        <a href="/message/dialog/{{ friend.pk }}"><h6>Написать сообщение</h6></a>
-                  </div>
-                  <div style="float: right;">
-                     <details><summary class="color_2">Жмяк</summary>
-                        <form action="{% url 'friends:remove_friend' friend_id=friend.pk %}" method="post">
-                           {% csrf_token %}
-                           <input type="submit" value="Удалить друга" class="btn btn-danger">
-                      </details>
-                  </div>
-                  <div style="clear: both;"></div>
-               <hr>
-               </div>
-            {% endfor %}
+.color_backgraung {
+  background-color: rgb(187, 136, 255);
+}
+
+.profile, .notifications {
+  padding: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.profile {
+  background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+  color: white;
+}
+
+.notifications {
+  background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+  color: white;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: rgb(187, 136, 255);
+  min-width: 160px;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+  background-color: rgb(62, 107, 127);
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropbtn {
+  background: #764ba2;
+  color: rgb(255, 255, 255);
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.card-body a, .card-body p {
+  display: block;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  background: #5f4ba2;
+  color: white;
+  text-decoration: none;
+}
+
+.card-body a:hover, .card-body p:hover {
+  background: rgb(75, 35, 128);
+}
+
+.profile-picture-wrapper {
+  background-color: #7e7e7e;
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+}
+
+.status-icon {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 15px;
+  height: 15px;
+  background-color: green;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Новые стили для фиксированной левой панели */
+.fixed-sidebar {
+  position: fixed;
+  top: 10px;
+  left: 20px;
+  width: var(--sidebar-width);
+}
+
+.content {
+  margin-left: calc(var(--sidebar-width) + 150px); /* Оставляем место для левой панели */
+}
+</style>
+
+<div class="container">
+   <div class="fixed-sidebar">
+     <!-- Left Profile Card -->
+     <div class="card mb-4 color_backgraung" style="height: 300px; width: 440px; top: 121px; right: 11.5px;">
+       <div class="card mb-4 color_backgraung">
+         <div class="card-body profile" id="auto-resize-card">
+           {% if user.profile_icon %}
+             <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+           {% else %}
+           {% endif %}
+           <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
          </div>
- {% else %}
-     <h3>У вас нет друзей, можете найти их <a href="/search">Жмяк</a></h3>
- {% endif %}
-   </div>   
-</div>
-{% endblock %} 
+         <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
+           <a href="/users/settings/"><h3>Уведомления</h3></a>
+         </div>
+         <div class="card-body" id="auto-resize-card">
+           <a href="/friends/list"><h4>Друзья</h4></a>
+           <a href="/message/inbox"><h5>Сообщения</h5></a>
+           <a href="/users/settings">Настройки</a>
+           <div class="dropdown">
+             <a href="#" class="dropbtn">Поиск девушек</a>
+             <div class="dropdown-content">
+               <a href="/search/girls/age">По возрасту</a>
+               <a href="/search/girls/location">По местоположению</a>
+               <a href="/search/girls/interests">По интересам</a>
+               <a href="/search/girls/new">Новые анкеты</a>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ 
+   <div class="content">
+     <!-- Main Content -->
+     <div class="card mb-4 box-shadow color_1" style="width: 100%; height: 400px;">
+       <div class="profile-section">
+         <div class="card mb-4 box-shadow">
+           <div class="card-body panel">
+             <div style="float: left; margin-right: 20px;">
+               <a href="/friends/list" class="btn">Все друзья {{ friends_count }}</a>
+             </div>
+             <div style="float: left; margin-right: 20px;">
+               <a href="/friends/friend_request" class="btn">Заявки в друзья {{ friend_requests_count }}</a>
+             </div>
+             <div style="float: left;">
+               <a href="/friends/friend_outgoing/" class="btn">Исходящие {{ friends_outgoing_count }}</a>
+             </div>
+             <div style="float: right;">
+               <a href="" class="btn">Найти друзей</a>
+             </div>
+             <div style="clear: both;"></div>
+           </div>
+ 
+           {% if friends %}
+             {% for friend in friends %}
+               <div class="card-body">
+                 <div style="float: left; margin-right: 20px;">
+                   <div class="profile-picture-wrapper">
+                     {% if friend.profile_icon %}
+                       <img src="{{ friend.profile_icon.url }}" class="profile-picture">
+                     {% else %}
+                       <img src="/static/images/default-profile.png" class="profile-picture">
+                     {% endif %}
+                     {% if friend.is_online %}
+                       <div class="status-icon"></div>
+                     {% endif %}
+                   </div>
+                 </div>
+                 <div style="float: left;">
+                   <a href="/users/{{ friend.pk }}/">{{ friend.first_name }} {{ friend.last_name }}</a>
+                   <a href="/message/dialog/{{ friend.pk }}"><h6>Написать сообщение</h6></a>
+                 </div>
+                 <div style="float: right;">
+                   <details><summary>Действие</summary>
+                     <form action="{% url 'friends:remove_friend' friend_id=friend.pk %}" method="post">
+                       {% csrf_token %}
+                       <input type="submit" value="Удалить друга" class="btn btn-danger">
+                     </form>
+                   </details>
+                 </div>
+                 <div style="clear: both;"></div>
+                 <hr>
+               </div>
+             {% endfor %}
+           {% else %}
+             <h3>У вас нет друзей, можете найти их <a href="/search">Жмяк</a></h3>
+           {% endif %}
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+{% endblock %}

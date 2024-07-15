@@ -1,98 +1,130 @@
-{% extends 'users/base.html' %}     
+{% extends 'users/base.html' %}
+
 {% block content %}
 {% if user.is_authenticated %}
 <style>
-   .color_noting{
-      background-color: rgb(214, 230, 253);
+   .color_backgraung {
+      background-color: rgb(187, 136, 255);
    }
-   .color_backgraung{
-      background-color: rgb(198, 198, 198);
-   }
-   .com_color{
-      background-color: rgb(151, 255, 206);
-   }
-   .sub_color{
-      background-color: rgb(216, 229, 255);
-   }
-   .posts_color{
-      background-color: rgb(185, 255, 230);
-   }
-   .mm{
-      background-color: rgb(255, 198, 252);
-      transition: color 0.6s;
-   }
-
-   .mm:hover{
-      color: #000000;
-      background-color: #d796ff;
-   }
-
-   .mmmmm{
-      color: #5e5e5e;
-      background-color: #56ffd8;
-   }
-
-   .mmmmm:hover{
-      color: #5e5e5e;
-      background-color: #49bfff;
-   }
-
-   .button{
-  color: #ffffff;
-  background: scroll;
-  background-color: rgb(255, 162, 0);
-}
-   .profile{
-      color: #ffffff;
-      background-color: rgb(255, 118, 44);
+   .profile, .notifications {
+      padding: 20px;
       
+      margin-bottom: 10px;
+      text-align: center;
    }
-   h1{
-      color: #ffffff;
+   .profile {
+      background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+      color: white;
    }
-   .notifications{
-      background-color: #ffe417;
+   .notifications {
+      background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+      color: white;
+   }
+   .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+   }
+   .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgb(187, 136, 255);
+      min-width: 160px;
+      z-index: 1;
+      border-radius: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+   }
+   .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      
+      transition: background-color 0.3s ease;
+   }
+   .dropdown-content a:hover {
+      background-color: rgb(62, 107, 127)
+   }
+   .dropdown:hover .dropdown-content {
+      display: block;
+   }
+   .dropbtn {
+      background: #764ba2 100%;
+      color: rgb(255, 255, 255);
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      
+      width: 100%;
+      transition: background 0.3s ease;
+   }
+   
+   .card-body a, .card-body p {
+      display: block;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      background: #5f4ba2 100%;
+      color: white;
+      text-decoration: none;
+   }
+   .card-body a:hover, .card-body p:hover {
+      background: rgb(75, 35, 128);
    }
 </style>
+
 <div class="container">
    <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
-         <div class="card mb-4 box-shadow">
+      <div class="card mb-4 color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 400px;">
+         <div class="card mb-4 color_backgraung">
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
-                  <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
-                  {% else %}
-                    <img src="/static/images/default-profile.png" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;"> 
+                  <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+               {% else %}
                {% endif %}
                <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
             </div>
-            <div class="card-body notifications" id="auto-resize-card">
+            <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
                <a href="/users/settings/"><h3>Уведомления</h3></a>
             </div>
             <div class="card-body" id="auto-resize-card">
                <a href="/friends/list"><h4>Друзья</h4></a>
                <a href="/message/inbox"><h5>Сообщения</h5></a>
-               <a href="/users/settings"><p class="card-text">Настройки</p></a>
-               <p class="card-text">Описание: {{ object.description }}</p>
-               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
-               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
-               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
+               <a href="/users/settings">Настройки</a>
+               <div class="dropdown">
+                  <a href="#" class="dropbtn">Поиск девушек</a>
+                  <div class="dropdown-content">
+                     <a href="/search/girls/age">По возрасту</a>
+                     <a href="/search/girls/location">По местоположению</a>
+                     <a href="/search/girls/interests">По интересам</a>
+                     <a href="/search/girls/new">Новые анкеты</a>
+                  </div>
+               </div>
             </div>
-        </div>
-     </div>
+         </div>
+      </div>
+
       <div class="card mb-4 box-shadow" style="width: 610px; display: block; top: 10px; height: 400px;">
-      {% if all_posts %}
-      {% for post in all_posts.all %}
-         <div class="card mb-4 box-shadow posts_color">
-            <div class="card-body" id="auto-resize-card">
+         {% if all_posts %}
+         {% for post in all_posts.all %}
+            <div class="card mb-4 box-shadow posts_color">
+               <div class="card-body" id="auto-resize-card">
                   <p class="card-text">{{post.time_the_comment}}</p>
                   <p class="card-text">{{post.name}}</p>
                   {% if post.photo_post %}
                      <img src="{{ post.photo_post.url }}" style="width: 550px; display: block; right: 60px; top: 220px; height: 270px;">
                   {% endif %}
                   <p class="card-text">{{ post.description }}</p>
-      {% endfor %}
-      {% endif %}
+               </div>
+            </div>
+         {% endfor %}
+         {% endif %}
+      </div>
    </div>
 </div>
 {% else %}

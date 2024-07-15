@@ -1,180 +1,240 @@
-{% extends 'users/base.html' %}     
+{% extends 'users/base.html' %}
+
 {% block content %}
 <style>
-.polu_menu{
-  background-color: beige;
-}
-.menu{
-  background-color: rgb(255, 229, 114);
-  color: #000;
-}
-.menu:hover{
-  color: #000000;
-  background-color: rgb(255, 174, 0);
-}
-.profile_color{
-  background-color: rgb(255, 255, 199);
-}
-.red{
-  background-color: rgb(255, 104, 104);
-  color: #fefefe;
-  height: 25px;
-  width: 490px;
-}
-.button{
-  color: #ffffff;
-  background: scroll;
-  background-color: rgb(255, 162, 0);
-}
-.mmmm:hover{
-  color: #000000;
-}
-.m{
-  background-color: rgb(28, 213, 213);
-  color: #000000;
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
-  border-bottom-left-radius: 50px;
-  border-bottom-right-radius: 50px;
-  border-bottom: 0px solid rgb(28, 213, 213);
-}
-.m:hover{
-  color: #0d0b0b;
-}
+  .profile_color {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: auto;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    font-weight: bold;
+    display: block;
+  }
+  .form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  .errorlist {
+    padding-left: 0;
+    list-style-type: none;
+  }
+  .errorlist li {
+    color: #d9534f;
+  }
+  .btn-success {
+    background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  .btn-success:hover {
+    background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #e53935 0%, #ef5350 100%);
+  }
+  .m {
+    background: linear-gradient(135deg, #42a5f5 0%, #478ed1 100%);
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s ease;
+  }
+  .m:hover {
+    background: linear-gradient(135deg, #478ed1 0%, #42a5f5 100%);
+  }
+  details summary {
+    cursor: pointer;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .polu_menu {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .menu {
+    background-color: #ffeb3b;
+    color: black;
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+  }
+  .menu:hover {
+    background-color: #ffc107;
+    color: black;
+  }
 </style>
-   <form class="form-signin profile_color card-body" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-      <h1 class="h3 mb-3 font-weight-normal">Settings
-      </h1>
-        <div class="form-group">
-          {{ form.profile_icon.label_tag }}
-          <br>
-          {% if object.profile_icon %}
-            <img class="card-img-top" src="{{ object.profile_icon.url }}" style="height: 150px; width: 250px; display: block;"/>
-          {% endif %}
-          {{ form.profile_icon }}
-          {% if form.profile_icon.errors %}
-            <ul class="errorlist">
+
+<div class="container">
+  <form class="form-signin profile_color card-body" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h1 class="h3 mb-3 font-weight-normal">Настройки</h1>
+    <div class="form-group">
+      {{ form.profile_icon.label_tag }}
+      <br>
+      {% if object.profile_icon %}
+        <img class="card-img-top" src="{{ object.profile_icon.url }}" style="height: 150px; width: 250px; display: block; margin-bottom: 10px;"/>
+      {% endif %}
+      {{ form.profile_icon }}
+      {% if form.profile_icon.errors %}
+        <ul class="errorlist">
           {% for error in form.profile_icon.errors %}
             <li class="red">{{ error }}</li>
           {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.phone_number.label_tag }}
-          <br>
-          {{ form.phone_number }}
-          {% if form.phone_number.errors %}
-            <ul class="errorlist">
-              {% for error in form.phone_number.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.email.label_tag }}
-          <br>
-          {{ form.email }}
-          {% if form.email.errors %}
-            <ul class="errorlist">
-              {% for error in form.email.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          До 10 символов. {{ form.nickname.label_tag  }}
-          <br>
-          {{ form.nickname }}
-          {% if form.nickname.errors %}
-            <ul class="errorlist">
-              {% for error in form.nickname.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.first_name.label_tag }}
-          <br>
-          {{ form.first_name }}
-          {% if form.first_name.errors %}
-            <ul class="errorlist">
-              {% for error in form.first_name.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.last_name.label_tag }}
-          <br>
-          {{ form.last_name }}
-          {% if form.last_name.errors %}
-            <ul class="errorlist">
-              {% for error in form.last_name.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.surname.label_tag }}
-          <br>
-          {{ form.surname }}
-          {% if form.surname.errors %}
-            <ul class="errorlist">
-              {% for error in form.surname.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.balance.label_tag }}
-          <br>
-          {{ form.balance }}
-          {% if form.balance.errors %}
-            <ul class="errorlist">
-              {% for error in form.balance.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-        <div class="form-group">
-          {{ form.description.label_tag }}
-          <br>
-          {{ form.description }}
-          {% if form.description.errors %}
-            <ul class="errorlist">
-              {% for error in form.description.errors %}
-                <li class="red">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-      <div class="checkbox mb-3">
-        <a href="/" class="m">Выйти на главную страницу</a>
-        <br>
-        <br>
-        <details><summary class="btn btn-lg btn-danger">Удалить аккаунт</summary>
-          <br>
-          <br>
-          <li class="">При удаление аккаунта, все данные будут удалены, без возможности возврата</li>
-          <br>
-          <a href="/users/delete/{{ user.pk }}" class="btn btn-lg btn-danger" >Подтвердить удаление аккаунта</a>
-        </details> 
-      </div>
-      <button class="btn btn-lg btn-success" type="submit">Сохранить</button>
-    </form>
-    <div class="col-md-24" style="width: 350px; display: block; position: absolute; right: 310px; top: 130px;">
-      <div class="card mb-6 box-shadow card-body polu_menu"> 
-        <a class="menu card-body" href="/subscriptions/">Подписки</a>
-      </div> 
+        </ul>
+      {% endif %}
     </div>
-   
+    <div class="form-group">
+      {{ form.phone_number.label_tag }}
+      <br>
+      {{ form.phone_number }}
+      {% if form.phone_number.errors %}
+        <ul class="errorlist">
+          {% for error in form.phone_number.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.email.label_tag }}
+      <br>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <ul class="errorlist">
+          {% for error in form.email.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      До 10 символов. {{ form.nickname.label_tag }}
+      <br>
+      {{ form.nickname }}
+      {% if form.nickname.errors %}
+        <ul class="errorlist">
+          {% for error in form.nickname.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.first_name.label_tag }}
+      <br>
+      {{ form.first_name }}
+      {% if form.first_name.errors %}
+        <ul class="errorlist">
+          {% for error in form.first_name.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.last_name.label_tag }}
+      <br>
+      {{ form.last_name }}
+      {% if form.last_name.errors %}
+        <ul class="errorlist">
+          {% for error in form.last_name.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.surname.label_tag }}
+      <br>
+      {{ form.surname }}
+      {% if form.surname.errors %}
+        <ul class="errorlist">
+          {% for error in form.surname.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.balance.label_tag }}
+      <br>
+      {{ form.balance }}
+      {% if form.balance.errors %}
+        <ul class="errorlist">
+          {% for error in form.balance.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.description.label_tag }}
+      <br>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <ul class="errorlist">
+          {% for error in form.description.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="checkbox mb-3">
+      <a href="/" class="m">Выйти на главную страницу</a>
+      <br>
+      <br>
+      <details>
+        <summary class="btn btn-lg btn-danger">Удалить аккаунт</summary>
+        <br>
+        <br>
+        <li>При удалении аккаунта все данные будут удалены без возможности восстановления</li>
+        <br>
+        <a href="/users/delete/{{ user.pk }}" class="btn btn-lg btn-danger">Подтвердить удаление аккаунта</a>
+      </details>
+    </div>
+    <button class="btn btn-lg btn-success" type="submit">Сохранить</button>
+  </form>
+  <div class="col-md-24" style="width: 300px; display: block; position: absolute; right: 250px; top: 100px;">
+    <div class="card mb-6 box-shadow card-body polu_menu">
+      <a class="menu card-body" href="/subscriptions/">Подписки</a>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
