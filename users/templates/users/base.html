@@ -1,7 +1,7 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -13,119 +13,158 @@
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     
     <!-- Custom styles for this template -->
-    <link href="{% static 'css/album.css' %}" rel="stylesheet">
-  </head>
-<style>
-.menu_color{
-  background-color: rgb(255, 248, 240);
-}
-.header {
-  background-color: rgb(255, 248, 240); 
-  color: #000000; 
-  padding: 10px 0;
-  z-index: 1000; 
-}
-.black-line {
-  border-top: 1px solid black; 
-  margin: 0;
-  }
-.lowercase-text {
-  text-transform: lowercase;
-}
-</style>
-  <body>
-    <header style="position: fixed; width: 100%; background-color: #f8f9fa; z-index: 1000;">
-      <div class="header col-md-48 card" style="position: fixed; width: 1757px; position: absolute; top:-27px; right: -10.9px;"> 
-        <div class="container col-md-12 ">
-          <div class="row menu_color">
-            <div class="col-sm-8 col-md-7 py-4">
-              <a href="/"><h5>iNtROY</h5></a>
-            </div>
-            <div class="col-sm-4 offset-md-1">
-              <ul class="list-unstyled" style="width: 700px; display: block; position: absolute; right: -535px; top:22px; margin: auto;">
-                {% if user.is_authenticated %}
-                  <li>
-                    {% if user.nickname %}
-                      <details><summary class="text-muted lowercase-text">{{ user.nickname }}</summary>
-                    {% else %}
-                      <details><summary class="text-muted lowercase-text">Укажите nickname</summary>
-                    {% endif %}
-                      <li><a class="text-muted right-align" href="http://127.0.0.1:8000/">Главная страница</a></li>
-                      <a class="text-muted" href="http://127.0.0.1:8000/users/settings/">Настройки аккаунта</a><br>
-                      <form id="logout-form" action="{% url 'users:logout' %}" method="POST" style="display: none;">
-                        {% csrf_token %}
-                      </form>
-                      <a id="logout-link" class="text-muted" href="#" onclick="document.getElementById('logout-form').submit();">Выйти</a>
-                    </details>
-                  </li> 
-                {% else %}
-                  <li>
-                    <details><summary class="text-muted">Здравствуй гость</summary>
-                      <a  class="text-muted" href="http://127.0.0.1:8000/users/login/">Войти</a> <br> <a class="text-muted" href="http://127.0.0.1:8000/users/register">Зарегистрироватся</a>
-                    </details>
-                  </li>   
-                {% endif %}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <main role="main">
-      <section class="border-top">
-        <br>
-        <br>
-        <br>
-      </section>
-      <div class="album py-5 bg-light">
-        <div class="container">
-          <div class="row">
-            {% block content %}
-            
-            {% endblock %}
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="{% static 'js/popper.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/holder.min.js' %}"></script>
-    <form method="post">
-      {% csrf_token %}
-    </form>
-    <script>
-    function updateUserStatus() {
-        fetch('/users/update_status/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({ 'status': 'online' }) // Отправка статуса "online"
-        }).then(response => response.json())
-          .then(data => console.log('Response:', data))
-          .catch(error => console.log('Fetch Error:', error));
+    <style>
+    .header {
+        background-color: #ff69b4; /* Яркий розовый */
+        color: #ffffff; /* Белый текст */
+        padding: 10px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Тень */
     }
 
-    setInterval(updateUserStatus, 5000); // Пинг каждые 5 секунд
+    .navbar-brand {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffffff; /* Белый текст для бренда */
+        transition: color 0.3s;
+    }
 
-    window.addEventListener("beforeunload", function (event) {
-        fetch('/users/update_status/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            },
-            body: JSON.stringify({ 'status': 'offline' }) // Отправка статуса "offline"
-        }).then(response => response.json())
-          .then(data => console.log('Response:', data))
-          .catch(error => console.log('Fetch Error:', error));
-    });
+    .navbar-brand:hover {
+        color: #ff1493; /* Розовый текст при наведении */
+    }
+
+    .navbar-nav {
+        margin-left: auto;
+    }
+
+    .nav-item {
+        margin-left: 20px;
+    }
+
+    .nav-link {
+        color: #ffffff; /* Белый текст ссылок */
+        transition: color 0.3s;
+    }
+
+    .nav-link:hover {
+        color: #ff1493; /* Розовый текст ссылок при наведении */
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-info details {
+        margin-left: 20px;
+    }
+
+    .dropdown-item {
+        color: #ffffff; /* Белый текст для выпадающих пунктов меню */
+    }
+
+    .dropdown-item:hover {
+        background-color: #ff1493; /* Розовый фон при наведении на выпадающий пункт */
+    }
+    </style>
+</head>
+<body>
+<header class="header fixed-top">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="/">iNtROY</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Главная страница</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users/settings/">Настройки аккаунта</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item user-info">
+                        {% if user.nickname %}
+                        <details>
+                            <summary class="nav-link lowercase-text">{{ user.nickname }}</summary>
+                        {% else %}
+                        <details>
+                            <summary class="nav-link lowercase-text">Укажите nickname</summary>
+                        {% endif %}
+                            <a class="dropdown-item" href="{% url 'users:logout' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Выйти</a>
+                            <form id="logout-form" action="{% url 'users:logout' %}" method="POST" style="display: none;">
+                                {% csrf_token %}
+                            </form>
+                        </details>
+                    </li>
+                    {% else %}
+                    <li class="nav-item user-info">
+                        <details>
+                            <summary class="nav-link">Здравствуй гость</summary>
+                            <a class="dropdown-item" href="/users/login/">Войти</a>
+                            <a class="dropdown-item" href="/users/register">Зарегистрироваться</a>
+                        </details>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+<main role="main">
+    <section class="border-top">
+        <br>
+        <br>
+        <br>
+    </section>
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Bootstrap core JavaScript -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/holder.min.js' %}"></script>
+<form method="post">
+    {% csrf_token %}
+</form>
+<script>
+function updateUserStatus() {
+    fetch('/users/update_status/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ 'status': 'online' })
+    }).then(response => response.json())
+      .then(data => console.log('Response:', data))
+      .catch(error => console.log('Fetch Error:', error));
+}
+
+setInterval(updateUserStatus, 5000);
+
+window.addEventListener("beforeunload", function (event) {
+    fetch('/users/update_status/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({ 'status': 'offline' })
+    }).then(response => response.json())
+      .then(data => console.log('Response:', data))
+      .catch(error => console.log('Fetch Error:', error));
+});
 </script>
-  </body>
+</body>
 </html>

@@ -145,7 +145,7 @@
             <a href="/message/inbox"><h5>Сообщения</h5></a>
             <a href="/users/settings">Настройки</a>
             <div class="dropdown">
-              <a href="#" class="dropbtn">Поиск девушек</a>
+              <a href="/" class="dropbtn">Поиск девушек</a>
               <div class="dropdown-content">
                 <a href="/search/girls/age">По возрасту</a>
                 <a href="/search/girls/location">По местоположению</a>
@@ -180,8 +180,9 @@
             </div>
 
             {% if friends_outgoing %}
+            <hr>
                {% for friend in friends_outgoing %}
-               <div class="card-body">
+               <div>
                   <div style="float: left; margin-right: 20px;">
                      <div class="profile-picture-wrapper">
                         {% if friend.friend.profile_icon %}
@@ -196,7 +197,7 @@
                   </div>
                   <div style="float: left;">
                      <a href="/users/{{ friend.friend.pk }}/">{{ friend.friend.first_name }} {{ friend.friend.last_name }}</a>
-                   <a href="/message/dialog/{{ friend.friend.pk }}"><h6>Написать сообщение</h6></a>
+                     <a href="/message/dialog/{{ friend.friend.pk }}"><h6>Написать сообщение</h6></a>
                   </div>
                   <div style="float: right;">
                       <details><summary class="color_2">Действие</summary>

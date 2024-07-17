@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-
+from django.utils.decorators import method_decorator
 
 @login_required
 def AddFriendView(request, pk):
@@ -35,7 +35,7 @@ def AddFriendView(request, pk):
         messages.info(request, 'Запрос на добавление в друзья уже отправлен.')
         return JsonResponse({'status': 'exists', 'message': 'Запрос на добавление в друзья уже отправлен.'})
 
-
+@method_decorator(login_required, name='dispatch')
 class RemoveFriendView(LoginRequiredMixin, View):
     success_url = reverse_lazy('friends:friend_list')
 
@@ -71,7 +71,7 @@ class RemoveFriendView(LoginRequiredMixin, View):
             # Перенаправляем на предыдущую страницу или на список друзей
             return redirect(request.META.get('HTTP_REFERER', self.success_url))
 
-
+@method_decorator(login_required, name='dispatch')
 class FriendListView(LoginRequiredMixin, ListView):
     template_name = 'friends/friend_list.html'
     context_object_name = 'friends'
@@ -112,6 +112,7 @@ class FriendListView(LoginRequiredMixin, ListView):
         return context
 
 
+@login_required
 def friend_requests(request):
     user = request.user
     friends_outgoing = Friend.objects.filter(user=user, status='pending')
@@ -131,6 +132,7 @@ def friend_requests(request):
     return render(request, 'friends/friend_request.html', context)
 
 
+@login_required
 def friend_outgoing(request):
     user = request.user
     friends_outgoing = Friend.objects.filter(user=user, status='pending')

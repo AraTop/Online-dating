@@ -145,7 +145,7 @@
             <a href="/message/inbox"><h5>Сообщения</h5></a>
             <a href="/users/settings">Настройки</a>
             <div class="dropdown">
-              <a href="#" class="dropbtn">Поиск девушек</a>
+              <a href="/" class="dropbtn">Поиск девушек</a>
               <div class="dropdown-content">
                 <a href="/search/girls/age">По возрасту</a>
                 <a href="/search/girls/location">По местоположению</a>
@@ -180,12 +180,13 @@
             </div>
 
             {% if friend_requests  %}
+            <hr>
                {% for friend in friend_requests %}
-               <div class="card-body">
+               <div>
                   <div style="float: left; margin-right: 20px;">
                      <div class="profile-picture-wrapper">
                         {% if friend.user.profile_icon %}
-                           <img src="{{ friend.friend.profile_icon.url }}" class="profile-picture">
+                           <img src="{{ friend.user.profile_icon.url }}" class="profile-picture">
                            {% else %}
                               <img src="/static/images/default-profile.png" class="profile-picture">
                         {% endif %}
@@ -209,7 +210,7 @@
             {% endfor %}
          </div>
  {% else %}
-   <h3>У вас нет Заявок</h3>
+   <h3>У вас нет заявок</h3>
  {% endif %}
    </div>   
 </div>

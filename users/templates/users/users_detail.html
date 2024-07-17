@@ -1,199 +1,307 @@
 {% extends 'users/base.html' %}     
 {% block content %}
 <style>
-   .color_noting{
+   .color_noting {
       background-color: rgb(214, 230, 253);
    }
-   .color_backgraung{
-      background-color: rgb(198, 198, 198);
+   .color_backgraung {
+      background-color: rgb(187, 136, 255);
    }
-   .com_color{
+   .com_color {
       background-color: rgb(151, 255, 206);
    }
-   .sub_color{
+   .sub_color {
       background-color: rgb(216, 229, 255);
    }
-   .posts_color{
+   .posts_color {
       background-color: rgb(185, 255, 230);
    }
-   .mm{
+   .mm {
       background-color: rgb(255, 198, 252);
       transition: color 0.6s;
    }
-
-   .mm:hover{
+   .mm:hover {
       color: #000000;
       background-color: #d796ff;
    }
-
-   .mmmmm{
+   .mmmmm {
       color: #5e5e5e;
       background-color: #56ffd8;
    }
-
-   .mmmmm:hover{
+   .mmmmm:hover {
       color: #5e5e5e;
       background-color: #49bfff;
    }
-
-   .button{
-  color: #ffffff;
-  background: scroll;
-  background-color: rgb(255, 162, 0);
-}
-   .profile{
+   .button {
+      color: #ffffff;
+      background: scroll;
+      background-color: rgb(255, 162, 0);
+   }
+   .profile {
       color: #ffffff;
       background-color: rgb(255, 118, 44);
-      
    }
-   h1{
+   h1 {
       color: #ffffff;
    }
-   .notifications{
+   .notifications {
       background-color: #ffe417;
    }
-   .color_1{
+   .color_1 {
       background-color: #7e7e7e;
    }
-   .color_2{
+   .color_2 {
       color: #ffffff;
    }
    .online-icon {
-    position: absolute;
-    bottom: 20px;
-    right: 10px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: green;
-    background-color: green;
-}
-.profile-picture-wrapper {
-    background-color: #7e7e7e;
-    position: relative;
-    width: 150px;
-    height: 150px;
-}
-.profile-picture {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: block;
-}
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: green;
+   }
+   .profile-picture-wrapper {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      
+   }
+   .profile-picture {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: block;
+   }
+   .profile, .notifications {
+      padding: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+   }
+   .profile {
+      background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+      color: white;
+   }
+   .notifications {
+      background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+      color: white;
+   }
+   .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+   }
+   .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgb(187, 136, 255);
+      min-width: 160px;
+      z-index: 1;
+      border-radius: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+   }
+   .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s ease;
+   }
+   .dropdown-content a:hover {
+      background-color: rgb(62, 107, 127);
+   }
+   .dropdown:hover .dropdown-content {
+      display: block;
+   }
+   .dropbtn {
+      background: #764ba2 100%;
+      color: rgb(255, 255, 255);
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+   }
+   .card-body a, .card-body p {
+      display: block;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      background: #5f4ba2 100%;
+      color: white;
+      text-decoration: none;
+   }
+   .card-body a:hover, .card-body p:hover {
+      background: rgb(75, 35, 128);
+   }
+
+   /* Новые стили для правой части */
+   .right-section {
+      background: linear-gradient(135deg, #ffeb3b 0%, #ff4081 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   }
+   .right-section h4, .right-section h6, .right-section p {
+      color: white;
+   }
+   .right-section .card-body a {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px;
+      transition: background 0.3s ease;
+   }
+   .right-section .card-body a:hover {
+      background: #ff80ab;
+   }
+   .right-section .btn {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px 20px;
+      transition: background 0.3s ease;
+   }
+   .right-section .btn:hover {
+      background: #ff80ab;
+   }
+   .right-section details summary {
+      background: #ff4081;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+   }
+   .right-section details summary:hover {
+      background: #ff80ab;
+   }
 </style>
 <div class="container">
    <div class="row">
-      <div class="card mb-4 box-shadow color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
-         <div class="card mb-4 box-shadow">
+      <div class="card mb-4 color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
+         <div class="card mb-4 color_backgraung">
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
-                  <img src="{{ user.profile_icon.url }}" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;">
-                  {% else %}
-                    <img src="/static/images/default-profile.png" style="height: 90px; width: 90px; border-radius: 50%; object-fit: cover; float: left;"> 
+                  <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+               {% else %}
                {% endif %}
-               <a href="/users/{{ user.pk }}"><h2>Мой профиль</h2></a>
+               <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
             </div>
-            <div class="card-body notifications" id="auto-resize-card">
+            <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
                <a href="/users/settings/"><h3>Уведомления</h3></a>
             </div>
             <div class="card-body" id="auto-resize-card">
                <a href="/friends/list"><h4>Друзья</h4></a>
                <a href="/message/inbox"><h5>Сообщения</h5></a>
-               <a href="/users/settings"><p class="card-text">Настройки</p></a>
-               <p class="card-text">Описание</p>
-               <button type="button mm" class="btn btn-lg btn-success mb-4" onclick="window.location.href='/create/subscriptions/'">Создать подписку</button>
-               <button type="button mm" class="btn btn-lg btn-danger mb-4" onclick="window.location.href='/create/post/'">Создать пост</button>
-               <a href="/update/channel/{{ object.pk }}" class="btn btn-warning mb-4">Редактировать канал</a>
-            </div>
-        </div>
-     </div>
-         <div class="card mb-4 box-shadow color_1" style="width: 610px; display: block; top: 10px; height: 400px;">
-               <div class="card-body" id="auto-resize-card">
-                  <div class="profile" style="float: left; margin-right: 20px;">
-                     <div class="profile-picture-wrapper">
-                        {% if object.profile_icon %}
-                           <img src="{{ object.profile_icon.url }}" class="profile-picture">
-                        {% else %}
-                           <img src="/static/images/default-profile.png" class="profile-picture">
-                        {% endif %}
-                        {% if object.is_online %}
-                              <img src="/static/images/online-icon.png" class="online-icon" alt="Online">
-                           {% else %}
-
-                        {% endif %}
-                     </div>
+               <a href="/users/settings">Настройки</a>
+               <div class="dropdown">
+                  <a href="/" class="dropbtn">Поиск девушек</a>
+                  <div class="dropdown-content">
+                     <a href="/search/girls/age">По возрасту</a>
+                     <a href="/search/girls/location">По местоположению</a>
+                     <a href="/search/girls/interests">По интересам</a>
+                     <a href="/search/girls/new">Новые анкеты</a>
                   </div>
-                  {% if user %}
-                  {% if is_friend %}
-                     <div style="float: right;">
-                        <details><summary class="color_2">Жмяк</summary>
-                           <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
-                              {% csrf_token %}
-                              <input type="submit" value="Удалить друга" class="btn btn-danger">
-                        </details>
-                     </div>
-                  {% endif %}
-                  {% if friend_request_sent %}
-                     <div style="float: right;">
-                           <details><summary class="color_2">Жмяк</summary>
-                              <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
-                           </details>
-                     </div>
-                  {% endif %}
-                  {% if friend_request_received %}
-                     <div style="float: right;">
-                        <details><summary class="color_2">Жмяк</summary>
-                           <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
-                        </details>
-                     </div>
-                  {% endif %}
-                  {% if no_friend %}
-                     <div style="float: right;">
-                        <details><summary class="color_2">Жмяк</summary>
-                           <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
-                        </details>
-                     </div>
-                  {% else %}
-                  {% endif %}
-                  <script>
-                     document.getElementById('add-friend-btn').addEventListener('click', function(event) {
-                         event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-                         
-                         var friendId = this.getAttribute('data-friend-id');
-                         var xhr = new XMLHttpRequest();
-                         xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
-                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-                         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-                         xhr.onreadystatechange = function() {
-                             if (xhr.readyState === XMLHttpRequest.DONE) {
-                                 if (xhr.status === 200) {
-                                     location.reload(); // Перезагружаем страницу после успешного добавления в друзья
-                                 } else {
-                                     alert('Произошла ошибка: ' + xhr.responseText);
-                                 }
-                             }
-                         };
-                         xhr.send(JSON.stringify({}));
-                     });
-                     </script>
-                  {% else %}
-                  {% endif %}
-
-                  <div style="float: left;">
-                     <h4 class="color_2">{{ object.nickname }}</h4>
-                     <p class="color_2">{{ object.first_name }} {{ object.last_name }}</p>
-                  </div><br><br><br><br>
-                  <div style="overflow:auto;">
-                     <div style="float: left;" class="card-body">
-                         <p class="color_2">{{ object.description }}</p>
-                     </div>
-                 </div>
-                  <div class="card-body">
-                     <a href="/message/dialog/{{ object.pk }}"><h6>Написать сообщение</h6></a>
-                  </div> 
-                  <div style="clear: both;"></div>
                </div>
-         </div> 
-      </div> 
+            </div>
+         </div>
+      </div>
+      <div class="card mb-4 box-shadow color_1 right-section" style="width: 610px; display: block; top: 10px; height: 400px;">
+         <div class="card-body" id="auto-resize-card">
+            <div style="float: left; margin-right: 20px;">
+               <div class="profile-picture-wrapper">
+                  {% if object.profile_icon %}
+                     <img src="{{ object.profile_icon.url }}" class="profile-picture" >
+                  {% else %}
+                     <img src="/static/images/default-profile.png" class="profile-picture">
+                  {% endif %}
+                  {% if object.is_online %}
+                     <img src="/static/images/online-icon.png" class="online-icon" alt="Online">
+                  {% else %}
+                  {% endif %}
+               </div>
+            </div>
+            {% if user %}
+               {% if is_friend %}
+                  <div style="float: right;">
+                     <details><summary class="color_2">Действие</summary>
+                        <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
+                           {% csrf_token %}
+                           <input type="submit" value="Удалить друга" class="btn btn-danger">
+                     </details>
+                  </div>
+               {% endif %}
+               {% if friend_request_sent %}
+                  <div style="float: right;">
+                     <details><summary class="color_2">Действие</summary>
+                        <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
+                     </details>
+                  </div>
+               {% endif %}
+               {% if friend_request_received %}
+                  <div style="float: right;">
+                     <details><summary class="color_2">Действие</summary>
+                        <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
+                     </details>
+                  </div>
+               {% endif %}
+               {% if no_friend %}
+                  <div style="float: right;">
+                     <details><summary class="color_2">Действие</summary>
+                        <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
+                     </details>
+                  </div>
+               {% else %}
+               {% endif %}
+               <script>
+                  document.getElementById('add-friend-btn').addEventListener('click', function(event) {
+                      event.preventDefault(); // Предотвращаем стандартное поведение ссылки
+                      
+                      var friendId = this.getAttribute('data-friend-id');
+                      var xhr = new XMLHttpRequest();
+                      xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
+                      xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                      xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+                      xhr.onreadystatechange = function() {
+                          if (xhr.readyState === XMLHttpRequest.DONE) {
+                              if (xhr.status === 200) {
+                                  location.reload(); // Перезагружаем страницу после успешного добавления в друзья
+                              } else {
+                                  alert('Произошла ошибка: ' + xhr.responseText);
+                              }
+                          }
+                      };
+                      xhr.send(JSON.stringify({}));
+                  });
+               </script>
+            {% else %}
+            {% endif %}
+            <div style="float: left;">
+               <h4 class="color_2">{{ object.nickname }}</h4>
+               <h4 class="color_2">{{ object.first_name }} {{ object.last_name }}</h4>
+            </div>
+            <br><br><br><br>
+            <div style="overflow:auto;">
+               <div style="float: left;" class="card-body">
+                  <h5 class="color_2">{{ object.description }}</h5>
+               </div>
+            </div>
+            <br>
+            <div class="card-body">
+               <a href="/message/dialog/{{ object.pk }}"><h6>Написать сообщение</h6></a>
+            </div>
+            <div style="clear: both;"></div>
+         </div>
+      </div>
+   </div>
 </div>
-{% endblock %} 
+{% endblock %}

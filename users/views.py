@@ -61,7 +61,7 @@ class ProfileView(UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-
+@method_decorator(login_required, name='dispatch')
 class UserDetailView(DetailView):
     model = User
     template_name = 'users/users_detail.html'
@@ -94,15 +94,24 @@ class UserDetailView(DetailView):
         # Добавляем полученные данные в контекст
         context['is_friend'] = is_friend
         if friend_request_sent:
+            print('friend_request_sent')
+            print(user_detail.pk)
             context['friend_request_sent'] = user_detail.pk
         
         if friend_request_received:
+            print('friend_request_received')
+            print(current_user.pk)
             context['friend_request_received'] = current_user.pk
 
         if is_friend == False:
             if not friend_request_sent.exists():
                 if not friend_request_received.exists():
-                    context['no_friend'] = user_detail
+                    print('no_friend')
+                    print(user_detail)
+                    if user_detail == current_user:
+                        pass
+                    else:
+                        context['no_friend'] = user_detail
 
         context['user'] = current_user
         return context
