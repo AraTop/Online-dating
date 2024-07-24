@@ -138,33 +138,29 @@
     {% csrf_token %}
 </form>
 <script>
-function updateUserStatus() {
-    fetch('/users/update_status/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: JSON.stringify({ 'status': 'online' })
-    }).then(response => response.json())
-      .then(data => console.log('Response:', data))
-      .catch(error => console.log('Fetch Error:', error));
-}
+document.addEventListener('DOMContentLoaded', () => {
+    function setStatus(status) {
+        fetch('/users/update_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ 'status': status })
+        }).then(response => response.json())
+          .then(data => console.log('Status update response:', data))
+          .catch(error => console.log('Fetch Error:', error));
+    }
 
-setInterval(updateUserStatus, 5000);
+    // Устанавливаем статус как 'online' при загрузке страницы
+    setStatus('online');
 
-window.addEventListener("beforeunload", function (event) {
-    fetch('/users/update_status/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-        body: JSON.stringify({ 'status': 'offline' })
-    }).then(response => response.json())
-      .then(data => console.log('Response:', data))
-      .catch(error => console.log('Fetch Error:', error));
+    // Устанавливаем статус как 'offline' при закрытии вкладки или окна
+    window.addEventListener('beforeunload', () => {
+        setStatus('offline');
+    });
 });
+
 </script>
 </body>
 </html>

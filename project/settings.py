@@ -54,7 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'users.middleware.UpdateLastActivityMiddleware',
+    'users.middleware.UserOnlineStatusMiddleware',
+    'main.middleware.NightPartnerMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'

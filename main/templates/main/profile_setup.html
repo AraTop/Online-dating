@@ -1,0 +1,32 @@
+{% extends 'users/base.html' %}
+{% block content %}
+    <h2>Настройка интересов</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="interests">Интересы</label>
+            <textarea class="form-control" id="interests" name="interests" rows="3">{{ user.userprofile.interests }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="age">Возраст</label>
+            <input type="number" class="form-control" id="age" name="age" value="{{ user.userprofile.age }}">
+        </div>
+        <div class="form-group">
+            <label for="gender">Пол</label>
+            <select class="form-control" id="gender" name="gender">
+                <option value="male" {% if user.userprofile.gender == 'male' %}selected{% endif %}>Мужской</option>
+                <option value="female" {% if user.userprofile.gender == 'female' %}selected{% endif %}>Женский</option>
+                <option value="other" {% if user.userprofile.gender == 'other' %}selected{% endif %}>Другой</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="looking_for">Ищу</label>
+            <select class="form-control" id="looking_for" name="looking_for">
+                <option value="friendship" {% if user.userprofile.looking_for == 'friendship' %}selected{% endif %}>Дружбу</option>
+                <option value="relationship" {% if user.userprofile.looking_for == 'relationship' %}selected{% endif %}>Отношения</option>
+                <option value="business_partner" {% if user.userprofile.looking_for == 'business_partner' %}selected{% endif %}>Бизнес-партнер</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+{% endblock %}
