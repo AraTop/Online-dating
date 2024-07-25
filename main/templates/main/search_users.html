@@ -1,7 +1,7 @@
 {% extends 'users/base.html' %}
 {% block content %}
 <style>
-    /* Стили для карточек и кнопок */
+    /* Стили для карточек и кнопок (оставляем без изменений) */
     .card-img-wrapper {
         position: relative;
         width: 100%;
@@ -134,7 +134,19 @@
                       </div>
                    </div>
                 </div>
-             </div>
+            </div>
+            {% if users %}
+                <div id="end-message" class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-img-wrapper">
+                            <h3>Все пользователи просмотрены</h3>
+                        </div>
+                        <div class="ard-body">
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+            {% endif %}
             {% if users %}
                 {% for user in users %}
                 <div class="col-md-4 mb-4 user-card" data-user-id="{{ user.id }}">
@@ -182,46 +194,70 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const userCards = document.querySelectorAll('.user-card');
-            let currentIndex = 0;
+    const userCards = Array.from(document.querySelectorAll('.user-card'));
+    const endMessage = document.getElementById('end-message');
+    let currentIndex = 0;
 
-            function goToNextUser() {
-                currentIndex = (currentIndex + 1) % userCards.length;
-                userCards.forEach((card, index) => {
-                    card.style.display = (index === currentIndex) ? 'block' : 'none';
-                });
+    function goToNextUser() {
+        if (userCards.length === 0) return;
+
+        // Скрыть текущую карточку
+        userCards[currentIndex].style.display = 'none';
+
+        // Перейти к следующей карточке
+        currentIndex = (currentIndex + 1) % userCards.length;
+
+        if (currentIndex === 0) {
+            // Если достигли конца списка и вернулись к началу
+            endMessage.style.display = 'block';
+        } else {
+            // Показать следующую карточку
+            userCards[currentIndex].style.display = 'block';
+            endMessage.style.display = 'none';
+        }
+    }
+
+    function handleAction(action, userId) {
+        // Отправляем запрос, не ожидая его завершения
+        fetch(`/like_dislike_user/${userId}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
-
-            function handleAction(action, userId) {
-                fetch(`/users/${userId}/${action}/`, { method: 'POST', credentials: 'same-origin' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            goToNextUser();
-                        } else {
-                            alert('Произошла ошибка');
-                        }
-                    });
-            }
-
-            document.querySelectorAll('.btn').forEach(button => {
-                button.addEventListener('click', function(event) {
-                    const action = event.target.dataset.action;
-                    const userId = this.closest('.user-card').dataset.userId;
-
-                    if (action === 'open') {
-                        window.location.href = `/users/${userId}/`;
-                    } else {
-                        handleAction(action, userId);
-                    }
-                });
-            });
-
-            // Initialize first user card display
-            userCards.forEach((card, index) => {
-                card.style.display = (index === currentIndex) ? 'block' : 'none';
-            });
+        }).catch(error => {
+            console.error('Fetch error:', error);
+            // Можно добавить опциональное уведомление об ошибке, если нужно
+            alert('Произошла ошибка при отправке запроса.');
         });
+
+        // Всегда переходим к следующему пользователю, независимо от результата запроса
+        goToNextUser();
+    }
+
+    document.querySelectorAll('.btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            const action = event.target.dataset.action;
+            const userId = this.closest('.user-card').dataset.userId;
+
+            if (action === 'open') {
+                window.location.href = `/users/${userId}/`;
+            } else {
+                handleAction(action, userId);
+            }
+        });
+    });
+
+    // Инициализация показа первой карточки пользователя
+    if (userCards.length > 0) {
+        userCards.forEach((card, index) => {
+            card.style.display = (index === currentIndex) ? 'block' : 'none';
+        });
+        endMessage.style.display = 'none'; // Убедитесь, что сообщение скрыто изначально
+    } else {
+        endMessage.style.display = 'block'; // Если нет пользователей
+    }
+});
         document.addEventListener("DOMContentLoaded", function() {
             const images = document.querySelectorAll('.card-img-top');
             

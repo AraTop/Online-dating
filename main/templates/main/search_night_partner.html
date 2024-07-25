@@ -1,18 +1,16 @@
 {% extends 'users/base.html' %}
 {% block content %}
 <style>
+    /* Стили для карточек и кнопок (оставляем без изменений) */
     .card-img-wrapper {
         position: relative;
         width: 100%;
-        height: 300px; /* Длина фотографии */
+        height: 300px;
     }
-
     .card-img-top {
         width: 100%;
         height: 160%;
-        
     }
-
     .card-img-overlay {
         position: absolute;
         bottom: 0;
@@ -20,101 +18,92 @@
         width: 100%;
         padding: 10px;
         background: rgba(0, 0, 0, 0); /* Полупрозрачный фон для читаемости */
-        color: white; /* Цвет текста по умолчанию */
+        color: white;
     }
-
     .card-info {
         margin-bottom: 10px;
     }
-
     .ard-body {
         padding: 10px;
         height: 105px;
         margin-top: 170px;
     }
-
     .btn {
         margin-right: 10px;
         margin-top: 5px;
     }
-
-    /* Применяем фильтр для инвертирования цветов, если изображение светлое */
-    .card-img-wrapper.light .card-img-overlay {
-        background: rgba(255, 255, 255, 0); /* Полупрозрачный фон с меньшей непрозрачностью */
-        color: black; /* Цвет текста для светлого фона */
-    }
     .color_backgraung {
-       background-color: rgb(187, 136, 255);
+        background-color: rgb(187, 136, 255);
     }
     .profile, .notifications {
-       padding: 20px;
-       
-       margin-bottom: 10px;
-       text-align: center;
+        padding: 20px;
+        margin-bottom: 10px;
+        text-align: center;
     }
     .profile {
-       background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
-       color: white;
+        background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+        color: white;
     }
     .notifications {
-       background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
-       color: white;
+        background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+        color: white;
     }
     .dropdown {
-       position: relative;
-       display: inline-block;
-       width: 100%;
-       text-align: center;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
     }
     .dropdown-content {
-       display: none;
-       position: absolute;
-       background-color: rgb(187, 136, 255);
-       min-width: 160px;
-       z-index: 1;
-       border-radius: 10px;
-       left: 50%;
-       transform: translateX(-50%);
+        display: none;
+        position: absolute;
+        background-color: rgb(187, 136, 255);
+        min-width: 160px;
+        z-index: 1;
+        border-radius: 10px;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .dropdown-content a {
-       color: black;
-       padding: 12px 16px;
-       text-decoration: none;
-       display: block;
-       
-       transition: background-color 0.3s ease;
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.3s ease;
     }
     .dropdown-content a:hover {
-       background-color: rgb(62, 107, 127)
+        background-color: rgb(62, 107, 127)
     }
     .dropdown:hover .dropdown-content {
-       display: block;
+        display: block;
     }
     .dropbtn {
-       background: #764ba2 100%;
-       color: rgb(255, 255, 255);
-       padding: 16px;
-       font-size: 16px;
-       border: none;
-       cursor: pointer;
-       
-       width: 100%;
-       transition: background 0.3s ease;
+        background: #764ba2 100%;
+        color: rgb(255, 255, 255);
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.3s ease;
     }
-    
     .card-body a, .card-body p {
-       display: block;
-       padding: 10px;
-       margin: 5px 0;
-       border-radius: 10px;
-       transition: background-color 0.3s ease;
-       text-align: center;
-       background: #5f4ba2 100%;
-       color: white;
-       text-decoration: none;
+        display: block;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 10px;
+        transition: background-color 0.3s ease;
+        text-align: center;
+        background: #5f4ba2 100%;
+        color: white;
+        text-decoration: none;
     }
     .card-body a:hover, .card-body p:hover {
-       background: rgb(75, 35, 128);
+        background: rgb(75, 35, 128);
+    }
+    .card-img-wrapper.light .card-img-overlay {
+    background: rgba(255, 255, 255, 0); /* Полупрозрачный фон с меньшей непрозрачностью */
+    color: black; /* Цвет текста для светлого фона */
     }
 </style>
     <div class="container">
@@ -124,7 +113,6 @@
                    <div class="card-body profile" id="auto-resize-card">
                       {% if user.profile_icon %}
                          <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
-                      {% else %}
                       {% endif %}
                       <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
                    </div>
@@ -146,25 +134,47 @@
                       </div>
                    </div>
                 </div>
-             </div>
+            </div>
             {% if users %}
-                {% for user in users %}
-                <div class="col-md-4 mb-4">
+                <div id="end-message" class="col-md-4 mb-4">
                     <div class="card">
                         <div class="card-img-wrapper">
-                            <img class="card-img-top" src="{{ user.profile_icon.url }}" alt="User profile picture">
-                            <div class="card-img-overlay">
-                                <div class="card-info">
-                                    <p class="card-text">{{ user.first_name }}</p>
-                                    <p class="card-text">{{ user.userprofile.age }} лет</p>
-                                </div>
-                            </div>
+                            <h3>Все пользователи просмотрены</h3>
                         </div>
                         <div class="ard-body">
-                            <a href="/users/{{user.id}}/" class="btn btn-info">Открыть профиль</a>
-                            <a href="{% url 'main:like_dislike_user' user.id 'like' %}" class="btn btn-success">Нравится</a>
-                            <a href="{% url 'main:like_dislike_user' user.id 'dislike' %}" class="btn btn-danger">Не нравится</a>
-                            <a href="{% url 'main:like_dislike_user' user.id 'hide' %}" class="btn btn-warning">Скрыть</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+            {% endif %}
+            {% if users %}
+                {% for user in users %}
+                <div class="col-md-4 mb-4 user-card" data-user-id="{{ user.id }}">
+                    <div class="card">
+                        <div class="card-img-wrapper">
+                            {% if  user.profile_icon %}
+                                <img class="card-img-top" src="{{ user.profile_icon.url }}" alt="User profile picture">
+                                <div class="card-img-overlay">
+                                    <div class="card-info">
+                                        <p class="card-text">{{ user.first_name }}</p>
+                                        <p class="card-text">{{ user.userprofile.age }} лет</p>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <img class="card-img-top" src="/static/images/default-profile.png" alt="User profile picture">
+                                <div class="card-img-overlay">
+                                    <div class="card-info">
+                                        <p class="card-text">{{ user.first_name }}</p>
+                                        <p class="card-text">{{ user.userprofile.age }} лет</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ard-body">
+                            <a href="/users/{{user.id}}/" class="btn btn-info" data-action="open">Открыть профиль</a>
+                            <button class="btn btn-success" data-action="like">Нравится</button>
+                            <button class="btn btn-danger" data-action="dislike">Не нравится</button>
+                            <button class="btn btn-warning" data-action="hide">Скрыть</button>
                         </div>
                     </div>
                 </div>
@@ -174,10 +184,6 @@
                     <div class="card">
                         <div class="card-img-wrapper">
                             <h5>Не кто не ищет партнера на ночь</h5>
-                            <div class="card-img-overlay">
-                                <div class="card-info">
-                                </div>
-                            </div>
                         </div>
                         <div class="ard-body">
                         </div>
@@ -187,6 +193,71 @@
         </div>
     </div>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    const userCards = Array.from(document.querySelectorAll('.user-card'));
+    const endMessage = document.getElementById('end-message');
+    let currentIndex = 0;
+
+    function goToNextUser() {
+        if (userCards.length === 0) return;
+
+        // Скрыть текущую карточку
+        userCards[currentIndex].style.display = 'none';
+
+        // Перейти к следующей карточке
+        currentIndex = (currentIndex + 1) % userCards.length;
+
+        if (currentIndex === 0) {
+            // Если достигли конца списка и вернулись к началу
+            endMessage.style.display = 'block';
+        } else {
+            // Показать следующую карточку
+            userCards[currentIndex].style.display = 'block';
+            endMessage.style.display = 'none';
+        }
+    }
+
+    function handleAction(action, userId) {
+        // Отправляем запрос, не ожидая его завершения
+        fetch(`/like_dislike_user/${userId}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        }).catch(error => {
+            console.error('Fetch error:', error);
+            // Можно добавить опциональное уведомление об ошибке, если нужно
+            alert('Произошла ошибка при отправке запроса.');
+        });
+
+        // Всегда переходим к следующему пользователю, независимо от результата запроса
+        goToNextUser();
+    }
+
+    document.querySelectorAll('.btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            const action = event.target.dataset.action;
+            const userId = this.closest('.user-card').dataset.userId;
+
+            if (action === 'open') {
+                window.location.href = `/users/${userId}/`;
+            } else {
+                handleAction(action, userId);
+            }
+        });
+    });
+
+    // Инициализация показа первой карточки пользователя
+    if (userCards.length > 0) {
+        userCards.forEach((card, index) => {
+            card.style.display = (index === currentIndex) ? 'block' : 'none';
+        });
+        endMessage.style.display = 'none'; // Убедитесь, что сообщение скрыто изначально
+    } else {
+        endMessage.style.display = 'block'; // Если нет пользователей
+    }
+});
         document.addEventListener("DOMContentLoaded", function() {
             const images = document.querySelectorAll('.card-img-top');
             
