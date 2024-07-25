@@ -15,7 +15,7 @@ def search_users(request):
         userprofile__interests__icontains=request.user.userprofile.interests,
         userprofile__gender='female' if request.user.userprofile.gender == 'male' else 'male'
     ).exclude(id=request.user.id)
-
+    print(users)
     return render(request, 'main/search_users.html', {'users': users})
 
 @login_required

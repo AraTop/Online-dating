@@ -49,6 +49,11 @@
     justify-content: flex-end;
     text-align: right;
   }
+  .message-sent-unread {
+    background-color: #d6e6fd; /* Синий цвет для непрочитанных сообщений */
+    justify-content: flex-end;
+    text-align: right;
+  }
   .message-received {
     background-color: #f2f2f2;
     justify-content: flex-start;
@@ -214,9 +219,9 @@
             <a href="/message/inbox"><h5>Сообщения</h5></a>
             <a href="/users/settings">Настройки</a>
             <div class="dropdown">
-               <a href="/" class="dropbtn">Поиск девушек</a>
+               <a href="/search_users/" class="dropbtn">Поиск девушек</a>
                <div class="dropdown-content">
-                  <a href="/search/girls/age">По возрасту</a>
+                  <a href="/search_night_partner/">Партнера на ночь</a>
                   <a href="/search/girls/location">По местоположению</a>
                   <a href="/search/girls/interests">По интересам</a>
                   <a href="/search/girls/new">Новые анкеты</a>
@@ -251,7 +256,7 @@
         <div class="messages-container" id="messages">
           {% if messages %}
             {% for message in messages %}
-              <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}" id="message-{{ message.id }}">
+              <div class="message {% if message.sender == request.user %}{% if not message.is_read %}message-sent-unread{% else %}message-sent{% endif %}{% else %}message-received{% endif %}" id="message-{{ message.id }}">
                 {% if message.sender.profile_icon %}
                   <img src="{{ message.sender.profile_icon.url }}" alt="{{ message.sender.first_name }}">
                 {% else %}

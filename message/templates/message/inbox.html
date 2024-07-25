@@ -2,193 +2,194 @@
 {% block content %}
 {% if user.is_authenticated %}
 <style>
-   .color_noting{
+   .color_noting {
       background-color: rgb(214, 230, 253);
    }
    .color_backgraung {
       background-color: rgb(187, 136, 255);
    }
-   .com_color{
+   .com_color {
       background-color: rgb(151, 255, 206);
    }
-   .sub_color{
+   .sub_color {
       background-color: rgb(216, 229, 255);
    }
-   .posts_color{
+   .posts_color {
       background-color: rgb(185, 255, 230);
    }
-   .mm{
+   .mm {
       background-color: rgb(255, 198, 252);
       transition: color 0.6s;
    }
 
-   .mm:hover{
+   .mm:hover {
       color: #000000;
       background-color: #d796ff;
    }
 
-   .mmmmm{
+   .mmmmm {
       color: #5e5e5e;
       background-color: #56ffd8;
    }
 
-   .mmmmm:hover{
+   .mmmmm:hover {
       color: #5e5e5e;
       background-color: #49bfff;
    }
 
-   .button{
-  color: #ffffff;
-  background: scroll;
-  background-color: rgb(255, 162, 0);
-}
-   .profile{
+   .button {
+      color: #ffffff;
+      background: scroll;
+      background-color: rgb(255, 162, 0);
+   }
+   .profile {
       color: #ffffff;
       background-color: rgb(255, 118, 44);
-      
    }
-   h1{
+   h1 {
       color: #ffffff;
-  }
-   .notifications{
+   }
+   .notifications {
       background-color: #ffe417;
-  }
-   .color_3{
-    background-color: #9fc5c8;
-  }
-  .color_dialog{
-    background-color: #ababab;
-  }
-  .contact-list-container {
-    width: 700px; /* Оптимальная ширина панели */
-    margin: auto;
-    right: 265px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    height: 512px;
-    overflow-y: auto; /* Прокрутка */
-    position: relative;
-  }
-  .contact-card {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    transition: background-color 0.3s;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  .contact-card:hover {
-    background-color: #e9f5ff;
-  }
-  .contact-profile-pic {
-    flex-shrink: 0;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 15px;
-    border: 2px solid #007bff;
-  }
-  .contact-profile-pic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .contact-info {
-    flex-grow: 1;
-    max-width: 550px; /* Увеличено для широкой панели */
-  }
-  .contact-name {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 5px;
-  }
-  .last-message {
-    font-size: 14px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 450px; /* Увеличено для широкой панели */
-  }
-  .unread-count {
-    background-color: #ff6b6b;
-    color: white;
-    border-radius: 12px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: bold;
-    margin-left: 10px;
-  }
-  .no-contacts {
-    text-align: center;
-    padding: 20px;
-    color: #999;
-  }
-  .last-message-sender {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-  }
-  .last-message-sender img {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    margin-right: 5px;
-  }
-  .more-options {
-    margin-left: auto;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-  }
-  .more-options img {
-    width: 24px;
-    height: 24px;
-  }
-  .options-menu {
-    display: none;
-    position: absolute;
-    right: 10px;
-    top: 40px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-  }
-  .options-menu button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-  }
-  .options-menu button:hover {
-    background-color: #f1f1f1;
-  }
-  .profile-image-wrapper {
-    position: relative;
-    display: inline-block; /* Ensures the wrapper fits the content */
-}
-
-.status-icon {
-    position: absolute;
-    bottom: 0;
-    top: 0px;
-    right: 15px;
-    width: 15px;
-    height: 15px;
-    background-color: green;
-    border-radius: 50%;
-    border: 2px solid white;
-}
-.card-body a, .card-body p {
+   }
+   .color_3 {
+      background-color: #9fc5c8;
+   }
+   .color_dialog {
+      background-color: #ababab;
+   }
+   .contact-list-container {
+      width: 700px;
+      margin: auto;
+      right: 265px;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      height: 512px;
+      overflow-y: auto;
+      position: relative;
+   }
+   .contact-card {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      transition: background-color 0.3s;
+      border-bottom: 1px solid #e0e0e0;
+   }
+   .contact-card.new-message {
+      background-color: #c3f0ff;
+   }
+   .contact-card:hover {
+      background-color: #e9f5ff;
+   }
+   .contact-profile-pic {
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 15px;
+      border: 2px solid #007bff;
+   }
+   .contact-profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+   }
+   .contact-info {
+      flex-grow: 1;
+      max-width: 550px;
+   }
+   .contact-name {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+   }
+   .last-message {
+      font-size: 14px;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 450px;
+   }
+   .unread-count {
+      background-color: #ff6b6b;
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+   }
+   .no-contacts {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+   }
+   .last-message-sender {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+   }
+   .last-message-sender img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-right: 5px;
+   }
+   .more-options {
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+   }
+   .more-options img {
+      width: 24px;
+      height: 24px;
+   }
+   .options-menu {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 40px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+   }
+   .options-menu button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+   }
+   .options-menu button:hover {
+      background-color: #f1f1f1;
+   }
+   .profile-image-wrapper {
+      position: relative;
+      display: inline-block;
+   }
+   .status-icon {
+      position: absolute;
+      bottom: 0;
+      top: 0px;
+      right: 15px;
+      width: 15px;
+      height: 15px;
+      background-color: green;
+      border-radius: 50%;
+      border: 2px solid white;
+   }
+   .card-body a, .card-body p {
       display: block;
       padding: 10px;
       margin: 5px 0;
@@ -204,7 +205,6 @@
    }
    .profile, .notifications {
       padding: 20px;
-      
       margin-bottom: 10px;
       text-align: center;
    }
@@ -237,11 +237,10 @@
       padding: 12px 16px;
       text-decoration: none;
       display: block;
-      
       transition: background-color 0.3s ease;
    }
    .dropdown-content a:hover {
-    background: rgb(75, 35, 128);
+      background: rgb(75, 35, 128);
    }
    .dropdown:hover .dropdown-content {
       display: block;
@@ -253,11 +252,10 @@
       font-size: 16px;
       border: none;
       cursor: pointer;
-      
       width: 100%;
       transition: background 0.3s ease;
    }
-</style>  
+</style>
 <div class="container">
    <div class="row">
       <div class="card mb-4 color_backgraung" style="width: 440px; display: block; right: 295px; top: 10px; margin: auto; height: 522px;">
@@ -265,7 +263,6 @@
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
                   <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
-               {% else %}
                {% endif %}
                <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
             </div>
@@ -277,9 +274,9 @@
                <a href="/message/inbox"><h5>Сообщения</h5></a>
                <a href="/users/settings">Настройки</a>
                <div class="dropdown">
-                  <a href="/" class="dropbtn">Поиск девушек</a>
+                  <a href="/search_users/" class="dropbtn">Поиск девушек</a>
                   <div class="dropdown-content">
-                     <a href="/search/girls/age">По возрасту</a>
+                     <a href="/search_night_partner">Партнера на ночь</a>
                      <a href="/search/girls/location">По местоположению</a>
                      <a href="/search/girls/interests">По интересам</a>
                      <a href="/search/girls/new">Новые анкеты</a>
@@ -288,47 +285,54 @@
             </div>
          </div>
       </div>
-     <div class="contact-list-container">
-      {% if contacts_with_unread_messages %}
-        {% for item in contacts_with_unread_messages %}
-         <div class="contact-card">
-            <div class="contact-profile-pic">
-               <a href="{% url 'dialog' item.contact.id %}">
-                  {% if item.contact.profile_icon %}
-                   <img src="{{ item.contact.profile_icon.url }}" alt="{{ item.contact.first_name }}">
-                  {% else %}
-                   <img src="/static/images/default-profile.png" alt="Default Profile">
-                  </a>
-              {% endif %}
-            </div>
-            <div class="contact-info">
-              <a href="{% url 'dialog' item.contact.id %}">
-                  <div class="contact-name">{{ item.contact.first_name }} {{ item.contact.last_name }}</div>
-                  <div class="last-message-sender">
-                      {% if item.contact.is_online %}
-                        <div class="profile-image-wrapper">
-                          <div class="status-icon"></div> <!-- Green icon -->
-                        </div>
-                      {% else %}
-                      
-                      {% endif %}
-                      <p class="last-message">{{ item.last_message.content|slice:":50" }}</p>
-                      {% if item.unread_count > 0 %}
-                        <span class="unread-count">{{ item.unread_count }} new</span>
-                      {% endif %}
+      <div class="contact-list-container">
+         {% if contacts_with_unread_messages %}
+            {% for item in contacts_with_unread_messages %}
+               <div class="contact-card{% if item.unread_count > 0 %} new-message{% endif %}">
+                  <div class="contact-profile-pic">
+                     <a href="{% url 'dialog' item.contact.id %}">
+                        {% if item.contact.profile_icon %}
+                           <img src="{{ item.contact.profile_icon.url }}" alt="{{ item.contact.first_name }}">
+                        {% else %}
+                           <img src="/static/images/default-profile.png" alt="Default Profile">
+                        {% endif %}
+                     </a>
                   </div>
-              </a>
-          </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="no-contacts">
-          <p>У вас нет переписки с другими пользователями</p>
-        </div>
-      {% endif %}
-    </div>
+                  <div class="contact-info">
+                     <a href="{% url 'dialog' item.contact.id %}">
+                        <div class="contact-name">{{ item.contact.first_name }} {{ item.contact.last_name }}</div>
+                        <div class="last-message-sender">
+                           {% if item.contact.is_online %}
+                              <div class="profile-image-wrapper">
+                                 <div class="status-icon"></div>
+                              </div>
+                           {% endif %}
+                           <p class="last-message">
+                              {% if item.last_message_sender.profile_icon %}
+                                 <img src="{{ item.last_message_sender.profile_icon.url }}" alt="{{ item.last_message_sender.first_name }}">
+                              {% else %}
+                                 <img src="/static/images/default-profile.png" alt="Default Profile">
+                              {% endif %}
+                              {{ item.last_message.content|truncatewords:50 }}
+                              {% if item.last_message.content|length > 50 %}...{% endif %}
+                           </p>
+                           {% if item.unread_count > 0 %}
+                              <span class="unread-count">{{ item.unread_count }} new</span>
+                           {% endif %}
+                        </div>
+                     </a>
+                  </div>
+               </div>
+            {% endfor %}
+         {% else %}
+            <div class="no-contacts">
+               <p>У вас нет переписки с другими пользователями</p>
+            </div>
+         {% endif %}
+      </div>
    </div>
+</div>
 {% else %}
-<h3>Создать аккаунт, или войдите</h3>
+   <h3>Создать аккаунт, или войдите</h3>
 {% endif %}
 {% endblock %}
