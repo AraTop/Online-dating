@@ -2,14 +2,25 @@ from users.models import User
 from django.db import models
 
 
+class Interest(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('name',)
+        verbose_name = 'Интерес'
+        verbose_name_plural = 'Интересы'
+
+
 class UserProfile(models.Model):
     GENDER_CHOICES = [
         ('male', 'Мужской'),
         ('female', 'Женский'),
+        ('gay', 'Гей'),
+        ('Lesbian', 'Лесбиянка'),
         ('other', 'Другой'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    interests = models.TextField(blank=True, null=True)
+    interests = models.ManyToManyField(Interest, related_name='user_profiles')
     age = models.IntegerField(blank=True, null=True)
     gender = models.CharField(max_length=15, choices=GENDER_CHOICES, blank=True, null=True)
     looking_for = models.CharField(max_length=15, blank=True, null=True)

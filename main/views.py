@@ -2,24 +2,27 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .models import UserAction, UserProfile
+from .models import Interest, UserAction, UserProfile
 from users.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 @login_required
 def search_users(request):
-    if not hasattr(request.user, 'userprofile') or not request.user.userprofile.interests:
+    if not hasattr(request.user, 'userprofile') or not request.user.userprofile.interests.exists():
         return redirect(reverse('main:profile_setup'))
 
     # Получаем список скрытых пользователей для текущего пользователя
     hidden_users = UserAction.objects.filter(user=request.user, hide=True).values_list('receiver_id', flat=True)
 
+    # Получаем интересы текущего пользователя
+    user_interests = request.user.userprofile.interests.all()
+
     # Фильтруем пользователей, исключая скрытых и текущего пользователя
     users = User.objects.filter(
-        userprofile__interests__icontains=request.user.userprofile.interests,
+        userprofile__interests__in=user_interests,
         userprofile__gender='female' if request.user.userprofile.gender == 'male' else 'male'
-    ).exclude(id=request.user.id).exclude(id__in=hidden_users)
+    ).exclude(id=request.user.id).exclude(id__in=hidden_users).distinct()
 
     return render(request, 'main/search_users.html', {'users': users})
 
@@ -81,12 +84,25 @@ def like_dislike_user(request, user_id, action):
 def profile_setup(request):
     if request.method == 'POST':
         userprofile, created = UserProfile.objects.get_or_create(user=request.user)
-        userprofile.interests = request.POST.get('interests')
+
+        # Обновляем возраст, пол и ищем
         userprofile.age = request.POST.get('age')
         userprofile.gender = request.POST.get('gender')
         userprofile.looking_for = request.POST.get('looking_for')
-        userprofile.search_night_partner = 'search_night_partner' in request.POST
+
+        # Получаем выбранные интересы
+        selected_interests = request.POST.getlist('interests')
+        print(selected_interests)
+        # Очищаем текущие интересы пользователя
+        userprofile.interests.clear()
+
+        # Создаем и добавляем новые интересы
+        for interest_name in selected_interests:
+            interest, created = Interest.objects.get_or_create(name=interest_name)
+            userprofile.interests.add(interest)
+
         userprofile.save()
+
         return redirect('main:search_users')
     return render(request, 'main/profile_setup.html')
 

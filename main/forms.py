@@ -1,7 +1,7 @@
 from django import forms
-from .models import UserProfile
+from .models import Interest, UserProfile
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['interests', 'age', 'gender']
+        fields = ['list_interests', 'age', 'gender']

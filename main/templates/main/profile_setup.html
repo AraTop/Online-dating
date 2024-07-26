@@ -5,7 +5,105 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="interests">Интересы</label>
-            <textarea class="form-control" id="interests" name="interests" rows="3">{{ user.userprofile.interests }}</textarea>
+            <select class="form-control" id="interests" name="interests" multiple style="height: 250px;">
+                <option value="Football" {% if user.userprofile.interests  == 'Football' %}selected{% endif %}>Футбол</option>
+                <option value="Basketball" {% if user.userprofile.interests  == 'Basketball' %}selected{% endif %}>Баскетбол</option>
+                <option value="Run" {% if user.userprofile.interests  == 'Run' %}selected{% endif %}>Бег</option>
+                <option value="Swimming" {% if user.userprofile.interests  == 'Swimming' %}selected{% endif %}>Плавание</option>
+                <option value="Cycling" {% if user.userprofile.interests  == 'Cycling' %}selected{% endif %}>Велоспорт</option>
+                <option value="Mountaineering" {% if user.userprofile.interests  == 'Mountaineering' %}selected{% endif %}>Альпинизм</option>
+                <option value="Surfing" {% if user.userprofile.interests  == 'Surfing' %}selected{% endif %}>Серфинг</option>
+                <option value="Skiing/snowboarding" {% if user.userprofile.interests  == 'Skiing/snowboarding' %}selected{% endif %}>Катание на лыжах/сноуборде</option>
+                <option value="Dancing" {% if user.userprofile.interests  == 'Dancing' %}selected{% endif %}>Танцы</option>
+                <option value="Yoga" {% if user.userprofile.interests  == 'Yoga' %}selected{% endif %}>Йога</option>
+
+                <option value="Reading" {% if user.userprofile.interests  == 'Reading' %}selected{% endif %}>Чтение</option>
+                <option value="Writing" {% if user.userprofile.interests  == 'Writing' %}selected{% endif %}>Писательство</option>
+                <option value="Photo" {% if user.userprofile.interests  == 'Photo' %}selected{% endif %}>Фотография</option>
+                <option value="Drawing/Painting" {% if user.userprofile.interests  == 'Drawing/Painting' %}selected{% endif %}>Рисование/Живопись</option>
+                <option value="Music" {% if user.userprofile.interests  == 'Music' %}selected{% endif %}>Музыка (игра на инструментах, пение)</option>
+                <option value="Video_games" {% if user.userprofile.interests  == 'Video_games' %}selected{% endif %}>Видеоигры</option>
+                <option value="Board_games" {% if user.userprofile.interests  == 'Board_games' %}selected{% endif %}>Настольные игры</option>
+                <option value="Collecting" {% if user.userprofile.interests  == 'Collecting' %}selected{% endif %}>Коллекционирование (монеты, марки и т.д.)</option>
+                <option value="Gardening" {% if user.userprofile.interests  == 'Gardening' %}selected{% endif %}>Садоводство</option>
+                <option value="Cooking/Baking" {% if user.userprofile.interests  == 'Cooking/Baking' %}selected{% endif %}>Кулинария/Выпечка</option>
+
+                <option value="movies" {% if user.userprofile.interests  == 'movies' %}selected{% endif %}>Кино</option>
+                <option value="theater" {% if user.userprofile.interests  == 'theater' %}selected{% endif %}>Театр</option>
+                <option value="opera" {% if user.userprofile.interests  == 'opera' %}selected{% endif %}>Опера</option>
+                <option value="ballet" {% if user.userprofile.interests  == 'ballet' %}selected{% endif %}>Балет</option>
+                <option value="contemporary_art" {% if user.userprofile.interests  == 'contemporary_art' %}selected{% endif %}>Современное искусство</option>
+                <option value="literature" {% if user.userprofile.interests  == 'literature' %}selected{% endif %}>Литература</option>
+                <option value="poetry" {% if user.userprofile.interests  == 'poetry' %}selected{% endif %}>Поэзия</option>
+                <option value="sculpture" {% if user.userprofile.interests  == 'sculpture' %}selected{% endif %}>Скульптура</option>
+
+                <option value="astronomy" {% if user.userprofile.interests  == 'astronomy' %}selected{% endif %}>Астрономия</option>
+                <option value="biology" {% if user.userprofile.interests  == 'biology' %}selected{% endif %}>Биология</option>
+                <option value="chemistry" {% if user.userprofile.interests  == 'chemistry' %}selected{% endif %}>Химия</option>
+                <option value="physics" {% if user.userprofile.interests  == 'physics' %}selected{% endif %}>Физика</option>
+                <option value="history" {% if user.userprofile.interests  == 'history' %}selected{% endif %}>История</option>
+                <option value="archaeology" {% if user.userprofile.interests  == 'archaeology' %}selected{% endif %}>Археология</option>
+                <option value="psychology" {% if user.userprofile.interests  == 'psychology' %}selected{% endif %}>Психология</option>
+                <option value="sociology" {% if user.userprofile.interests  == 'sociology' %}selected{% endif %}>Социология</option>
+                <option value="philosophy" {% if user.userprofile.interests  == 'philosophy' %}selected{% endif %}>Философия</option>
+                <option value="politics" {% if user.userprofile.interests  == 'politics' %}selected{% endif %}>Политика</option>
+
+                <option value="europe_travel" {% if user.userprofile.interests  == 'europe_travel' %}selected{% endif %}>Путешествия по Европе</option>
+                <option value="asia_travel" {% if user.userprofile.interests  == 'asia_travel' %}selected{% endif %}>Путешествия по Азии</option>
+                <option value="africa_expeditions" {% if user.userprofile.interests  == 'africa_expeditions' %}selected{% endif %}>Экспедиции в Африку</option>
+                <option value="cruises" {% if user.userprofile.interests  == 'cruises' %}selected{% endif %}>Круизы</option>
+                <option value="hiking" {% if user.userprofile.interests  == 'hiking' %}selected{% endif %}>Походы</option>
+                <option value="road_trips" {% if user.userprofile.interests  == 'road_trips' %}selected{% endif %}>Автопутешествия</option>
+
+                <option value="vegetarian_vegan" {% if user.userprofile.interests  == 'vegetarian_vegan' %}selected{% endif %}>Вегетарианство/Веганство</option>
+                <option value="healthy_eating" {% if user.userprofile.interests  == 'healthy_eating' %}selected{% endif %}>Здоровое питание</option>
+                <option value="meditation" {% if user.userprofile.interests  == 'meditation' %}selected{% endif %}>Медитация</option>
+                <option value="eco_activism" {% if user.userprofile.interests  == 'eco_activism' %}selected{% endif %}>Эко-активизм</option>
+                <option value="fitness" {% if user.userprofile.interests  == 'fitness' %}selected{% endif %}>Спортивные тренировки</option>
+
+                <option value="programming" {% if user.userprofile.interests  == 'programming' %}selected{% endif %}>Программирование</option>
+                <option value="robotics" {% if user.userprofile.interests  == 'robotics' %}selected{% endif %}>Робототехника</option>
+                <option value="gadgets" {% if user.userprofile.interests  == 'gadgets' %}selected{% endif %}>Смартфоны и гаджеты</option>
+                <option value="virtual_reality" {% if user.userprofile.interests  == 'virtual_reality' %}selected{% endif %}>Виртуальная реальность</option>
+                <option value="ai" {% if user.userprofile.interests  == 'ai' %}selected{% endif %}>Искусственный интеллект</option>
+
+                <option value="volunteering" {% if user.userprofile.interests  == 'volunteering' %}selected{% endif %}>Волонтерство</option>
+                <option value="animal_protection" {% if user.userprofile.interests  == 'animal_protection' %}selected{% endif %}>Защита животных</option>
+                <option value="social_projects" {% if user.userprofile.interests  == 'social_projects' %}selected{% endif %}>Социальные проекты</option>
+                <option value="charity" {% if user.userprofile.interests  == 'charity' %}selected{% endif %}>Благотворительность</option>
+
+                <option value="astrology" {% if user.userprofile.interests  == 'astrology' %}selected{% endif %}>Астрология</option>
+                <option value="magic_illusions" {% if user.userprofile.interests  == 'magic_illusions' %}selected{% endif %}>Магия/Иллюзии</option>
+                <option value="vlogging" {% if user.userprofile.interests  == 'vlogging' %}selected{% endif %}>Видеоблоги/Влогинг</option>
+                <option value="comics_manga" {% if user.userprofile.interests  == 'comics_manga' %}selected{% endif %}>Комиксы и манга</option>
+                <option value="fashion" {% if user.userprofile.interests  == 'fashion' %}selected{% endif %}>Мода</option>
+
+                <option value="wine_tasting" {% if user.userprofile.interests  == 'wine_tasting' %}selected{% endif %}>Дегустация вин</option>
+                <option value="brewing" {% if user.userprofile.interests  == 'brewing' %}selected{% endif %}>Пивоварение</option>
+                <option value="mixology" {% if user.userprofile.interests  == 'mixology' %}selected{% endif %}>Миксология (создание коктейлей)</option>
+                <option value="world_cuisine" {% if user.userprofile.interests  == 'world_cuisine' %}selected{% endif %}>Мировая кухня (итальянская, японская, индийская и т.д.)</option>
+                <option value="cheesemaking" {% if user.userprofile.interests  == 'cheesemaking' %}selected{% endif %}>Сыроварение</option>
+
+                <option value="knitting" {% if user.userprofile.interests  == 'knitting' %}selected{% endif %}>Вязание</option>
+                <option value="sewing" {% if user.userprofile.interests  == 'sewing' %}selected{% endif %}>Шитье</option>
+                <option value="quilling" {% if user.userprofile.interests  == 'quilling' %}selected{% endif %}>Квиллинг</option>
+                <option value="decoupage" {% if user.userprofile.interests  == 'decoupage' %}selected{% endif %}>Декупаж</option>
+                <option value="candle_making" {% if user.userprofile.interests  == 'candle_making' %}selected{% endif %}>Изготовление свечей</option>
+                <option value="jewelry_making" {% if user.userprofile.interests  == 'jewelry_making' %}selected{% endif %}>Ювелирное дело</option>
+
+                <option value="exotic_pets" {% if user.userprofile.interests  == 'exotic_pets' %}selected{% endif %}>Содержание экзотических животных</option>
+                <option value="bird_keeping" {% if user.userprofile.interests  == 'bird_keeping' %}selected{% endif %}>Птицеводство</option>
+                <option value="fishing" {% if user.userprofile.interests  == 'fishing' %}selected{% endif %}>Рыболовство</option>
+                <option value="floriculture" {% if user.userprofile.interests  == 'floriculture' %}selected{% endif %}>Цветоводство</option>
+
+                <option value="motorsport" {% if user.userprofile.interests  == 'motorsport' %}selected{% endif %}>Автоспорт</option>
+                <option value="car_tuning" {% if user.userprofile.interests  == 'car_tuning' %}selected{% endif %}>Тюнинг автомобилей</option>
+                <option value="classic_cars" {% if user.userprofile.interests  == 'classic_cars' %}selected{% endif %}>Классические автомобили</option>
+                <option value="motorcycles" {% if user.userprofile.interests  == 'motorcycles' %}selected{% endif %}>Мотоциклы и байкерская культура</option>
+                <option value="karting" {% if user.userprofile.interests  == 'karting' %}selected{% endif %}>Картинг</option>
+
+                <option value="other" {% if user.userprofile.interests  == 'other' %}selected{% endif %}>Другое</option>
+            </select>
         </div>
         <div class="form-group">
             <label for="age">Возраст</label>
@@ -16,6 +114,8 @@
             <select class="form-control" id="gender" name="gender">
                 <option value="male" {% if user.userprofile.gender == 'male' %}selected{% endif %}>Мужской</option>
                 <option value="female" {% if user.userprofile.gender == 'female' %}selected{% endif %}>Женский</option>
+                <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гей</option>
+                <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Лесбиянка</option>
                 <option value="other" {% if user.userprofile.gender == 'other' %}selected{% endif %}>Другой</option>
             </select>
         </div>
@@ -24,7 +124,7 @@
             <select class="form-control" id="looking_for" name="looking_for">
                 <option value="friendship" {% if user.userprofile.looking_for == 'friendship' %}selected{% endif %}>Дружбу</option>
                 <option value="relationship" {% if user.userprofile.looking_for == 'relationship' %}selected{% endif %}>Отношения</option>
-                <option value="business_partner" {% if user.userprofile.looking_for == 'business_partner' %}selected{% endif %}>Бизнес-партнер</option>
+                <option value="business_partner" {% if user.userprofile.looking_for == 'business_partner' %}selected{% endif %}>Бизнес-партнера</option>
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Сохранить</button>

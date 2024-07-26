@@ -86,12 +86,12 @@
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item user-info">
-                        {% if user.nickname %}
+                        {% if user.first_name %}
                         <details>
-                            <summary class="nav-link lowercase-text">{{ user.nickname }}</summary>
+                            <summary class="nav-link lowercase-text">{{ user.first_name }}</summary>
                         {% else %}
                         <details>
-                            <summary class="nav-link lowercase-text">Укажите nickname</summary>
+                            <summary class="nav-link lowercase-text">Укажите Имя</summary>
                         {% endif %}
                             <a class="dropdown-item" href="{% url 'users:logout' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Выйти</a>
                             <form id="logout-form" action="{% url 'users:logout' %}" method="POST" style="display: none;">
