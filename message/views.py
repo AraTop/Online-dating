@@ -23,19 +23,21 @@ def inbox(request):
             Q(sender=request.user, receiver=contact)
         ).order_by('-timestamp').first()
 
-        unread_count = Message.objects.filter(receiver=request.user, sender=contact, is_read=False).count()
-
         unread_count = Message.objects.filter(
             sender=contact,
             receiver=request.user,
             is_read=False
         ).count()
 
+        room_name = f'{min(request.user.id, contact.id)}_{max(request.user.id, contact.id)}'
+        print(room_name)
         contacts_with_unread_messages.append({
             'contact': contact,
             'last_message': last_message,
             'unread_count': unread_count,
-            'last_message_sender': last_message.sender if last_message else None  # Отправитель последнего сообщения
+            'last_message_sender': last_message.sender if last_message else None,  # Отправитель последнего сообщения
+            'room_name': room_name
+            
         })
 
     # Сортировка контактов по времени последнего сообщения, чтобы новые были сверху
@@ -70,7 +72,6 @@ def dialog(request, user_id):
 
     return render(request, 'message/dialog.html', {
         'messages': messages,
-        'other_user': other_user,
         'form': form,
         'other_user': other_user
     })

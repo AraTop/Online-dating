@@ -42,7 +42,7 @@
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 10px;
-    position: relative; /* Это нужно для позиционирования иконок */
+    position: relative;
   }
   .message-sent {
     background-color: #e6ffe6;
@@ -50,7 +50,7 @@
     text-align: right;
   }
   .message-sent-unread {
-    background-color: #d6e6fd; /* Синий цвет для непрочитанных сообщений */
+    background-color: #d6e6fd;
     justify-content: flex-end;
     text-align: right;
   }
@@ -73,7 +73,7 @@
   .form-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Используем space-between для равномерного распределения */
+    justify-content: space-between;
     border-top: 1px solid #ccc;
     padding: 10px;
     background-color: #f9f9f9;
@@ -105,10 +105,10 @@
   /* Стили для иконок редактирования и удаления */
   .icon-container {
     position: absolute;
-    bottom: -5px; /* Отступ от нижнего края сообщения */
-    right: 5px; /* Отступ от правого края сообщения */
-    display: none; /* Иконки скрыты по умолчанию */
-    gap: 5px; /* Расстояние между иконками */
+    bottom: -5px;
+    right: 5px;
+    display: none;
+    gap: 5px;
   }
   .icon-container button {
     background: none;
@@ -121,139 +121,146 @@
     color: #000;
   }
   .message:hover .icon-container {
-    display: flex; /* Показываем иконки при наведении на сообщение */
+    display: flex;
   }
-  .panel{
-    background-color: #ffffff ;
+  .panel {
+    background-color: #ffffff;
     height: 60px;
   }
   .color_backgraung {
-      background-color: rgb(187, 136, 255);
-   }
+    background-color: rgb(187, 136, 255);
+  }
   .card-body a, .card-body p {
-      display: block;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-      text-align: center;
-      background: #5f4ba2 100%;
-      color: white;
-      text-decoration: none;
-   }
-   .card-body a:hover, .card-body p:hover {
-      background: rgb(75, 35, 128);
-   }
-  .profile, .notifications {
-      padding: 20px;
-      
-      margin-bottom: 10px;
-      text-align: center;
-   }
-   .profile {
-      background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
-      color: white;
-   }
-   .notifications {
-      background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
-      color: white;
-   }
-   .dropdown {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      text-align: center;
-   }
-   .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: rgb(187, 136, 255);
-      min-width: 160px;
-      z-index: 1;
-      border-radius: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-   }
-   .dropdown-content a {
-      color: rgb(252, 252, 252);
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      
-      transition: background-color 0.3s ease;
-   }
-   .dropdown-content a:hover {
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    background: #5f4ba2 100%;
+    color: white;
+    text-decoration: none;
+  }
+  .card-body a:hover, .card-body p:hover {
     background: rgb(75, 35, 128);
-   }
-   .dropdown:hover .dropdown-content {
-      display: block;
-   }
-   .dropbtn {
-      background: #764ba2 100%;
-      color: rgb(255, 255, 255);
-      padding: 16px;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-      
-      width: 100%;
-      transition: background 0.3s ease;
-   }
+  }
+  .profile, .notifications {
+    padding: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .profile {
+    background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+    color: white;
+  }
+  .notifications {
+    background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+    color: white;
+  }
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+  }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(187, 136, 255);
+    min-width: 160px;
+    z-index: 1;
+    border-radius: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .dropdown-content a {
+    color: rgb(252, 252, 252);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+  }
+  .dropdown-content a:hover {
+    background: rgb(75, 35, 128);
+  }
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  .dropbtn {
+    background: #764ba2 100%;
+    color: rgb(255, 255, 255);
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+  }
+  .hidden {
+    display: none;
+  }
+  .visible {
+    display: block;
+  }
 </style>
+
 <div class="container">
   <div class="row">
     <div class="card mb-4 color_backgraung" style="width: 440px; display: block; right: 360px; top: 10px; margin: auto; height: 522px;">
       <div class="card mb-4 color_backgraung">
-         <div class="card-body profile" id="auto-resize-card">
-            {% if user.profile_icon %}
-               <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
-            {% else %}
-            {% endif %}
-            <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
-         </div>
-         <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
-            <a href="/users/settings/"><h3>Уведомления</h3></a>
-         </div>
-         <div class="card-body" id="auto-resize-card">
-            <a href="/friends/list"><h4>Друзья</h4></a>
-            <a href="/message/inbox"><h5>Сообщения</h5></a>
-            <a href="/users/settings">Настройки</a>
-            <div class="dropdown">
-               <a href="/search_users/" class="dropbtn">Поиск девушек</a>
-               <div class="dropdown-content">
-                  <a href="/search_night_partner/">Партнера на ночь</a>
-                  <a href="/search/girls/location">По местоположению</a>
-                  <a href="/search/girls/interests">По интересам</a>
-                  <a href="/search/girls/new">Новые анкеты</a>
-               </div>
+        <div class="card-body profile" id="auto-resize-card">
+          {% if user.profile_icon %}
+            <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+          {% endif %}
+          <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
+        </div>
+        <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
+          <a href="/users/settings/"><h3>Уведомления</h3></a>
+        </div>
+        <div class="card-body" id="auto-resize-card">
+          <a href="/friends/list"><h4>Друзья</h4></a>
+          <a href="/message/inbox"><h5>Сообщения</h5></a>
+          <a href="/users/settings">Настройки</a>
+          <div class="dropdown">
+            <a href="/search_users/" class="dropbtn">Поиск девушек</a>
+            <div class="dropdown-content">
+              <a href="/search_night_partner/">Партнера на ночь</a>
+              <a href="/search/girls/location">По местоположению</a>
+              <a href="/search/girls/interests">По интересам</a>
+              <a href="/search/girls/new">Новые анкеты</a>
             </div>
-         </div>
+          </div>
+        </div>
       </div>
-   </div>
+    </div>
     <div class="card mb-4 box-shadow color_3" style="width: 440px; display: block; right: 460px; top: 10px; margin: auto; height: 502px;">
       <div class="chat-container">
-          <div class="panel">
-            <div style="float: left; margin-right: 100px;">
-              <a href="/message/inbox/">&larr; Назад</a>
-            </div>
-            <div style="float: left;">
-              <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
-              {% if other_user.is_online %}
-                <small style="margin-left: 50px;">online</small>
-                {% else %}
-                  <small style="margin-left: -25px;">Был в сети {{ other_user.last_activity }}</small>
-              {% endif %}
-            </div>
-            <div style="float: right;">
-              {% if other_user.profile_icon %}
-                <a href="/users/{{ other_user.pk }}"><img src="{{ other_user.profile_icon.url }}" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
-              {% else %}
-              <a href="/users/{{ other_user.pk }}"><img src="/static/images/default-profile.png" alt="Default Profile" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
-              {% endif %}
-            </div>
-            <div style="clear: both;"><hr></div>
+        <div class="panel">
+          <div style="float: left; margin-right: 100px;">
+            <a href="/message/inbox/">&larr; Назад</a>
           </div>
+          <div style="float: left;">
+            <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
+            {% if other_user.is_online %}
+              <small style="margin-left: 50px;">online</small>
+            {% else %}
+              <small style="margin-left: -25px;">Был в сети {{ other_user.last_activity }}</small>
+            {% endif %}
+          </div>
+          <div style="float: right;">
+            {% if other_user.profile_icon %}
+              <a href="/users/{{ other_user.pk }}"><img src="{{ other_user.profile_icon.url }}" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
+            {% else %}
+              <a href="/users/{{ other_user.pk }}"><img src="/static/images/default-profile.png" alt="Default Profile" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover;"></a>
+            {% endif %}
+          </div>
+          <div style="clear: both;"><hr></div>
+        </div>
         <div class="messages-container" id="messages">
+          <div id="no-messages" class="{% if messages %}hidden{% else %}visible{% endif %}">
+            <h5>У вас нет переписки с этим пользователем</h5>
+            <p>Можете написать ему что-то.</p>
+          </div>
           {% if messages %}
             {% for message in messages %}
               <div class="message {% if message.sender == request.user %}{% if not message.is_read %}message-sent-unread{% else %}message-sent{% endif %}{% else %}message-received{% endif %}" id="message-{{ message.id }}">
@@ -281,9 +288,6 @@
                 </div>
               </div>
             {% endfor %}
-          {% else %}
-            <h5>У вас нет переписки с этим пользователем</h5>
-            <p>Можете написать ему что-то.</p>
           {% endif %}
         </div>
         <div class="form-container">
@@ -303,41 +307,124 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     const messagesContainer = document.getElementById('messages');
+    const noMessages = document.getElementById('no-messages');
+
+    // Прокрутка сообщений вниз при загрузке страницы
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  });
-  // Функция для предотвращения отправки формы по нажатию Enter
-  document.getElementById('message-content').addEventListener('keydown', function(event) {
-    if (event.keyCode === 13) {
-      event.preventDefault(); // Предотвращаем стандартное действие браузера
-      return false; // Прерываем выполнение функции
+
+    // Отправка сообщения при нажатии Enter
+    document.getElementById('message-content').addEventListener('keydown', function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        document.querySelector('#message-form').submit();
+        return false;
+      }
+    });
+
+    // Редактирование сообщения
+    window.editMessage = function(messageId) {
+      const messageText = document.querySelector(`#message-text-${messageId}`).innerText.trim();
+      const messageContentInput = document.getElementById('message-content');
+      const messageIdInput = document.getElementById('message-id');
+      const submitBtn = document.getElementById('submit-btn');
+      const updateBtn = document.getElementById('update-btn');
+
+      messageContentInput.value = messageText;
+      messageIdInput.value = messageId;
+      submitBtn.style.display = 'none';
+      updateBtn.style.display = 'inline-block';
+
+      messageContentInput.focus();
+    };
+
+    // Обновление сообщения
+    window.updateMessage = function() {
+      const messageForm = document.getElementById('message-form');
+      messageForm.action = `/message/edit_message/${document.getElementById('message-id').value}/`;
+      messageForm.submit();
+    };
+
+    // Функция для форматирования даты
+    function formatDate(date) {
+      const months = [
+        "января", "февраля", "марта", "апреля", "мая", "июня",
+        "июля", "августа", "сентября", "октября", "ноября", "декабря"
+      ];
+
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${day} ${month} ${year} г. ${hours}:${minutes}`;
     }
+
+    // Открытие WebSocket соединения
+    const userId = "{{ other_user.id }}";
+    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
+
+    // Обработка входящих сообщений
+    chatSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      const message = data['message'];
+      const senderId = data['sender_id'];
+      const senderName = data['sender'];
+      const timestamp = new Date(data['timestamp']);
+      const profileIcon = data['profile_icon'];
+
+      // Создаем новый элемент сообщения
+      const messageElement = document.createElement('div');
+
+      // Проверяем, отправлено ли сообщение текущим пользователем
+      const isSentByCurrentUser = senderId == "{{ request.user.id }}";
+
+      // Применяем соответствующий CSS класс
+      messageElement.className = `message ${isSentByCurrentUser ? 'message-sent' : 'message-received'}`;
+
+      // Вставляем иконку профиля
+      const profileIconElement = profileIcon ? 
+        `<img src="${profileIcon}" alt="${senderName}">` :
+        `<img src="/static/images/default-profile.png" alt="Default Profile">`;
+
+      // Заполняем элемент сообщения
+      messageElement.innerHTML = `
+        ${profileIconElement}
+        <div class="message-content">
+          <a href="/users/${senderId}">${senderName}</a>
+          <small>${formatDate(timestamp)}</small>
+          <p>${message}</p>
+        </div>
+      `;
+
+      // Добавляем сообщение в контейнер сообщений
+      messagesContainer.appendChild(messageElement);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Проверяем, если сообщение добавлено, скрываем сообщение о том, что переписка пустая
+      if (noMessages) {
+        noMessages.style.display = 'none';
+      }
+    };
+
+    // Обработка закрытия WebSocket соединения
+    chatSocket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
+    };
+
+    // Отправка сообщения через WebSocket при отправке формы
+    document.querySelector('#message-form').onsubmit = function(e) {
+      e.preventDefault();
+      const messageInput = document.querySelector('#message-content');
+      const message = messageInput.value;
+
+      chatSocket.send(JSON.stringify({
+        'message': message
+      }));
+
+      messageInput.value = '';
+    };
   });
-
-  // Функция для редактирования сообщения
-  function editMessage(messageId) {
-    const messageText = document.querySelector(`#message-text-${messageId}`).innerText.trim();
-    const messageContentInput = document.getElementById('message-content');
-    const messageIdInput = document.getElementById('message-id');
-    const submitBtn = document.getElementById('submit-btn');
-    const updateBtn = document.getElementById('update-btn');
-
-    // Заполнение формы редактирования
-    messageContentInput.value = messageText;
-    messageIdInput.value = messageId;
-    submitBtn.style.display = 'none';
-    updateBtn.style.display = 'inline-block';
-
-    // Прокрутка до формы сообщения
-    messageContentInput.focus();
-  }
-
-  // Функция для обновления сообщения
-  function updateMessage() {
-    const messageForm = document.getElementById('message-form');
-    messageForm.action = `/message/edit_message/${document.getElementById('message-id').value}/`; // Используем маршрут для редактирования сообщения
-    messageForm.submit();
-  }
 </script>
-
 {% endif %}
 {% endblock %}
