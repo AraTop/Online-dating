@@ -340,8 +340,30 @@
     // Обновление сообщения
     window.updateMessage = function() {
       const messageForm = document.getElementById('message-form');
-      messageForm.action = `/message/edit_message/${document.getElementById('message-id').value}/`;
-      messageForm.submit();
+      const messageId = document.getElementById('message-id').value;
+      const messageContent = document.getElementById('message-content').value;
+
+      chatSocket.send(JSON.stringify({
+        'action': 'edit',
+        'message_id': messageId,
+        'message': messageContent
+      }));
+
+      // Сбрасываем форму
+      document.getElementById('message-id').value = '';
+      document.getElementById('message-content').value = '';
+      document.getElementById('submit-btn').style.display = 'inline-block';
+      document.getElementById('update-btn').style.display = 'none';
+    };
+
+    // Удаление сообщения
+    window.deleteMessage = function(messageId) {
+      if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
+        chatSocket.send(JSON.stringify({
+          'action': 'delete',
+          'message_id': messageId
+        }));
+      }
     };
 
     // Функция для форматирования даты
@@ -367,62 +389,89 @@
     // Обработка входящих сообщений
     chatSocket.onmessage = function(e) {
       const data = JSON.parse(e.data);
-      const message = data['message'];
-      const senderId = data['sender_id'];
-      const senderName = data['sender'];
-      const timestamp = new Date(data['timestamp']);
-      const profileIcon = data['profile_icon'];
+      const action = data['action'];
 
-      // Создаем новый элемент сообщения
-      const messageElement = document.createElement('div');
+      if (action === 'new') {
+        const message = data['message'];
+        const senderId = data['sender_id'];
+        const senderName = data['sender'];
+        const timestamp = new Date(data['timestamp']);
+        const profileIcon = data['profile_icon'];
 
-      // Проверяем, отправлено ли сообщение текущим пользователем
-      const isSentByCurrentUser = senderId == "{{ request.user.id }}";
+        // Создаем новый элемент сообщения
+        const messageElement = document.createElement('div');
 
-      // Применяем соответствующий CSS класс
-      messageElement.className = `message ${isSentByCurrentUser ? 'message-sent' : 'message-received'}`;
+        // Проверяем, отправлено ли сообщение текущим пользователем
+        const isSentByCurrentUser = senderId == "{{ request.user.id }}";
 
-      // Вставляем иконку профиля
-      const profileIconElement = profileIcon ? 
-        `<img src="${profileIcon}" alt="${senderName}">` :
-        `<img src="/static/images/default-profile.png" alt="Default Profile">`;
+        // Применяем соответствующий CSS класс
+        messageElement.className = `message ${isSentByCurrentUser ? 'message-sent' : 'message-received'}`;
+        messageElement.id = `message-${data['message_id']}`;
 
-      // Заполняем элемент сообщения
-      messageElement.innerHTML = `
-        ${profileIconElement}
-        <div class="message-content">
-          <a href="/users/${senderId}">${senderName}</a>
-          <small>${formatDate(timestamp)}</small>
-          <p>${message}</p>
-        </div>
-      `;
+        // Вставляем иконку профиля
+        const profileIconElement = profileIcon ? 
+          `<img src="${profileIcon}" alt="${senderName}">` :
+          `<img src="/static/images/default-profile.png" alt="Default Profile">`;
 
-      // Добавляем сообщение в контейнер сообщений
-      messagesContainer.appendChild(messageElement);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Заполняем элемент сообщения
+        messageElement.innerHTML = `
+          ${profileIconElement}
+          <div class="message-content">
+            <a href="/users/${senderId}">${senderName}</a>
+            <small>${formatDate(timestamp)}</small>
+            <p id="message-text-${data['message_id']}">${message}</p>
+            ${isSentByCurrentUser ? `
+              <div class="icon-container">
+                <button type="button" onclick="editMessage('${data['message_id']}')">✏️</button>
+                <button type="button" onclick="deleteMessage('${data['message_id']}')">🗑️</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
 
-      // Проверяем, если сообщение добавлено, скрываем сообщение о том, что переписка пустая
-      if (noMessages) {
-        noMessages.style.display = 'none';
+        // Добавляем сообщение в контейнер сообщений
+        messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Проверяем, если сообщение добавлено, скрываем сообщение о том, что переписка пустая
+        if (noMessages.classList.contains('visible')) {
+          noMessages.classList.remove('visible');
+          noMessages.classList.add('hidden');
+        }
+      } else if (action === 'edit') {
+        const messageId = data['message_id'];
+        const newMessage = data['message'];
+        const messageElement = document.querySelector(`#message-text-${messageId}`);
+        if (messageElement) {
+          messageElement.innerText = newMessage;
+        }
+      } else if (action === 'delete') {
+        const messageId = data['message_id'];
+        const messageElement = document.querySelector(`#message-${messageId}`);
+        if (messageElement) {
+          messageElement.remove();
+        }
       }
     };
 
-    // Обработка закрытия WebSocket соединения
+    // Закрытие WebSocket соединения
     chatSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
+      console.error('WebSocket connection closed unexpectedly');
     };
 
-    // Отправка сообщения через WebSocket при отправке формы
-    document.querySelector('#message-form').onsubmit = function(e) {
+    // Обработка отправки формы
+    document.getElementById('message-form').onsubmit = function(e) {
       e.preventDefault();
-      const messageInput = document.querySelector('#message-content');
-      const message = messageInput.value;
+      const messageInput = document.getElementById('message-content');
+      const message = messageInput.value.trim();
 
-      chatSocket.send(JSON.stringify({
-        'message': message
-      }));
-
-      messageInput.value = '';
+      if (message !== '') {
+        chatSocket.send(JSON.stringify({
+          'action': 'new',
+          'message': message
+        }));
+        messageInput.value = '';
+      }
     };
   });
 </script>

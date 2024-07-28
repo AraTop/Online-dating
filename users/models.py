@@ -15,6 +15,7 @@ class User(AbstractUser):
     description = models.TextField(verbose_name='Описание профиля', **NULLABLE)
     last_activity = models.DateTimeField(auto_now=True)
     is_online = models.BooleanField(default=False)
+    is_in_chat = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

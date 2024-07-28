@@ -8,7 +8,7 @@ from datetime import datetime
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
-        self.other_user_id = int(self.scope['url_route']['kwargs']['user_id'])  # Приведение к целому числу
+        self.other_user_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.room_group_name = f'chat_{min(self.user.id, self.other_user_id)}_{max(self.user.id, self.other_user_id)}'
 
         await self.channel_layer.group_add(
@@ -25,13 +25,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        action = data.get('action')
+        
+        if action == 'new':
+            await self.handle_new_message(data)
+        elif action == 'edit':
+            await self.handle_edit_message(data)
+        elif action == 'delete':
+            await self.handle_delete_message(data)
+
+    async def handle_new_message(self, data):
         message_content = data['message']
         sender_id = self.user.id
 
         sender = await sync_to_async(User.objects.get)(id=sender_id)
         receiver = await sync_to_async(User.objects.get)(id=self.other_user_id)
 
-        # Сохранение сообщения в базе данных
         message = await sync_to_async(Message.objects.create)(
             sender=sender,
             receiver=receiver,
@@ -44,6 +53,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'chat_message',
+                'action': 'new',
+                'message_id': message.id,
                 'message': message.content,
                 'sender': sender.first_name,
                 'sender_id': sender.id,
@@ -52,17 +63,69 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-    async def chat_message(self, event):
-        message = event['message']
-        sender = event['sender']
-        sender_id = event['sender_id']
-        timestamp = event['timestamp']
-        profile_icon = event['profile_icon']
+    async def handle_edit_message(self, data):
+        message_id = data['message_id']
+        new_content = data['message']
+        sender_id = self.user.id
 
-        await self.send(text_data=json.dumps({
-            'message': message,
-            'sender': sender,
-            'sender_id': sender_id,
-            'timestamp': timestamp,
-            'profile_icon': profile_icon
-        }))
+        try:
+            message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
+            message.content = new_content
+            message.timestamp = datetime.now()
+            await sync_to_async(message.save)()
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'action': 'edit',
+                    'message_id': message_id,
+                    'message': new_content,
+                }
+            )
+        except Message.DoesNotExist:
+            pass
+
+    async def handle_delete_message(self, data):
+        message_id = data['message_id']
+        sender_id = self.user.id
+
+        try:
+            message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
+            await sync_to_async(message.delete)()
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'action': 'delete',
+                    'message_id': message_id,
+                }
+            )
+        except Message.DoesNotExist:
+            pass
+
+    async def chat_message(self, event):
+        action = event['action']
+        if action == 'new':
+            message = event['message']
+            sender = event['sender']
+            sender_id = event['sender_id']
+            timestamp = event['timestamp']
+            profile_icon = event['profile_icon']
+
+            await self.send(text_data=json.dumps({
+                'action': action,
+                'message_id': event['message_id'],
+                'message': message,
+                'sender': sender,
+                'sender_id': sender_id,
+                'timestamp': timestamp,
+                'profile_icon': profile_icon
+            }))
+        elif action in ['edit', 'delete']:
+            await self.send(text_data=json.dumps({
+                'action': action,
+                'message_id': event['message_id'],
+                'message': event.get('message', '')
+            }))
