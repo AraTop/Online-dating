@@ -316,8 +316,6 @@
     document.getElementById('message-content').addEventListener('keydown', function(event) {
       if (event.keyCode === 13) {
         event.preventDefault();
-        document.querySelector('#message-form').submit();
-        return false;
       }
     });
 
@@ -414,20 +412,19 @@
           `<img src="/static/images/default-profile.png" alt="Default Profile">`;
 
         // Заполняем элемент сообщения
-        messageElement.innerHTML = `
-          ${profileIconElement}
+        messageElement.innerHTML = 
+          `${profileIconElement}
           <div class="message-content">
             <a href="/users/${senderId}">${senderName}</a>
             <small>${formatDate(timestamp)}</small>
             <p id="message-text-${data['message_id']}">${message}</p>
-            ${isSentByCurrentUser ? `
-              <div class="icon-container">
+            ${isSentByCurrentUser ? 
+              `<div class="icon-container">
                 <button type="button" onclick="editMessage('${data['message_id']}')">✏️</button>
                 <button type="button" onclick="deleteMessage('${data['message_id']}')">🗑️</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
+              </div>`
+             : ''}
+          </div>`;
 
         // Добавляем сообщение в контейнер сообщений
         messagesContainer.appendChild(messageElement);
@@ -456,22 +453,19 @@
 
     // Закрытие WebSocket соединения
     chatSocket.onclose = function(e) {
-      console.error('WebSocket connection closed unexpectedly');
+      console.error('Chat socket closed unexpectedly');
     };
 
     // Обработка отправки формы
-    document.getElementById('message-form').onsubmit = function(e) {
+    document.querySelector('#message-form').onsubmit = function(e) {
       e.preventDefault();
-      const messageInput = document.getElementById('message-content');
-      const message = messageInput.value.trim();
-
-      if (message !== '') {
-        chatSocket.send(JSON.stringify({
-          'action': 'new',
-          'message': message
-        }));
-        messageInput.value = '';
-      }
+      const messageInputDom = document.querySelector('#message-content');
+      const message = messageInputDom.value;
+      chatSocket.send(JSON.stringify({
+        'action': 'new',
+        'message': message
+      }));
+      messageInputDom.value = '';
     };
   });
 </script>

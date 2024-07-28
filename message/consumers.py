@@ -2,7 +2,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from users.models import User
 from asgiref.sync import sync_to_async
-from .models import Message  # Убедитесь, что импортируете модель сообщения
+from .models import Message
 from datetime import datetime
 
 class ChatConsumer(AsyncWebsocketConsumer):
