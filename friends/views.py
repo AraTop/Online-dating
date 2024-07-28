@@ -156,15 +156,14 @@ def friend_outgoing(request):
 @login_required
 def friend_add(request, pk):
     friend = get_object_or_404(User, id=pk)
-    Friends = Friend.objects.filter(friend=friend).first()
+    Friends = Friend.objects.filter(user=friend).first()
     
     # Находим первый запрос на добавление в друзья
     friend_request = get_object_or_404(Friend, id=Friends.pk)
-    
     if friend_request.status == 'pending':
         friend_request.status = 'accepted'
         friend_request.save()
-        messages.success(request, f'Теперь вы друзья с {friend.username}.')
+        messages.success(request, f'Теперь вы друзья с {friend.id}.')
 
     else:
         messages.error(request, 'Запрос на добавление в друзья не найден.')
