@@ -94,20 +94,14 @@ class UserDetailView(DetailView):
         # Добавляем полученные данные в контекст
         context['is_friend'] = is_friend
         if friend_request_sent:
-            print('friend_request_sent')
-            print(user_detail.pk)
             context['friend_request_sent'] = user_detail.pk
         
         if friend_request_received:
-            print('friend_request_received')
-            print(current_user.pk)
-            context['friend_request_received'] = current_user.pk
+            context['friend_request_received'] = user_detail.pk
 
         if is_friend == False:
             if not friend_request_sent.exists():
                 if not friend_request_received.exists():
-                    print('no_friend')
-                    print(user_detail)
                     if user_detail == current_user:
                         pass
                     else:
@@ -115,28 +109,3 @@ class UserDetailView(DetailView):
 
         context['user'] = current_user
         return context
-
-@csrf_exempt
-@login_required
-def update_status(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            
-            try:
-                data = json.loads(request.body)
-            except json.JSONDecodeError as e:
-                return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
-
-            if 'status' not in data:
-                return JsonResponse({'status': 'error', 'message': 'Missing status field'}, status=400)
-
-            user = request.user
-            if data['status'] == 'offline':
-                user.is_online = False
-            else:
-                user.last_activity = timezone.now()
-                user.is_online = True
-            user.save()
-            return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
-    return JsonResponse({'status': 'error', 'message': 'Not authenticated'}, status=401)

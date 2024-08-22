@@ -108,7 +108,7 @@
       {{ form.profile_icon.label_tag }}
       <br>
       {% if object.profile_icon %}
-        <img class="card-img-top" src="{{ object.profile_icon.url }}" style="height: 150px; width: 250px; display: block; margin-bottom: 10px;"/>
+        <img class="card-img-top" src="{{ object.profile_icon.url }}" style="object-fit: cover; height: 150px; width: 250px; display: block; margin-bottom: 10px;">
       {% endif %}
       {{ form.profile_icon }}
       {% if form.profile_icon.errors %}
@@ -138,18 +138,6 @@
       {% if form.email.errors %}
         <ul class="errorlist">
           {% for error in form.email.errors %}
-            <li class="red">{{ error }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    </div>
-    <div class="form-group">
-      До 10 символов. {{ form.nickname.label_tag }}
-      <br>
-      {{ form.nickname }}
-      {% if form.nickname.errors %}
-        <ul class="errorlist">
-          {% for error in form.nickname.errors %}
             <li class="red">{{ error }}</li>
           {% endfor %}
         </ul>
@@ -232,7 +220,10 @@
   </form>
   <div class="col-md-24" style="width: 300px; display: block; position: absolute; right: 250px; top: 100px;">
     <div class="card mb-6 box-shadow card-body polu_menu">
-      <a class="menu card-body" href="/subscriptions/">Подписки</a>
+      <a class="menu card-body" href="/profile_setup/">Настройка интересов</a>
+    </div>
+    <div class="card mb-6 box-shadow card-body polu_menu">
+      <a class="menu card-body" href="/hide/">Скрытые</a>
     </div>
   </div>
 </div>

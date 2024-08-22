@@ -92,7 +92,6 @@ def profile_setup(request):
 
         # Получаем выбранные интересы
         selected_interests = request.POST.getlist('interests')
-        print(selected_interests)
         # Очищаем текущие интересы пользователя
         userprofile.interests.clear()
 
@@ -110,3 +109,15 @@ def home(request):
     user = request.user
     context = {'user': user}
     return render(request, 'main/main_page.html', context)
+
+def hide(request):
+    user = request.user
+    users = UserAction.objects.filter(user=user, hide=True)
+    context = {'users': users}
+    return render(request, 'main/hide.html', context)
+
+def remove_hide(request, user_id):
+    user = request.user
+    user_hide = UserAction.objects.filter(user=user, receiver_id=user_id, hide=True)
+    user_hide.update(hide=False)
+    return redirect('main:hide')

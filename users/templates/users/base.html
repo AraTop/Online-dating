@@ -134,33 +134,5 @@
 <script src="{% static 'js/popper.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/holder.min.js' %}"></script>
-<form method="post">
-    {% csrf_token %}
-</form>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    function setStatus(status) {
-        fetch('/users/update_status/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({ 'status': status })
-        }).then(response => response.json())
-          .then(data => console.log('Status update response:', data))
-          .catch(error => console.log('Fetch Error:', error));
-    }
-
-    // Устанавливаем статус как 'online' при загрузке страницы
-    setStatus('online');
-
-    // Устанавливаем статус как 'offline' при закрытии вкладки или окна
-    window.addEventListener('beforeunload', () => {
-        setStatus('offline');
-    });
-});
-
-</script>
 </body>
 </html>

@@ -4,6 +4,7 @@ from users.models import User
 from asgiref.sync import sync_to_async
 from .models import Message
 from datetime import datetime
+connected_users = {}
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -11,6 +12,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.other_user_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.room_group_name = f'chat_{min(self.user.id, self.other_user_id)}_{max(self.user.id, self.other_user_id)}'
 
+        # Сохраняем room_group_name вместе с channel_name
+        connected_users[self.user.id] = {
+            'channel_name': self.channel_name,
+            'room_group_name': self.room_group_name
+        }
+        
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -18,6 +25,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        if self.user.id in connected_users:
+            del connected_users[self.user.id] 
+
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -40,13 +50,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         sender = await sync_to_async(User.objects.get)(id=sender_id)
         receiver = await sync_to_async(User.objects.get)(id=self.other_user_id)
+        
+        # Проверяем, подключены ли оба пользователя и находятся ли они в одном чате
+        if (
+            sender_id in connected_users 
+            and self.other_user_id in connected_users 
+            and connected_users[sender_id]['room_group_name'] == self.room_group_name 
+            and connected_users[self.other_user_id]['room_group_name'] == self.room_group_name
+        ):
+            is_read = True
+        else:
+            is_read = False
 
         message = await sync_to_async(Message.objects.create)(
             sender=sender,
             receiver=receiver,
             content=message_content,
-            is_read=False
+            is_read=is_read
         )
+
         timestamp = datetime.now().isoformat()
 
         await self.channel_layer.group_send(
