@@ -128,7 +128,55 @@
         </div>
     </div>
 </main>
+<script>
+    // Функция для отправки статуса на сервер
+    function notifyServer(status) {
+        console.log('Sending status change:', status); // Отладочный вывод
 
+        fetch('/users/update_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Добавляем CSRF токен
+            },
+            body: JSON.stringify({ online: status })
+        }).then(response => {
+            if (!response.ok) {
+                console.error('Error updating status');
+            } else {
+                console.log('Status updated successfully');
+            }
+        });
+    }
+
+    // Устанавливаем статус пользователя при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        notifyServer(true);  // Считаем пользователя онлайн при загрузке страницы
+    });
+
+    // Отправляем запрос при закрытии вкладки или браузера
+    window.addEventListener('beforeunload', () => {
+        console.log('Tab is closing');
+        // Используем sendBeacon для надежной отправки данных при закрытии вкладки
+        navigator.sendBeacon('/users/update_status/', JSON.stringify({ online: false }));
+    });
+
+    // Функция для получения CSRF токена
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 <!-- Bootstrap core JavaScript -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="{% static 'js/popper.min.js' %}"></script>

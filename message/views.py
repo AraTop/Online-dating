@@ -96,3 +96,31 @@ def edit_message(request, message_id):
     
     # После редактирования возвращаем пользователя на страницу диалога
     return redirect('dialog', user_id=dialog_user_id)
+
+def get_message_history(request, user_id):
+    # Получите текущего пользователя из сессии
+    current_user = request.user
+    
+    # Определите, какой chat room использовать
+    room_group_name = f'chat_{min(current_user.id, user_id)}_{max(current_user.id, user_id)}'
+    
+    # Получите старые сообщения из базы данных
+    messages = Message.objects.filter(
+        sender_id__in=[current_user.id, user_id],
+        receiver_id__in=[current_user.id, user_id]
+    ).order_by('timestamp')
+    
+    messages_data = [
+        {
+            'message_id': message.id,
+            'message': message.content,
+            'sender': message.sender.first_name,
+            'sender_id': message.sender.id,
+            'timestamp': message.timestamp.isoformat(),
+            'profile_icon': message.sender.profile_icon.url if message.sender.profile_icon else '/static/images/default-profile.png',
+            'is_read': message.is_read
+        }
+        for message in messages
+    ]
+    
+    return JsonResponse({'messages': messages_data})

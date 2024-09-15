@@ -4,6 +4,8 @@ from users.models import User
 from asgiref.sync import sync_to_async
 from .models import Message
 from datetime import datetime
+
+# Хранилище для подключенных пользователей
 connected_users = {}
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -52,15 +54,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         receiver = await sync_to_async(User.objects.get)(id=self.other_user_id)
         
         # Проверяем, подключены ли оба пользователя и находятся ли они в одном чате
-        if (
-            sender_id in connected_users 
-            and self.other_user_id in connected_users 
-            and connected_users[sender_id]['room_group_name'] == self.room_group_name 
-            and connected_users[self.other_user_id]['room_group_name'] == self.room_group_name
-        ):
-            is_read = True
-        else:
-            is_read = False
+        is_read = (
+            sender_id in connected_users and 
+            self.other_user_id in connected_users and 
+            connected_users[sender_id]['room_group_name'] == self.room_group_name and 
+            connected_users[self.other_user_id]['room_group_name'] == self.room_group_name
+        )
 
         message = await sync_to_async(Message.objects.create)(
             sender=sender,
@@ -71,6 +70,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         timestamp = datetime.now().isoformat()
 
+        # Отправляем сообщение обоим пользователям
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -81,7 +81,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender': sender.first_name,
                 'sender_id': sender.id,
                 'timestamp': timestamp,
-                'profile_icon': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png'
+                'profile_icon': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png',
+                'is_read': is_read
             }
         )
 
@@ -91,11 +92,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = self.user.id
 
         try:
+            # Редактируем сообщение, если оно существует и отправлено текущим пользователем
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             message.content = new_content
             message.timestamp = datetime.now()
             await sync_to_async(message.save)()
 
+            # Отправляем обновление всем пользователям в комнате
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -113,9 +116,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = self.user.id
 
         try:
+            # Удаляем сообщение, если оно принадлежит текущему пользователю
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             await sync_to_async(message.delete)()
 
+            # Отправляем событие удаления всем пользователям в комнате
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -127,27 +132,34 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Message.DoesNotExist:
             pass
 
+    # Обработчик событий WebSocket
     async def chat_message(self, event):
         action = event['action']
+        
         if action == 'new':
-            message = event['message']
-            sender = event['sender']
-            sender_id = event['sender_id']
-            timestamp = event['timestamp']
-            profile_icon = event['profile_icon']
-
+            # Отправляем новые сообщения всем участникам
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id'],
-                'message': message,
-                'sender': sender,
-                'sender_id': sender_id,
-                'timestamp': timestamp,
-                'profile_icon': profile_icon
+                'message': event['message'],
+                'sender': event['sender'],
+                'sender_id': event['sender_id'],
+                'timestamp': event['timestamp'],
+                'profile_icon': event['profile_icon'],
+                'is_read': event['is_read']
             }))
-        elif action in ['edit', 'delete']:
+        
+        elif action == 'edit':
+            # Обрабатываем редактирование сообщений
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id'],
-                'message': event.get('message', '')
+                'message': event['message']
+            }))
+        
+        elif action == 'delete':
+            # Обрабатываем удаление сообщений
+            await self.send(text_data=json.dumps({
+                'action': action,
+                'message_id': event['message_id']
             }))

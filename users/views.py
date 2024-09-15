@@ -109,3 +109,24 @@ class UserDetailView(DetailView):
 
         context['user'] = current_user
         return context
+
+@csrf_exempt
+@login_required
+def update_status(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)  # Парсим данные из тела запроса
+            is_online = data.get('online')   # Получаем статус online
+            if is_online is not None:
+                # Обновляем поле is_online непосредственно в модели User
+                request.user.is_online = is_online
+                request.user.save()
+
+                return JsonResponse({"message": "Status updated", "online": is_online}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid data"}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid method"}, status=405)

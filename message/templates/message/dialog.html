@@ -202,6 +202,27 @@
   .visible {
     display: block;
   }
+  #submit-btn {
+    display: inline-block;
+  }
+  #update-btn {
+    display: none;
+  }
+  #delete-btn {
+            display: none;
+            color: white;
+            background-color: red;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
+  #message-content {
+    display: inline-block;
+    width: calc(100% - 100px);
+  }
 </style>
 
 <div class="container">
@@ -257,10 +278,6 @@
           <div style="clear: both;"><hr></div>
         </div>
         <div class="messages-container" id="messages">
-          <div id="no-messages" class="{% if messages %}hidden{% else %}visible{% endif %}">
-            <h5>У вас нет переписки с этим пользователем</h5>
-            <p>Можете написать ему что-то.</p>
-          </div>
           {% if messages %}
             {% for message in messages %}
               <div class="message {% if message.sender == request.user %}{% if not message.is_read %}message-sent-unread{% else %}message-sent{% endif %}{% else %}message-received{% endif %}" id="message-{{ message.id }}">
@@ -280,7 +297,7 @@
                       <!-- Иконка редактирования -->
                       <button type="button" onclick="editMessage('{{ message.id|escapejs }}')">✏️</button>
                       <!-- Иконка удаления -->
-                      <a href="/message/delete_message/{{ message.pk }}/" onclick="return confirm('Вы уверены, что хотите удалить это сообщение?');">
+                      <a href="/message/delete_message/{{ message.pk }}/">
                         🗑️
                       </a>
                     </div>
@@ -296,8 +313,9 @@
             <input type="hidden" name="message_id" id="message-id">
             <input type="text" name="content" id="message-content" placeholder="Введите сообщение" required>
             <button type="submit" id="submit-btn">Отправить</button>
-            <button type="button" id="update-btn" style="display: none;" onclick="updateMessage()">Обновить</button>
-          </form>
+            <button type="button" id="delete-btn">Удалить</button>
+            <button type="button" id="update-btn">Обновить</button>
+        </form>
         </div>
       </div>
     </div>
@@ -306,167 +324,213 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    const messagesContainer = document.getElementById('messages');
-    const noMessages = document.getElementById('no-messages');
-
-    // Прокрутка сообщений вниз при загрузке страницы
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // Отправка сообщения при нажатии Enter
-    document.getElementById('message-content').addEventListener('keydown', function(event) {
-      if (event.keyCode === 13) {
-        event.preventDefault();
-      }
-    });
-
-    // Редактирование сообщения
-    window.editMessage = function(messageId) {
-      const messageText = document.querySelector(`#message-text-${messageId}`).innerText.trim();
+      const messagesContainer = document.getElementById('messages');
+      const userId = "{{ other_user.id }}";
       const messageContentInput = document.getElementById('message-content');
       const messageIdInput = document.getElementById('message-id');
       const submitBtn = document.getElementById('submit-btn');
       const updateBtn = document.getElementById('update-btn');
+      const deleteBtn = document.getElementById('delete-btn');
 
-      messageContentInput.value = messageText;
-      messageIdInput.value = messageId;
-      submitBtn.style.display = 'none';
-      updateBtn.style.display = 'inline-block';
+      const messageIds = new Set(); // Хранилище для уникальных ID сообщений
 
-      messageContentInput.focus();
-    };
+      // Прокрутка сообщений вниз при загрузке страницы
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // Обновление сообщения
-    window.updateMessage = function() {
-      const messageForm = document.getElementById('message-form');
-      const messageId = document.getElementById('message-id').value;
-      const messageContent = document.getElementById('message-content').value;
+      // Открытие WebSocket соединения
+      const chatSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
 
-      chatSocket.send(JSON.stringify({
-        'action': 'edit',
-        'message_id': messageId,
-        'message': messageContent
-      }));
+      chatSocket.onmessage = function(e) {
+          const data = JSON.parse(e.data);
+          console.log('Received WebSocket message:', data);
+          const action = data['action'];
+          const messageId = data['message_id'];
 
-      // Сбрасываем форму
-      document.getElementById('message-id').value = '';
-      document.getElementById('message-content').value = '';
-      document.getElementById('submit-btn').style.display = 'inline-block';
-      document.getElementById('update-btn').style.display = 'none';
-    };
+          if (action === 'new') {
+              if (!messageIds.has(messageId)) {
+                  messageIds.add(messageId);
+                  addMessageToChat(data);
+              }
+          } else if (action === 'edit') {
+              const messageElement = document.querySelector(`#message-text-${messageId}`);
+              if (messageElement) {
+                  messageElement.innerText = data['message'];
+              }
+          } else if (action === 'delete') {
+              const messageElement = document.querySelector(`#message-${messageId}`);
+              if (messageElement) {
+                  messageElement.remove();
+                  checkForNoMessages();
+              }
+          }
+      };
 
-    // Удаление сообщения
-    window.deleteMessage = function(messageId) {
-      if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
-        chatSocket.send(JSON.stringify({
-          'action': 'delete',
-          'message_id': messageId
-        }));
+      chatSocket.onclose = function(e) {
+          console.error('Chat socket closed unexpectedly');
+      };
+
+      // Обработка отправки формы
+      document.querySelector('#message-form').onsubmit = function(e) {
+          e.preventDefault();
+          const message = messageContentInput.value;
+          const messageId = messageIdInput.value;
+
+          if (messageId) {
+              updateMessage(messageId, message); // Обновляем существующее сообщение
+          } else {
+              sendMessage(message); // Отправляем новое сообщение
+          }
+      };
+
+      function sendMessage(message) {
+          console.log('Sending new message:', message);
+          chatSocket.send(JSON.stringify({
+              'action': 'new',
+              'message': message
+          }));
+          messageContentInput.value = '';
       }
-    };
 
-    // Функция для форматирования даты
-    function formatDate(date) {
-      const months = [
-        "января", "февраля", "марта", "апреля", "мая", "июня",
-        "июля", "августа", "сентября", "октября", "ноября", "декабря"
-      ];
+      function updateMessage(messageId, messageContent) {
+          console.log('Sending update for message ID:', messageId, 'with content:', messageContent);
 
-      const day = date.getDate();
-      const month = months[date.getMonth()];
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      
-      return `${day} ${month} ${year} г. ${hours}:${minutes}`;
-    }
+          chatSocket.send(JSON.stringify({
+              'action': 'edit',
+              'message_id': messageId,
+              'message': messageContent
+          }));
 
-    // Открытие WebSocket соединения
-    const userId = "{{ other_user.id }}";
-    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
-
-    // Обработка входящих сообщений
-    chatSocket.onmessage = function(e) {
-      const data = JSON.parse(e.data);
-      const action = data['action'];
-
-      if (action === 'new') {
-        const message = data['message'];
-        const senderId = data['sender_id'];
-        const senderName = data['sender'];
-        const timestamp = new Date(data['timestamp']);
-        const profileIcon = data['profile_icon'];
-
-        // Создаем новый элемент сообщения
-        const messageElement = document.createElement('div');
-
-        // Проверяем, отправлено ли сообщение текущим пользователем
-        const isSentByCurrentUser = senderId == "{{ request.user.id }}";
-
-        // Применяем соответствующий CSS класс
-        messageElement.className = `message ${isSentByCurrentUser ? 'message-sent' : 'message-received'}`;
-        messageElement.id = `message-${data['message_id']}`;
-
-        // Вставляем иконку профиля
-        const profileIconElement = profileIcon ? 
-          `<img src="${profileIcon}" alt="${senderName}">` :
-          `<img src="/static/images/default-profile.png" alt="Default Profile">`;
-
-        // Заполняем элемент сообщения
-        messageElement.innerHTML = 
-          `${profileIconElement}
-          <div class="message-content">
-            <a href="/users/${senderId}">${senderName}</a>
-            <small>${formatDate(timestamp)}</small>
-            <p id="message-text-${data['message_id']}">${message}</p>
-            ${isSentByCurrentUser ? 
-              `<div class="icon-container">
-                <button type="button" onclick="editMessage('${data['message_id']}')">✏️</button>
-                <button type="button" onclick="deleteMessage('${data['message_id']}')">🗑️</button>
-              </div>`
-             : ''}
-          </div>`;
-
-        // Добавляем сообщение в контейнер сообщений
-        messagesContainer.appendChild(messageElement);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        // Проверяем, если сообщение добавлено, скрываем сообщение о том, что переписка пустая
-        if (noMessages.classList.contains('visible')) {
-          noMessages.classList.remove('visible');
-          noMessages.classList.add('hidden');
-        }
-      } else if (action === 'edit') {
-        const messageId = data['message_id'];
-        const newMessage = data['message'];
-        const messageElement = document.querySelector(`#message-text-${messageId}`);
-        if (messageElement) {
-          messageElement.innerText = newMessage;
-        }
-      } else if (action === 'delete') {
-        const messageId = data['message_id'];
-        const messageElement = document.querySelector(`#message-${messageId}`);
-        if (messageElement) {
-          messageElement.remove();
-        }
+          // Сбрасываем форму
+          messageIdInput.value = '';
+          messageContentInput.value = '';
+          submitBtn.style.display = 'inline-block';
+          updateBtn.style.display = 'none';
+          deleteBtn.style.display = 'none';
+          messageContentInput.style.display = 'inline-block';
       }
-    };
 
-    // Закрытие WebSocket соединения
-    chatSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
-    };
+      function deleteMessage(messageId) {
+          console.log('Sending delete for message ID:', messageId);
+          chatSocket.send(JSON.stringify({
+              'action': 'delete',
+              'message_id': messageId
+          }));
 
-    // Обработка отправки формы
-    document.querySelector('#message-form').onsubmit = function(e) {
-      e.preventDefault();
-      const messageInputDom = document.querySelector('#message-content');
-      const message = messageInputDom.value;
-      chatSocket.send(JSON.stringify({
-        'action': 'new',
-        'message': message
-      }));
-      messageInputDom.value = '';
-    };
+          // Сбрасываем форму
+          messageIdInput.value = '';
+          messageContentInput.value = '';
+          submitBtn.style.display = 'inline-block';
+          updateBtn.style.display = 'none';
+          deleteBtn.style.display = 'none';
+          messageContentInput.style.display = 'inline-block';
+      }
+
+      window.deleteMessage = function(messageId) {
+          deleteBtn.onclick = function() {
+              deleteMessage(messageId);
+          };
+          submitBtn.style.display = 'none';
+          updateBtn.style.display = 'none';
+          deleteBtn.style.display = 'inline-block';
+          messageContentInput.style.display = 'none';
+      };
+
+      // Обработчик клика на кнопку обновления
+      updateBtn.addEventListener('click', function() {
+          const messageId = messageIdInput.value;
+          const messageContent = messageContentInput.value;
+          if (messageId) {
+              updateMessage(messageId, messageContent);
+          }
+      });
+
+      // Получение старых сообщений с сервера
+      fetch(`/message/${userId}/history/`)
+          .then(response => response.json())
+          .then(data => {
+              console.log('Received old messages:', data);
+
+              // Очищаем контейнер перед добавлением старых сообщений
+              messagesContainer.innerHTML = '';
+
+              data.messages.forEach(message => {
+                  addMessageToChat(message);
+              });
+
+              checkForNoMessages();
+          });
+
+      // Отправка сообщения или обновление сообщения при нажатии Enter
+      messageContentInput.addEventListener('keydown', function(event) {
+          if (event.keyCode === 13 && !event.shiftKey) { // Shift+Enter для новой строки
+              event.preventDefault();
+              document.querySelector('#message-form').onsubmit();
+          }
+      });
+
+      // Редактирование сообщения
+      window.editMessage = function(messageId) {
+          const messageText = document.querySelector(`#message-text-${messageId}`).innerText.trim();
+          messageContentInput.value = messageText;
+          messageIdInput.value = messageId;
+          submitBtn.style.display = 'none';
+          updateBtn.style.display = 'inline-block';
+          deleteBtn.style.display = 'none';
+          messageContentInput.style.display = 'inline-block';
+          messageContentInput.focus();
+      };
+
+      function formatDate(date) {
+          const months = [
+              "января", "февраля", "марта", "апреля", "мая", "июня",
+              "июля", "августа", "сентября", "октября", "ноября", "декабря"
+          ];
+
+          const day = date.getDate();
+          const month = months[date.getMonth()];
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+
+          return `${day} ${month} ${year} г. ${hours}:${minutes}`;
+      }
+
+      function addMessageToChat(data) {
+          const message = data['message'];
+          const senderId = data['sender_id'];
+          const senderName = data['sender'];
+          const timestamp = new Date(data['timestamp']);
+          const profileIcon = data['profile_icon'];
+          const messageId = data['message_id'];
+
+          const messageElement = document.createElement('div');
+          const isSentByCurrentUser = senderId == "{{ request.user.id }}";
+          const isUnread = data['is_read'] === false;
+          messageElement.className = `message ${isSentByCurrentUser ? (isUnread ? 'message-sent-unread' : 'message-sent') : 'message-received'}`;
+          messageElement.id = `message-${messageId}`;
+
+          const profileIconElement = profileIcon ? 
+              `<img src="${profileIcon}" alt="${senderName}">` :
+              `<img src="/static/images/default-profile.png" alt="Default Profile">`;
+
+          messageElement.innerHTML = 
+              `${profileIconElement}
+              <div class="message-content">
+                  <a href="/users/${senderId}">${senderName}</a>
+                  <small>${formatDate(timestamp)}</small>
+                  <p id="message-text-${messageId}">${message}</p>
+                  ${isSentByCurrentUser ? 
+                      `<div class="icon-container">
+                          <button type="button" onclick="editMessage('${messageId}')">✏️</button>
+                          <button type="button" onclick="deleteMessage('${messageId}')">🗑️</button>
+                      </div>` 
+                     : ''}
+              </div>`;
+
+          messagesContainer.appendChild(messageElement);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
   });
 </script>
 {% endif %}
