@@ -114,8 +114,8 @@
             <select class="form-control" id="gender" name="gender">
                 <option value="male" {% if user.userprofile.gender == 'male' %}selected{% endif %}>Мужской</option>
                 <option value="female" {% if user.userprofile.gender == 'female' %}selected{% endif %}>Женский</option>
-                <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гей</option>
-                <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Лесбиянка</option>
+                <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гомосексуальный мужчина</option>
+                <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Гомосексуальная женщина</option>
                 <option value="other" {% if user.userprofile.gender == 'other' %}selected{% endif %}>Другой</option>
             </select>
         </div>

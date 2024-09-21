@@ -546,12 +546,6 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
 
-      function checkForNoMessages() {
-          if (messagesContainer.children.length === 0) {
-              messagesContainer.innerHTML = '<h5>У вас нет переписки с этим пользователем</h5><p>Можете написать ему что-то.</p>';
-          }
-      }
-
       // Запрос статуса пользователя с интервалом
       setInterval(() => {
     chatSocket.send(JSON.stringify({

@@ -23,7 +23,7 @@ class UserProfile(models.Model):
     interests = models.ManyToManyField(Interest, related_name='user_profiles')
     age = models.IntegerField(blank=True, null=True)
     gender = models.CharField(max_length=15, choices=GENDER_CHOICES, blank=True, null=True)
-    looking_for = models.CharField(max_length=15, blank=True, null=True)
+    looking_for = models.CharField(max_length=16, blank=True, null=True)
     search_night_partner = models.BooleanField(default=False)
 
     class Meta:

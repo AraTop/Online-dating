@@ -15,14 +15,35 @@ def search_users(request):
     # Получаем список скрытых пользователей для текущего пользователя
     hidden_users = UserAction.objects.filter(user=request.user, hide=True).values_list('receiver_id', flat=True)
 
-    # Получаем интересы текущего пользователя
+    # Получаем интересы и параметры поиска текущего пользователя
     user_interests = request.user.userprofile.interests.all()
+    user_gender = request.user.userprofile.gender
+    looking_for = request.user.userprofile.looking_for
 
-    # Фильтруем пользователей, исключая скрытых и текущего пользователя
-    users = User.objects.filter(
-        userprofile__interests__in=user_interests,
-        userprofile__gender='female' if request.user.userprofile.gender == 'male' else 'male'
-    ).exclude(id=request.user.id).exclude(id__in=hidden_users).distinct()
+    # Инициализируем базовый запрос для пользователей
+    users = User.objects.exclude(id=request.user.id).exclude(id__in=hidden_users).distinct()
+
+    # Фильтруем пользователей на основе их пола и поиска
+    if looking_for == 'relationship':
+        if user_gender == 'male':
+            users = users.filter(userprofile__gender='female', userprofile__looking_for='relationship')
+        elif user_gender == 'female':
+            users = users.filter(userprofile__gender='male', userprofile__looking_for='relationship')
+        elif user_gender == 'gay':
+            users = users.filter(userprofile__gender='gay', userprofile__looking_for='relationship')
+        elif user_gender == 'Lesbian':
+            users = users.filter(userprofile__gender='Lesbian', userprofile__looking_for='relationship')
+        elif user_gender == 'other':
+            users = users.filter(userprofile__gender='other', userprofile__looking_for='relationship')
+    elif looking_for == 'friendship':
+        # Для дружбы показываем всех, кто ищет дружбу
+        users = users.filter(userprofile__looking_for='friendship')
+    elif looking_for == 'business_partner':
+        # Показываем только тех, кто тоже ищет бизнес-партнеров
+        users = users.filter(userprofile__looking_for='business_partner')
+
+    # Добавляем фильтрацию по интересам
+    users = users.filter(userprofile__interests__in=user_interests).distinct()
 
     return render(request, 'main/search_users.html', {'users': users})
 
@@ -34,10 +55,22 @@ def search_night_partner(request):
     # Получаем список скрытых пользователей для текущего пользователя
     hidden_users = UserAction.objects.filter(user=request.user, hide=True).values_list('receiver_id', flat=True)
 
+    # Определяем пол, который будем искать в зависимости от пола текущего пользователя
+    if request.user.userprofile.gender == 'male':
+        search_gender = 'female'
+    elif request.user.userprofile.gender == 'female':
+        search_gender = 'male'
+    elif request.user.userprofile.gender == 'gay':
+        search_gender = 'gay'
+    elif request.user.userprofile.gender == 'Lesbian':
+        search_gender = 'Lesbian'
+    elif request.user.userprofile.gender == 'other':
+        search_gender = 'other' # или любой другой вариант, если есть
+
     # Фильтруем пользователей, исключая скрытых и текущего пользователя
     users = User.objects.filter(
         userprofile__search_night_partner=True,
-        userprofile__gender='female' if request.user.userprofile.gender == 'male' else 'male'
+        userprofile__gender=search_gender
     ).exclude(id=request.user.id).exclude(id__in=hidden_users)
 
     return render(request, 'main/search_night_partner.html', {'users': users})
