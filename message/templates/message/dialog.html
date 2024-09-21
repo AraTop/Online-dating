@@ -261,11 +261,19 @@
             <a href="/message/inbox/">&larr; Назад</a>
           </div>
           <div style="float: left;">
-            <a href="/users/{{ other_user.pk }}" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
+            <a href="/users/{{ other_user.pk }}" style="margin-left: 5px;" class="color_2">{{ other_user.first_name }} {{ other_user.last_name }}</a><br>
             {% if other_user.is_online %}
-              <small style="margin-left: 50px;">online</small>
+              <small style="margin-left: 50px;" id="status-indicator">
+                  {% if other_user.is_online %}
+                      online
+                  {% endif %}
+              </small>
             {% else %}
-              <small style="margin-left: -25px;">Был в сети {{ other_user.last_activity }}</small>
+              <small style="margin-left: -25px;" id="status-indicator">
+                {% if other_user.last_activity %}
+                    Был в сети {{ other_user.last_activity }}
+                {% endif %}
+              </small>
             {% endif %}
           </div>
           <div style="float: right;">
@@ -331,6 +339,7 @@
       const submitBtn = document.getElementById('submit-btn');
       const updateBtn = document.getElementById('update-btn');
       const deleteBtn = document.getElementById('delete-btn');
+      const statusIndicator = document.getElementById('status-indicator');
 
       const messageIds = new Set(); // Хранилище для уникальных ID сообщений
 
@@ -361,6 +370,15 @@
               if (messageElement) {
                   messageElement.remove();
                   checkForNoMessages();
+              }
+          } else if (action === 'status_update') {
+              const lastActivityDate = new Date(data['last_activity']);
+              if (data['is_online']) {
+                  statusIndicator.innerText = 'online';
+                  statusIndicator.style.marginLeft = '50px';
+              } else {
+                  statusIndicator.innerText = `Был в сети ${formatDate(lastActivityDate)}`;
+                  statusIndicator.style.marginLeft = '-25px';
               }
           }
       };
@@ -393,7 +411,6 @@
 
       function updateMessage(messageId, messageContent) {
           console.log('Sending update for message ID:', messageId, 'with content:', messageContent);
-
           chatSocket.send(JSON.stringify({
               'action': 'edit',
               'message_id': messageId,
@@ -449,8 +466,6 @@
           .then(response => response.json())
           .then(data => {
               console.log('Received old messages:', data);
-
-              // Очищаем контейнер перед добавлением старых сообщений
               messagesContainer.innerHTML = '';
 
               data.messages.forEach(message => {
@@ -524,13 +539,26 @@
                           <button type="button" onclick="editMessage('${messageId}')">✏️</button>
                           <button type="button" onclick="deleteMessage('${messageId}')">🗑️</button>
                       </div>` 
-                     : ''}
+                     : ''} 
               </div>`;
 
           messagesContainer.appendChild(messageElement);
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
 
+      function checkForNoMessages() {
+          if (messagesContainer.children.length === 0) {
+              messagesContainer.innerHTML = '<h5>У вас нет переписки с этим пользователем</h5><p>Можете написать ему что-то.</p>';
+          }
+      }
+
+      // Запрос статуса пользователя с интервалом
+      setInterval(() => {
+    chatSocket.send(JSON.stringify({
+        'action': 'request_status',
+        'user_id': userId
+      }));
+    }, 60000); // 1 минута (60000 миллисекунд)
   });
 </script>
 {% endif %}

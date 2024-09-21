@@ -14,12 +14,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.other_user_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.room_group_name = f'chat_{min(self.user.id, self.other_user_id)}_{max(self.user.id, self.other_user_id)}'
 
-        # Сохраняем room_group_name вместе с channel_name
         connected_users[self.user.id] = {
             'channel_name': self.channel_name,
             'room_group_name': self.room_group_name
         }
-        
+
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -45,6 +44,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_edit_message(data)
         elif action == 'delete':
             await self.handle_delete_message(data)
+        elif action == 'request_status':
+            await self.handle_request_status(data)
 
     async def handle_new_message(self, data):
         message_content = data['message']
@@ -53,7 +54,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = await sync_to_async(User.objects.get)(id=sender_id)
         receiver = await sync_to_async(User.objects.get)(id=self.other_user_id)
         
-        # Проверяем, подключены ли оба пользователя и находятся ли они в одном чате
         is_read = (
             sender_id in connected_users and 
             self.other_user_id in connected_users and 
@@ -70,7 +70,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         timestamp = datetime.now().isoformat()
 
-        # Отправляем сообщение обоим пользователям
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -92,13 +91,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = self.user.id
 
         try:
-            # Редактируем сообщение, если оно существует и отправлено текущим пользователем
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             message.content = new_content
             message.timestamp = datetime.now()
             await sync_to_async(message.save)()
 
-            # Отправляем обновление всем пользователям в комнате
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -116,11 +113,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = self.user.id
 
         try:
-            # Удаляем сообщение, если оно принадлежит текущему пользователю
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             await sync_to_async(message.delete)()
 
-            # Отправляем событие удаления всем пользователям в комнате
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -132,12 +127,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Message.DoesNotExist:
             pass
 
-    # Обработчик событий WebSocket
+    async def handle_request_status(self, data):
+        user_id = data['user_id']
+        other_user = await sync_to_async(User.objects.get)(id=user_id)
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'action': 'status_update',
+                'is_online': other_user.is_online,
+                'last_activity': other_user.last_activity.isoformat() if other_user.last_activity else None
+            }
+        )
+
     async def chat_message(self, event):
         action = event['action']
         
         if action == 'new':
-            # Отправляем новые сообщения всем участникам
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id'],
@@ -150,7 +157,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
         
         elif action == 'edit':
-            # Обрабатываем редактирование сообщений
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id'],
@@ -158,8 +164,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
         
         elif action == 'delete':
-            # Обрабатываем удаление сообщений
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id']
+            }))
+        
+        elif action == 'status_update':
+            await self.send(text_data=json.dumps({
+                'action': 'status_update',
+                'is_online': event['is_online'],
+                'last_activity': event['last_activity']
             }))
