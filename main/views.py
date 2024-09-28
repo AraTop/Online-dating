@@ -6,6 +6,7 @@ from .models import Interest, UserAction, UserProfile
 from users.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 @login_required
 def search_users(request):
@@ -154,3 +155,39 @@ def remove_hide(request, user_id):
     user_hide = UserAction.objects.filter(user=user, receiver_id=user_id, hide=True)
     user_hide.update(hide=False)
     return redirect('main:hide')
+
+def search_friends(request):
+    if not hasattr(request.user, 'userprofile') or not request.user.userprofile.interests:
+        return redirect(reverse('main:profile_setup'))
+
+    query = request.GET.get('q')  # Имя, фамилия или отчество
+    gender = request.GET.get('gender')  # Пол
+    interests_query = request.GET.get('interests')  # Интересы
+
+    results = User.objects.none()  # Начнем с пустого QuerySet, чтобы результат был пустым, если запрос не заполнен
+
+    if query or gender or interests_query:
+        # Поиск всех пользователей, у которых есть профиль, и исключаем самого себя
+        results = User.objects.filter(userprofile__isnull=False).exclude(id=request.user.id)
+
+        # Фильтр по имени, фамилии или отчеству
+        if query:
+            results = results.filter(
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query) |
+                Q(surname__icontains=query)  # Добавляем фильтрацию по отчеству
+            )
+
+        # Фильтр по полу
+        if gender:
+            results = results.filter(userprofile__gender=gender)
+
+        # Фильтр по интересам
+        if interests_query:
+            results = results.filter(userprofile__interests__name__icontains=interests_query)
+
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'main/search_friends.html', context)
