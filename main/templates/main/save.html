@@ -3,219 +3,202 @@
 {% block content %}
 <style>
   :root {
-    --sidebar-width: 300px; /* Фиксированная ширина левой панели */
-  }
+  --sidebar-width: 300px; /* Фиксированная ширина левой панели */
+}
 
-  .color_backgraung {
-    background-color: rgb(187, 136, 255);
-  }
+.color_backgraung {
+  background-color: rgb(187, 136, 255);
+}
 
-  .profile,
-  .notifications {
-    padding: 20px;
-    margin-bottom: 10px;
-    text-align: center;
-  }
+.profile, .notifications {
+  padding: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+}
 
-  .profile {
-    background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
-    color: white;
-  }
+.profile {
+  background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+  color: white;
+}
 
-  .notifications {
-    background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
-    color: white;
-  }
+.notifications {
+  background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+  color: white;
+}
 
-  .dropdown {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-  }
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
 
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: rgb(187, 136, 255);
-    min-width: 160px;
-    z-index: 1;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: rgb(187, 136, 255);
+  min-width: 160px;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    transition: background-color 0.3s ease;
-  }
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease;
+}
 
-  .dropdown-content a:hover {
-    background-color: rgb(62, 107, 127);
-  }
+.dropdown-content a:hover {
+  background-color: rgb(62, 107, 127);
+}
 
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
+.dropdown:hover .dropdown-content {
+  display: block;
+}
 
-  .dropbtn {
-    background: #764ba2;
-    color: rgb(255, 255, 255);
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.3s ease;
-  }
+.dropbtn {
+  background: #764ba2;
+  color: rgb(255, 255, 255);
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
 
-  .card-body a,
-  .card-body p {
-    display: block;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
-    text-align: center;
-    background: #5f4ba2;
-    color: white;
-    text-decoration: none;
-  }
+.card-body a, .card-body p {
+  display: block;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  background: #5f4ba2;
+  color: white;
+  text-decoration: none;
+}
 
-  .card-body a:hover,
-  .card-body p:hover {
-    background: rgb(75, 35, 128);
-  }
+.card-body a:hover, .card-body p:hover {
+  background: rgb(75, 35, 128);
+}
 
-  .profile-picture-wrapper {
-    background-color: #7e7e7e;
-    position: relative;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
+.profile-picture-wrapper {
+  background-color: #7e7e7e;
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
 
-  .profile-picture {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: block;
-  }
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+}
 
-  .status-icon {
-    position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 15px;
-    height: 15px;
-    background-color: green;
-    border-radius: 50%;
-    border: 2px solid white;
-  }
+.status-icon {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 15px;
+  height: 15px;
+  background-color: green;
+  border-radius: 50%;
+  border: 2px solid white;
+}
 
-  /* Новые стили для фиксированной левой панели */
-  .fixed-sidebar {
-    position: fixed;
-    top: 10px;
-    left: 20px;
-    width: var(--sidebar-width);
-  }
+/* Новые стили для фиксированной левой панели */
+.fixed-sidebar {
+  position: fixed;
+  top: 10px;
+  left: 20px;
+  width: var(--sidebar-width);
+}
 
-  .content {
-    margin-left: calc(var(--sidebar-width) + 150px); /* Оставляем место для левой панели */
-  }
-
-  .friend {
-    background-color: #ffffff;
-  }
-
-  /* Стили для скрытого фильтра */
-  .filter-container {
-    display: none; /* Изначально скрыто */
-    margin-top: 20px;
-  }
-
-  .show {
-    display: block; /* Показываем фильтр */
-  }
+.content {
+  margin-left: calc(var(--sidebar-width) + 150px); /* Оставляем место для левой панели */
+}
+.friend{
+  background-color: #ffffff;
+}
 </style>
 
 <div class="container">
-  <div class="fixed-sidebar">
-    <!-- Left Profile Card -->
-    <div class="card mb-4 color_backgraung" style="height: 300px; width: 440px; top: 121px; right: 11.5px;">
-      <div class="card mb-4 color_backgraung">
-        <div class="card-body profile" id="auto-resize-card">
-          {% if user.profile_icon %}
-          <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
-          {% endif %}
-          <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
-        </div>
-        <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
-          <a href="/users/settings/"><h3>Уведомления</h3></a>
-        </div>
-        <div class="card-body" id="auto-resize-card">
-          <a href="/friends/list"><h4>Друзья</h4></a>
-          <a href="/message/inbox"><h5>Сообщения</h5></a>
-          <a href="/users/settings">Настройки</a>
-          <div class="dropdown">
-            <a href="/search_users/" class="dropbtn">Поиск девушек</a>
-            <div class="dropdown-content">
-              <a href="/search_night_partner/">Партнера на ночь</a>
-              <a href="/search/girls/location">По местоположению</a>
-              <a href="/search/girls/interests">По интересам</a>
-              <a href="/search/girls/new">Новые анкеты</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="content">
+   <div class="fixed-sidebar">
+     <!-- Left Profile Card -->
+     <div class="card mb-4 color_backgraung" style="height: 300px; width: 440px; top: 121px; right: 11.5px;">
+       <div class="card mb-4 color_backgraung">
+         <div class="card-body profile" id="auto-resize-card">
+           {% if user.profile_icon %}
+             <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+           {% else %}
+           {% endif %}
+           <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
+         </div>
+         <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
+           <a href="/users/settings/"><h3>Уведомления</h3></a>
+         </div>
+         <div class="card-body" id="auto-resize-card">
+           <a href="/friends/list"><h4>Друзья</h4></a>
+           <a href="/message/inbox"><h5>Сообщения</h5></a>
+           <a href="/users/settings">Настройки</a>
+           <div class="dropdown">
+             <a href="/search_users/" class="dropbtn">Поиск девушек</a>
+             <div class="dropdown-content">
+               <a href="/search_night_partner/">Партнера на ночь</a>
+               <a href="/search/girls/location">По местоположению</a>
+               <a href="/search/girls/interests">По интересам</a>
+               <a href="/search/girls/new">Новые анкеты</a>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ 
+   <div class="content">
     <!-- Main Content -->
     <div class="card mb-4 box-shadow color_1" style="width: 100%; padding: 20px;">
-      <h3>Найти друзей</h3>
-      <form method="GET" action="">
-        <div class="form-group">
-          <label for="q">Имя, фамилия или Отчество:</label>
-          <input type="text" id="q" name="q" class="form-control" placeholder="Введите Имя, фамилия или Отчество" value="{{ query|default_if_none:'' }}">
-        </div>
-        <button type="submit" class="btn btn-success">Поиск</button>
-        <button type="button" class="btn btn-primary" id="filterButton">Фильтр</button>
-
-        <div class="filter-container" id="filterContainer">
-          <div class="form-group">
-            <label for="gender">Пол:</label>
-            <select id="gender" name="gender" class="form-control">
-              <option value="">Не важно</option>
-              <option value="male" {% if request.GET.gender == "male" %}selected{% endif %}>Мужской</option>
-              <option value="female" {% if request.GET.gender == "female" %}selected{% endif %}>Женский</option>
-              <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гомосексуальный мужчина</option>
-              <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Гомосексуальная женщина</option>
-              <option value="other" {% if request.GET.gender == "other" %}selected{% endif %}>Другой</option>
-            </select>
+        <h3>Найти друзей</h3>
+        <form method="GET" action="">
+            <div class="form-group">
+                <label for="q">Имя, фамилия или Отчество:</label>
+                <input type="text" id="q" name="q" class="form-control" placeholder="Введите Имя, фамилия или Отчество" value="{{ query|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="gender">Пол:</label>
+                <select id="gender" name="gender" class="form-control">
+                    <option value="">Не важно</option>
+                    <option value="male" {% if request.GET.gender == "male" %}selected{% endif %}>Мужской</option>
+                    <option value="female" {% if request.GET.gender == "female" %}selected{% endif %}>Женский</option>
+                    <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гомосексуальный мужчина</option>
+                    <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Гомосексуальная женщина</option>
+                    <option value="other" {% if request.GET.gender == "other" %}selected{% endif %}>Другой</option>
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="age_from">Возраст от:</label>
+              <input class="form-control" type="number" name="age_from" min="0" value="{{ request.GET.age_from }}">
+              <br>
+              <label for="age_to">Возраст до:</label>
+              <input class="form-control" type="number" name="age_to" min="0" value="{{ request.GET.age_to }}">
+            </div>
+            <div class="form-group">
+              <label>Фотография:</label><br>
+              <input type="radio" id="has_photo" name="has_photo" value="true" {% if request.GET.has_photo == 'true' %}checked{% else %}checked{% endif %}>
+              <label for="has_photo">Есть</label><br>
+              <input type="radio" id="no_photo" name="has_photo" value="false" {% if request.GET.has_photo == 'false' %}checked{% endif %}>
+              <label for="no_photo">Нет</label>
           </div>
-          <div class="form-group">
-            <label for="age_from">Возраст от:</label>
-            <input class="form-control" type="number" name="age_from" min="0" value="{{ request.GET.age_from }}">
-            <br>
-            <label for="age_to">Возраст до:</label>
-            <input class="form-control" type="number" name="age_to" min="0" value="{{ request.GET.age_to }}">
-          </div>
-          <div class="form-group">
-            <label>Статус:</label><br>
-            <input type="radio" id="online" name="is_online" value="true" {% if request.GET.is_online == 'true' %}checked{% endif %}>
-            <label for="online">Онлайн</label><br>
-            <input type="radio" id="offline" name="is_online" value="false" {% if request.GET.is_online == 'false' %}checked{% endif %}>
-            <label for="offline">Оффлайн</label>
-        </div>
-          <div class="form-group">
-            <label for="interests">Интересы:</label>
-            <select class="form-control" id="interests" name="interests" multiple style="height: 250px;">
-              <option value="Football" {% if user.userprofile.interests  == 'Football' %}selected{% endif %}>Футбол</option>
+            <div class="form-group">
+                <label for="interests">Интересы:</label>
+                <select class="form-control" id="interests" name="interests" multiple style="height: 250px;">
+                    <option value="Football" {% if user.userprofile.interests  == 'Football' %}selected{% endif %}>Футбол</option>
                     <option value="Basketball" {% if user.userprofile.interests  == 'Basketball' %}selected{% endif %}>Баскетбол</option>
                     <option value="Run" {% if user.userprofile.interests  == 'Run' %}selected{% endif %}>Бег</option>
                     <option value="Swimming" {% if user.userprofile.interests  == 'Swimming' %}selected{% endif %}>Плавание</option>
@@ -312,35 +295,32 @@
                     <option value="karting" {% if user.userprofile.interests  == 'karting' %}selected{% endif %}>Картинг</option>
     
                     <option value="other" {% if user.userprofile.interests  == 'other' %}selected{% endif %}>Другое</option>
-            </select>
-          </div>
-        </div>
-      </form>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Поиск</button>
+            <hr>
+            <a href="/search_friends/">Очистить</a>
+        </form>
     </div>
-    <div class="card mt-4">
-      {% if results %}
-          <h4>Результаты поиска:</h4>
-          <ul>
-            {% for user in results %}
-              {% if user.profile_icon %}
-                <a href="/users/{{ user.id }}"><img src="{{ user.profile_icon.url }}" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
-              {% else %}
-                <a href="/users/{{ user.id }}"><img src="/static/images/default-profile.png" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
-              {% endif %}
-              <hr>
-            {% endfor %}
-          </ul>
-      {% else %}
-          <p>Пользователи не найдены. Попробуйте поменять фильтры</p>
-      {% endif %}
-</div>
-  </div>
-</div>
 
-<script>
-  document.getElementById('filterButton').addEventListener('click', function() {
-    const filterContainer = document.getElementById('filterContainer');
-    filterContainer.classList.toggle('show');
-  });
-</script>
+    <!-- Результаты поиска -->
+    <div class="card mt-4">
+            {% if results %}
+                <h4>Результаты поиска:</h4>
+                <ul>
+                  {% for user in results %}
+                    {% if user.profile_icon %}
+                      <a href="/users/{{ user.id }}"><img src="{{ user.profile_icon.url }}" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
+                    {% else %}
+                      <a href="/users/{{ user.id }}"><img src="/static/images/default-profile.png" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
+                    {% endif %}
+                    <hr>
+                  {% endfor %}
+                </ul>
+            {% else %}
+                <p>Пользователи не найдены. Попробуйте поменять фильтры</p>
+            {% endif %}
+    </div>
+    </div>
+ </div>
 {% endblock %}

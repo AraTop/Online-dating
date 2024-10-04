@@ -7,6 +7,8 @@ from users.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from datetime import date
+from datetime import datetime
 
 @login_required
 def search_users(request):
@@ -120,7 +122,15 @@ def profile_setup(request):
         userprofile, created = UserProfile.objects.get_or_create(user=request.user)
 
         # Обновляем возраст, пол и ищем
-        userprofile.age = request.POST.get('age')
+        date_of_birth_str = request.POST.get('date_of_birth')
+        if date_of_birth_str:
+            try:
+                date_of_birth = datetime.strptime(date_of_birth_str, '%Y-%m-%d').date()
+                userprofile.date_of_birth = date_of_birth
+            except ValueError:
+                # Обработка ошибки неверного формата даты
+                pass
+
         userprofile.gender = request.POST.get('gender')
         userprofile.looking_for = request.POST.get('looking_for')
 
@@ -162,12 +172,14 @@ def search_friends(request):
 
     query = request.GET.get('q')  # Имя, фамилия или отчество
     gender = request.GET.get('gender')  # Пол
+    is_online = request.GET.get('is_online') # Статус пользователя (онлайн/оффлайн)
     interests_query = request.GET.get('interests')  # Интересы
+    age_from = request.GET.get('age_from')  # Возраст от
+    age_to = request.GET.get('age_to')  # Возраст до
 
-    results = User.objects.none()  # Начнем с пустого QuerySet, чтобы результат был пустым, если запрос не заполнен
+    results = User.objects.none()  # Пустой QuerySet по умолчанию
 
-    if query or gender or interests_query:
-        # Поиск всех пользователей, у которых есть профиль, и исключаем самого себя
+    if query or gender or interests_query or is_online or age_from or age_to:
         results = User.objects.filter(userprofile__isnull=False).exclude(id=request.user.id)
 
         # Фильтр по имени, фамилии или отчеству
@@ -175,7 +187,7 @@ def search_friends(request):
             results = results.filter(
                 Q(first_name__icontains=query) |
                 Q(last_name__icontains=query) |
-                Q(surname__icontains=query)  # Добавляем фильтрацию по отчеству
+                Q(surname__icontains=query)
             )
 
         # Фильтр по полу
@@ -186,6 +198,22 @@ def search_friends(request):
         if interests_query:
             results = results.filter(userprofile__interests__name__icontains=interests_query)
 
+        # Фильтр по возрасту
+        today = date.today()
+        if age_from:
+            min_birthdate = today.replace(year=today.year - int(age_from))
+            results = results.filter(userprofile__date_of_birth__lte=min_birthdate)
+        
+        if age_to:
+            max_birthdate = today.replace(year=today.year - int(age_to))
+            results = results.filter(userprofile__date_of_birth__gte=max_birthdate)
+
+        if is_online is not None:
+            if is_online == 'true':  # Если выбран статус онлайн
+                results = results.filter(is_online=True)
+            elif is_online == 'false':  # Если выбран статус оффлайн
+                results = results.filter(is_online=False)
+               
     context = {
         'query': query,
         'results': results,

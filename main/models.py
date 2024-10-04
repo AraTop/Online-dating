@@ -1,5 +1,6 @@
 from users.models import User
 from django.db import models
+from datetime import date
 
 
 class Interest(models.Model):
@@ -21,7 +22,7 @@ class UserProfile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     interests = models.ManyToManyField(Interest, related_name='user_profiles')
-    age = models.IntegerField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)  # Дата рождения
     gender = models.CharField(max_length=15, choices=GENDER_CHOICES, blank=True, null=True)
     looking_for = models.CharField(max_length=16, blank=True, null=True)
     search_night_partner = models.BooleanField(default=False)
@@ -30,6 +31,14 @@ class UserProfile(models.Model):
         unique_together = ('user', 'gender')
         verbose_name = 'Профиль для знакомств'
         verbose_name_plural = 'Профиль для знакомств'
+    
+    def age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        return None
 
 
 class UserAction(models.Model):
