@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+
+from friends.models import Friend
 from .models import Interest, UserAction, UserProfile
 from users.models import User
 from django.http import JsonResponse
@@ -172,50 +174,76 @@ def search_friends(request):
 
     query = request.GET.get('q')  # Имя, фамилия или отчество
     gender = request.GET.get('gender')  # Пол
-    is_online = request.GET.get('is_online') # Статус пользователя (онлайн/оффлайн)
+    is_online = request.GET.get('is_online')  # Статус пользователя (онлайн/оффлайн)
     interests_query = request.GET.get('interests')  # Интересы
     age_from = request.GET.get('age_from')  # Возраст от
     age_to = request.GET.get('age_to')  # Возраст до
 
-    results = User.objects.none()  # Пустой QuerySet по умолчанию
+    # Изначально фильтруем всех пользователей, кроме текущего
+    results = User.objects.filter(userprofile__isnull=False).exclude(id=request.user.id)
 
-    if query or gender or interests_query or is_online or age_from or age_to:
-        results = User.objects.filter(userprofile__isnull=False).exclude(id=request.user.id)
+    # Фильтр по имени, фамилии или отчеству
+    if query:
+        results = results.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(surname__icontains=query)
+        )
 
-        # Фильтр по имени, фамилии или отчеству
-        if query:
-            results = results.filter(
-                Q(first_name__icontains=query) |
-                Q(last_name__icontains=query) |
-                Q(surname__icontains=query)
-            )
+    # Фильтр по полу
+    if gender:
+        results = results.filter(userprofile__gender=gender)
 
-        # Фильтр по полу
-        if gender:
-            results = results.filter(userprofile__gender=gender)
+    # Фильтр по интересам
+    if interests_query:
+        results = results.filter(userprofile__interests__name__icontains=interests_query)
 
-        # Фильтр по интересам
-        if interests_query:
-            results = results.filter(userprofile__interests__name__icontains=interests_query)
+    # Фильтр по возрасту
+    today = date.today()
+    if age_from:
+        min_birthdate = today.replace(year=today.year - int(age_from))
+        results = results.filter(userprofile__date_of_birth__lte=min_birthdate)
+    
+    if age_to:
+        max_birthdate = today.replace(year=today.year - int(age_to))
+        results = results.filter(userprofile__date_of_birth__gte=max_birthdate)
 
-        # Фильтр по возрасту
-        today = date.today()
-        if age_from:
-            min_birthdate = today.replace(year=today.year - int(age_from))
-            results = results.filter(userprofile__date_of_birth__lte=min_birthdate)
-        
-        if age_to:
-            max_birthdate = today.replace(year=today.year - int(age_to))
-            results = results.filter(userprofile__date_of_birth__gte=max_birthdate)
+    # Фильтр по статусу (онлайн/оффлайн)
+    if is_online:
+        if is_online == 'true':  # Если выбран статус онлайн
+            results = results.filter(is_online=True)
+        elif is_online == 'false':  # Если выбран статус оффлайн
+            results = results.filter(is_online=False)
 
-        if is_online is not None:
-            if is_online == 'true':  # Если выбран статус онлайн
-                results = results.filter(is_online=True)
-            elif is_online == 'false':  # Если выбран статус оффлайн
-                results = results.filter(is_online=False)
-               
+    # Фильтрация друзей с подтвержденным статусом дружбы
+    confirmed_friends = results.filter(
+        Q(friend_list__status='accepted', friend_list__friend=request.user) | # у кого я в друзьях подтвержденых
+        Q(friend_of_list__status='accepted', friend_of_list__user=request.user) # кого я пригласил в друзьях подтвержденых
+    ).distinct()
+
+    # Фильтрация друзей которые мне кинули запрос в дружбу
+    pending_requests = results.filter(
+        Q(friend_list__status='pending', friend_list__friend=request.user)
+    ).distinct()
+    
+    # Фильтрация друзей, которым я кинул запрос в дружбу
+    pending_requests_reverse = Friend.objects.filter(
+        user=request.user,  # Текущий пользователь отправил запрос
+        status='pending'     # Статус "ожидание"
+    ).values('friend')  # Получаем только друзей, которым был отправлен запрос
+
+    # Фильтрация пользователей, которые не являются друзьями с подтвержденным статусом
+    non_friends = results.exclude(id__in=confirmed_friends).exclude(id__in=pending_requests).exclude(id__in=pending_requests_reverse)
+
+    # Сначала друзья, потом те, которые вам отправили запрос, потом которым вы отправили запрос, и другие пользователи
+    results = list(confirmed_friends) + list(pending_requests) + list(User.objects.filter(id__in=pending_requests_reverse)) + list(non_friends)
+
     context = {
         'query': query,
         'results': results,
+        'friends': confirmed_friends,
+        'pending_requests': pending_requests,
+        'pending_requests_reverse': User.objects.filter(id__in=pending_requests_reverse)  # Для отображения в шаблоне
     }
+    
     return render(request, 'main/search_friends.html', context)

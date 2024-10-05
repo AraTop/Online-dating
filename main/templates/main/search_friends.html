@@ -140,6 +140,9 @@
   .show {
     display: block; /* Показываем фильтр */
   }
+  .background_color{
+    background-color: #ebebeb;
+  }
 </style>
 
 <div class="container">
@@ -211,7 +214,7 @@
             <label for="online">Онлайн</label><br>
             <input type="radio" id="offline" name="is_online" value="false" {% if request.GET.is_online == 'false' %}checked{% endif %}>
             <label for="offline">Оффлайн</label>
-        </div>
+         </div>
           <div class="form-group">
             <label for="interests">Интересы:</label>
             <select class="form-control" id="interests" name="interests" multiple style="height: 250px;">
@@ -314,26 +317,58 @@
                     <option value="other" {% if user.userprofile.interests  == 'other' %}selected{% endif %}>Другое</option>
             </select>
           </div>
+          <a href="/search_friends/">Очистить</a>
         </div>
       </form>
     </div>
-    <div class="card mt-4">
+    <div class="form-group background_color">
       {% if results %}
-          <h4>Результаты поиска:</h4>
-          <ul>
-            {% for user in results %}
-              {% if user.profile_icon %}
-                <a href="/users/{{ user.id }}"><img src="{{ user.profile_icon.url }}" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
+        <hr>
+          {% for user in results %}
+            <div style="float: left; margin-right: 20px;">
+              <div class="profile-picture-wrapper">
+                {% if user.profile_icon %}
+                  <a href="/users/{{ user.pk }}/"><img src="{{ user.profile_icon.url }}" class="profile-picture"></a>
+                {% else %}
+                  <a href="/users/{{ user.pk }}/"><img src="/static/images/default-profile.png" class="profile-picture"></a>
+                {% endif %}
+                {% if user.is_online %}
+                  <div class="status-icon"></div>
+                {% endif %}
+              </div>
+            </div>
+            <div style="float: left;">
+              <a href="/users/{{ user.pk }}/">{{ user.first_name }} {{ user.last_name }}</a><br>
+              <a style="color: black;" href="">1 общий друг</a>
+              <a href="/message/dialog/{{ user.pk }}"><h6>Написать сообщение</h6></a>
+            </div>
+            <div style="float: right;">
+              {% csrf_token %}
+                
+              {% if user in friends %}
+                  <!-- Если он друг -->
+                <a type="submit" class="btn btn-danger" href="/friends/remove/{{ user.pk }}/">Удалить друга</a>
+      
+              {% elif user in pending_requests %}
+                  <!-- Если пользователь отправил вам заявку в друзья -->
+                <a type="submit" class="btn btn-success" href="/friends/friend_add/{{ user.pk }}/">Принять заявку</a>
+      
+              {% elif user in pending_requests_reverse %}
+                  <!-- Если вы отправили пользователю заявку в друзья -->
+                <a type="submit" class="btn btn-warning" href="/friends/friend_reject/{{ user.pk }}/">Отклонить заявку</a>
+                
               {% else %}
-                <a href="/users/{{ user.id }}"><img src="/static/images/default-profile.png" style="width: 70px; height: 70px; border-radius: 50%;"></a> <a href="/users/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
-              {% endif %}
-              <hr>
-            {% endfor %}
-          </ul>
+                  <!-- Если не друг и нет заявок -->
+                <button id="add-friend-btn" class="btn btn-primary" data-friend-id="{{ user.pk }}">Добавить в друзья</button>
+              {% endif %} 
+            </div>
+            <div style="clear: both;"></div>
+            <hr>
+          {% endfor %}
       {% else %}
-          <p>Пользователи не найдены. Попробуйте поменять фильтры</p>
+        <p>Пользователи не найдены. Попробуйте поменять фильтры</p>
       {% endif %}
-</div>
+    </div>
   </div>
 </div>
 
@@ -341,6 +376,26 @@
   document.getElementById('filterButton').addEventListener('click', function() {
     const filterContainer = document.getElementById('filterContainer');
     filterContainer.classList.toggle('show');
+  });
+
+  document.getElementById('add-friend-btn').addEventListener('click', function(event) {
+    event.preventDefault(); // Предотвращаем стандартное поведение ссылки
+                      
+    var friendId = this.getAttribute('data-friend-id');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
+    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                location.reload(); // Перезагружаем страницу после успешного добавления в друзья
+            } else {
+                alert('Произошла ошибка: ' + xhr.responseText);
+            }
+        }
+    };
+    xhr.send(JSON.stringify({}));
   });
 </script>
 {% endblock %}
