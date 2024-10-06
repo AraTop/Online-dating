@@ -217,11 +217,11 @@ def search_friends(request):
 
     # Фильтрация друзей с подтвержденным статусом дружбы
     confirmed_friends = results.filter(
-        Q(friend_list__status='accepted', friend_list__friend=request.user) | # у кого я в друзьях подтвержденых
-        Q(friend_of_list__status='accepted', friend_of_list__user=request.user) # кого я пригласил в друзьях подтвержденых
+        Q(friend_list__status='accepted', friend_list__friend=request.user) |  # у кого я в друзьях подтвержденных
+        Q(friend_of_list__status='accepted', friend_of_list__user=request.user)  # кого я пригласил в друзьях подтвержденных
     ).distinct()
 
-    # Фильтрация друзей которые мне кинули запрос в дружбу
+    # Фильтрация друзей, которые мне кинули запрос в дружбу
     pending_requests = results.filter(
         Q(friend_list__status='pending', friend_list__friend=request.user)
     ).distinct()
@@ -235,15 +235,53 @@ def search_friends(request):
     # Фильтрация пользователей, которые не являются друзьями с подтвержденным статусом
     non_friends = results.exclude(id__in=confirmed_friends).exclude(id__in=pending_requests).exclude(id__in=pending_requests_reverse)
 
+    # Словарь для хранения количества общих друзей
+    common_friends_count = {}
+
+    # Получаем список всех друзей текущего пользователя
+    my_friends = Friend.objects.filter(
+        Q(user=request.user) | Q(friend=request.user),
+        status='accepted'
+    ).values_list('user', 'friend')
+
+    # Преобразуем список друзей текущего пользователя в множество и исключаем самого пользователя
+    my_friends_ids = set()
+    for pair in my_friends:
+        my_friends_ids.update(pair)
+    my_friends_ids.discard(request.user.id)  # Убираем ID текущего пользователя
+
+    # Найдем пользователей с общими друзьями и посчитаем их количество
+    for user in results:  # Считаем общих друзей для всех пользователей, а не только для non_friends
+        # Получаем всех друзей пользователя
+        user_friends = Friend.objects.filter(
+            Q(user=user) | Q(friend=user),
+            status='accepted'
+        ).values_list('user', 'friend')
+
+        # Преобразуем список друзей пользователя в множество и исключаем его самого
+        user_friends_ids = set()
+        for pair in user_friends:
+            user_friends_ids.update(pair)
+        user_friends_ids.discard(user.id)  # Убираем ID самого пользователя
+
+        # Считаем общих друзей между текущим пользователем и найденными пользователями
+        common_friends = my_friends_ids.intersection(user_friends_ids)
+        common_friends_count[user.id] = len(common_friends)
+
     # Сначала друзья, потом те, которые вам отправили запрос, потом которым вы отправили запрос, и другие пользователи
     results = list(confirmed_friends) + list(pending_requests) + list(User.objects.filter(id__in=pending_requests_reverse)) + list(non_friends)
+
+    # Добавляем количество общих друзей к каждому пользователю
+    for user in results:
+        user.common_friends_count = common_friends_count.get(user.id, 0)  # Добавляем поле с количеством общих друзей
 
     context = {
         'query': query,
         'results': results,
         'friends': confirmed_friends,
         'pending_requests': pending_requests,
-        'pending_requests_reverse': User.objects.filter(id__in=pending_requests_reverse)  # Для отображения в шаблоне
+        'pending_requests_reverse': User.objects.filter(id__in=pending_requests_reverse),  # Для отображения в шаблоне
+        'common_friends_count': common_friends_count  # Для отображения общего количества друзей
     }
     
     return render(request, 'main/search_friends.html', context)

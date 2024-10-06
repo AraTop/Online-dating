@@ -185,7 +185,7 @@
            {% if friends %}
            <hr>
              {% for friend in friends %}
-               <div class="form-group">
+               <div >
                  <div style="float: left; margin-right: 20px;">
                    <div class="profile-picture-wrapper">
                      {% if friend.profile_icon %}
@@ -210,9 +210,8 @@
                      </form>
                    </details>
                  </div>
-                 <div style="clear: both;"></div>
-                 <hr>
                </div>
+               <hr>
              {% endfor %}
            {% else %}
              <h3>У вас нет друзей, можете найти их <a href="/search">Жмяк</a></h3>

@@ -339,7 +339,9 @@
             </div>
             <div style="float: left;">
               <a href="/users/{{ user.pk }}/">{{ user.first_name }} {{ user.last_name }}</a><br>
-              <a style="color: black;" href="">1 общий друг</a>
+              {% if user.common_friends_count > 0 %}
+                <a style="color: black;" href="">{{ user.common_friends_count }} общий друг</a>
+              {% endif %}
               <a href="/message/dialog/{{ user.pk }}"><h6>Написать сообщение</h6></a>
             </div>
             <div style="float: right;">
