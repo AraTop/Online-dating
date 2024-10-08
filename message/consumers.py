@@ -13,7 +13,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope['user']
         self.other_user_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.room_group_name = f'chat_{min(self.user.id, self.other_user_id)}_{max(self.user.id, self.other_user_id)}'
-
+        
+        # Подключение к группе чата
         connected_users[self.user.id] = {
             'channel_name': self.channel_name,
             'room_group_name': self.room_group_name
@@ -23,6 +24,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        
+        # Подключение к группе уведомлений
+        self.notification_group_name = f'notifications_{self.user.id}'
+        await self.channel_layer.group_add(
+            self.notification_group_name,
+            self.channel_name
+        )
+        
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -31,6 +40,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_discard(
             self.room_group_name,
+            self.channel_name
+        )
+
+        # Отключение от группы уведомлений
+        await self.channel_layer.group_discard(
+            self.notification_group_name,
             self.channel_name
         )
 
@@ -82,6 +97,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp': timestamp,
                 'profile_icon': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png',
                 'is_read': is_read
+            }
+        )
+        
+        # Отправка уведомления о новом сообщении
+        await self.channel_layer.group_send(
+            f'notifications_{receiver.id}',
+            {
+                'type': 'notify_new_message',
+                'contact_id': sender.id,
+                'message': message.content,
+                'sender_profile_icon_url': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png',
+                'sender_first_name': sender.first_name,
+                'sender_last_name': sender.last_name,
+                'unread_count': await sync_to_async(Message.objects.filter(receiver=receiver, is_read=False).count)()
             }
         )
 
@@ -175,3 +204,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'is_online': event['is_online'],
                 'last_activity': event['last_activity']
             }))
+
+    async def notify_new_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'new_message',
+            'contact_id': event['contact_id'],
+            'message': event['message'],
+            'unread_count': event['unread_count'],
+            'sender_profile_icon_url': event.get('sender_profile_icon_url'),
+            'sender_first_name': event.get('sender_first_name'),
+            'sender_last_name': event.get('sender_last_name')
+        }))

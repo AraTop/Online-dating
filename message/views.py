@@ -124,3 +124,14 @@ def get_message_history(request, user_id):
     ]
     
     return JsonResponse({'messages': messages_data})
+
+
+@login_required
+def delete_chat_for_both(request, user_id):
+    # Удаляем все сообщения между двумя пользователями
+    other_user = get_object_or_404(User, id=user_id)
+    Message.objects.filter(
+        Q(sender=request.user, receiver=other_user) | 
+        Q(sender=other_user, receiver=request.user)
+    ).delete()
+    return redirect('inbox')  # Вернуться в папку "Входящие"

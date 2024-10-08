@@ -63,7 +63,7 @@
       margin: auto;
       right: 265px;
       background-color: #f9f9f9;
-      border-radius: 10px;
+      border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       height: 512px;
@@ -255,6 +255,10 @@
       width: 100%;
       transition: background 0.3s ease;
    }
+   .delete-button:hover {
+        color: rgb(31, 23, 23); /* Цвет при наведении */
+        background-color: #505050; /* Фоновый цвет при наведении (по желанию) */
+    }
 </style>
 <div class="container">
    <div class="row">
@@ -287,8 +291,11 @@
       </div>
       <div class="contact-list-container">
          {% if contacts_with_unread_messages %}
+            <div class="search-container" style="display: block">
+               <input type="text" id="searchInput" name="q" class="form-control" placeholder="Введите Имя или фамилию" onkeyup="filterContacts()">
+            </div>
             {% for item in contacts_with_unread_messages %}
-               <div class="contact-card{% if item.unread_count > 0 %} new-message{% endif %}">
+               <div class="contact-card{% if item.unread_count > 0 %} new-message{% endif %}" data-contact-id="{{ item.contact.id }}">
                   <div class="contact-profile-pic">
                      <a href="{% url 'dialog' item.contact.id %}">
                         {% if item.contact.profile_icon %}
@@ -322,6 +329,21 @@
                         </div>
                      </a>
                   </div>
+                  <div style="position: relative; display: inline-block; top: -25px; right: -20px;">
+                     <button 
+                         onmouseenter="showDropdown(this)" 
+                         onmouseleave="startHideDropdown(this)" 
+                         style="background-color: #f1f1f1; border: none; color: #333; border-radius: 5px; cursor: pointer;">
+                         ⋮
+                     </button>
+                     <div class="dropdown-content" 
+                          style="display: none; position: absolute; left: -50px; top: 30px; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 5px;" 
+                          onmouseenter="showDropdown(this.previousElementSibling)" 
+                          onmouseleave="hideDropdown(this)">
+                         <a href="#" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить только у себя</a>
+                         <a href="/message/delete_chat/both/{{ item.contact.id }}" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить у себя и у {{ item.contact.first_name }}</a>
+                     </div>
+                 </div>
                </div>
             {% endfor %}
          {% else %}
@@ -335,4 +357,125 @@
 {% else %}
    <h3>Создать аккаунт, или войдите</h3>
 {% endif %}
+<script>
+   let hideTimeout;
+    let currentDropdown = null;
+
+    function showDropdown(button) {
+        const dropdown = button.nextElementSibling;
+
+        // Скрыть предыдущее выпадающее окно, если оно открыто и не совпадает с текущим
+        if (currentDropdown && currentDropdown !== dropdown) {
+            hideDropdown(currentDropdown);
+        }
+
+        clearTimeout(hideTimeout);
+        dropdown.style.display = 'block';
+        currentDropdown = dropdown; // Установить текущее выпадающее окно
+    }
+
+    function startHideDropdown(button) {
+        hideTimeout = setTimeout(() => hideDropdown(button.nextElementSibling), 100);
+    }
+
+    function hideDropdown(dropdown) {
+        dropdown.style.display = 'none';
+        if (currentDropdown === dropdown) {
+            currentDropdown = null; // Сбросить текущее открытое окно
+        }
+    }
+
+   function filterContacts() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toLowerCase();
+      const contactCards = document.getElementsByClassName('contact-card');
+
+      for (let i = 0; i < contactCards.length; i++) {
+         const contactName = contactCards[i].querySelector('.contact-name').innerText.toLowerCase();
+         if (contactName.includes(filter)) {
+            contactCards[i].style.display = '';
+         } else {
+            contactCards[i].style.display = 'none';
+         }
+      }
+   }
+   // Получите userId текущего пользователя 
+   const userId = "{{ user.id }}";  // Предположим, что вы передаете id пользователя из Django в шаблон
+   // Открытие WebSocket соединения
+   const inboxSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
+
+   inboxSocket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'new_message') {
+        const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+
+        // Если контакт не найден, создаем новый элемент чата
+        if (!contactCard) {
+            const newContactCard = document.createElement('div');
+            newContactCard.classList.add('contact-card');
+            newContactCard.setAttribute('data-contact-id', data.contact_id);
+            newContactCard.innerHTML = `
+                <div class="contact-profile-pic">
+                    <a href="/message/dialog/${data.contact_id}">
+                        <img src="${data.sender_profile_icon_url}" alt="${data.sender_first_name}">
+                    </a>
+                </div>
+                <div class="contact-info">
+                    <a href="/message/dialog/${data.contact_id}">
+                        <div class="contact-name">${data.sender_first_name} ${data.sender_last_name}</div>
+                        <div class="last-message-sender">
+                            <p class="last-message"> ${data.message}</p>
+                            <span class="unread-count">1 new</span>
+                        </div>
+                    </a>
+                </div>
+            `;
+            document.querySelector('.contact-list-container').appendChild(newContactCard);
+
+            // Убираем надпись о том, что переписок нет, и показываем поиск
+            const noContactsText = document.querySelector('.no-contacts');
+            if (noContactsText) {
+                noContactsText.style.display = 'none'; // Скрываем текст
+            }
+        } else {
+            // Если контакт найден, обновляем текст последнего сообщения
+            const lastMessage = contactCard.querySelector('.last-message');
+            const unreadCount = contactCard.querySelector('.unread-count');
+
+            lastMessage.innerText = ` ${data.message}`; // Обновляем текст последнего сообщения
+
+            // Обновляем изображение отправителя
+            const lastMessageSenderImg = lastMessage.querySelector('img');
+            if (lastMessageSenderImg) {
+                lastMessageSenderImg.src = data.sender_profile_icon_url; // Предполагается, что этот URL передается сервером
+            } else {
+                const img = document.createElement('img');
+                img.src = data.sender_profile_icon_url;
+                img.alt = data.sender_first_name; // Предполагается, что имя отправителя также передается
+                lastMessage.prepend(img); // Добавляем изображение перед текстом
+            }
+
+            if (unreadCount) {
+                const currentCount = parseInt(unreadCount.innerText) || 0;
+                unreadCount.innerText = `${currentCount + 1} new`; // Обновляем количество непрочитанных
+            } else {
+                const newCount = document.createElement('span');
+                newCount.className = 'unread-count';
+                newCount.innerText = `1 new`;
+                contactCard.querySelector('.last-message-sender').appendChild(newCount); // Добавляем новый счетчик непрочитанных
+            }
+            contactCard.classList.add('new-message'); // Помечаем контакт как новый
+        }
+    }
+};
+
+   inboxSocket.onclose = function(event) {
+       console.log('WebSocket closed:', event);
+   };
+
+   inboxSocket.onerror = function(error) {
+       console.error('WebSocket error:', error);
+   };
+</script>
 {% endblock %}
