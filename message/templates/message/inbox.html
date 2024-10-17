@@ -409,63 +409,98 @@
 
     if (data.type === 'new_message') {
         const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+        const contactListContainer = document.querySelector('.contact-list-container');
+        let searchContainer = document.querySelector('.search-container');
+        const noContactsMessage = document.querySelector('.no-contacts'); // Элемент с сообщением о том, что нет переписок
+        const messageInputContainer = document.querySelector('.input-message-container'); // Поле для ввода сообщений
 
-        // Если контакт не найден, создаем новый элемент чата
+        // Если карточки контакта не существует, создаем новую карточку
         if (!contactCard) {
+            // Убираем сообщение "У вас нет переписки с другими пользователями", если оно есть
+            if (noContactsMessage) {
+                noContactsMessage.remove();
+            }
+
+            // Если контейнер поиска не существует, создаем его
+            if (!searchContainer) {
+                searchContainer = document.createElement('div');
+                searchContainer.classList.add('search-container');
+                searchContainer.style.display = 'block';
+                searchContainer.innerHTML = `
+                    <input type="text" id="searchInput" name="q" class="form-control" placeholder="Введите Имя или фамилию" onkeyup="filterContacts()">
+                `;
+                contactListContainer.prepend(searchContainer);
+            }
+
+            // Создаем новую карточку чата
             const newContactCard = document.createElement('div');
-            newContactCard.classList.add('contact-card');
+            newContactCard.classList.add('contact-card', 'new-message');
             newContactCard.setAttribute('data-contact-id', data.contact_id);
+
             newContactCard.innerHTML = `
                 <div class="contact-profile-pic">
                     <a href="/message/dialog/${data.contact_id}">
-                        <img src="${data.sender_profile_icon_url}" alt="${data.sender_first_name}">
+                        <img src="${data.sender_profile_icon_url || '/static/images/default-profile.png'}" alt="${data.sender_first_name}">
                     </a>
                 </div>
                 <div class="contact-info">
                     <a href="/message/dialog/${data.contact_id}">
                         <div class="contact-name">${data.sender_first_name} ${data.sender_last_name}</div>
                         <div class="last-message-sender">
-                            <p class="last-message"> ${data.message}</p>
-                            <span class="unread-count">1 new</span>
+                            <div class="profile-image-wrapper">
+                                <div class="status-icon ${data.is_online ? 'online' : 'offline'}"></div>
+                            </div>
+                            <p class="last-message">
+                                <img src="${data.sender_profile_icon_url || '/static/images/default-profile.png'}" alt="${data.sender_first_name}">
+                                ${data.message}
+                            </p>
+                            <span class="unread-count">${data.unread_count} new</span>
                         </div>
                     </a>
                 </div>
             `;
-            document.querySelector('.contact-list-container').appendChild(newContactCard);
 
-            // Убираем надпись о том, что переписок нет, и показываем поиск
-            const noContactsText = document.querySelector('.no-contacts');
-            if (noContactsText) {
-                noContactsText.style.display = 'none'; // Скрываем текст
+            // Добавляем новую карточку контакта после контейнера поиска
+            contactListContainer.insertBefore(newContactCard, searchContainer.nextSibling);
+
+            // Проверяем, действительно ли карточка была добавлена
+            const addedCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+            if (!addedCard) {
+                console.error("Карточка не была добавлена в DOM.");
             }
+
+            // Показываем поле для ввода сообщений, если оно скрыто
+            if (messageInputContainer) {
+                messageInputContainer.style.display = 'block';
+            }
+
         } else {
-            // Если контакт найден, обновляем текст последнего сообщения
+            // Если карточка контакта существует, обновляем ее
             const lastMessage = contactCard.querySelector('.last-message');
-            const unreadCount = contactCard.querySelector('.unread-count');
+            lastMessage.innerHTML = `
+                <img src="${data.sender_profile_icon_url || '/static/images/default-profile.png'}" alt="${data.sender_first_name}"> ${data.message}
+            `;
 
-            lastMessage.innerText = ` ${data.message}`; // Обновляем текст последнего сообщения
-
-            // Обновляем изображение отправителя
-            const lastMessageSenderImg = lastMessage.querySelector('img');
-            if (lastMessageSenderImg) {
-                lastMessageSenderImg.src = data.sender_profile_icon_url; // Предполагается, что этот URL передается сервером
-            } else {
-                const img = document.createElement('img');
-                img.src = data.sender_profile_icon_url;
-                img.alt = data.sender_first_name; // Предполагается, что имя отправителя также передается
-                lastMessage.prepend(img); // Добавляем изображение перед текстом
-            }
-
+            // Обновляем счетчик непрочитанных сообщений
+            let unreadCount = contactCard.querySelector('.unread-count');
             if (unreadCount) {
-                const currentCount = parseInt(unreadCount.innerText) || 0;
-                unreadCount.innerText = `${currentCount + 1} new`; // Обновляем количество непрочитанных
+                let currentUnread = parseInt(unreadCount.innerText.split(' ')[0]);
+                currentUnread += 1; // Увеличиваем на 1
+                unreadCount.innerText = `${currentUnread} new`; // Обновляем текст счетчика
             } else {
-                const newCount = document.createElement('span');
-                newCount.className = 'unread-count';
-                newCount.innerText = `1 new`;
-                contactCard.querySelector('.last-message-sender').appendChild(newCount); // Добавляем новый счетчик непрочитанных
+                // Если счетчика нет, создаем его
+                const newUnreadCount = document.createElement('span');
+                newUnreadCount.classList.add('unread-count');
+                newUnreadCount.innerText = `${data.unread_count} new`;
+                contactCard.querySelector('.last-message-sender').appendChild(newUnreadCount);
             }
-            contactCard.classList.add('new-message'); // Помечаем контакт как новый
+
+            // Обновляем статус (в сети / не в сети)
+            const statusIcon = contactCard.querySelector('.status-icon');
+            if (statusIcon) {
+                statusIcon.classList.remove('online', 'offline');
+                statusIcon.classList.add(data.is_online ? 'online' : 'offline');
+            }
         }
     }
 };

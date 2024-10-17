@@ -76,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             connected_users[self.other_user_id]['room_group_name'] == self.room_group_name
         )
 
-        message = await sync_to_async(Message.objects.create)(
+        message = await sync_to_async(Message.objects.create)( 
             sender=sender,
             receiver=receiver,
             content=message_content,
@@ -84,6 +84,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         timestamp = datetime.now().isoformat()
+
+        # Передача статуса онлайн
+        is_online = receiver.is_online  # Получаем статус пользователя
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -96,7 +99,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender_id': sender.id,
                 'timestamp': timestamp,
                 'profile_icon': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png',
-                'is_read': is_read
+                'is_read': is_read,
+                'is_online': is_online  # Передаем статус онлайн
             }
         )
         
@@ -182,7 +186,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender_id': event['sender_id'],
                 'timestamp': event['timestamp'],
                 'profile_icon': event['profile_icon'],
-                'is_read': event['is_read']
+                'is_read': event['is_read'],
+                'is_online': event['is_online'],  # Получаем статус пользователя
             }))
         
         elif action == 'edit':
@@ -213,5 +218,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'unread_count': event['unread_count'],
             'sender_profile_icon_url': event.get('sender_profile_icon_url'),
             'sender_first_name': event.get('sender_first_name'),
-            'sender_last_name': event.get('sender_last_name')
+            'sender_last_name': event.get('sender_last_name'),
+            'is_online': event.get('is_online')  # Передаем статус пользователя
         }))
