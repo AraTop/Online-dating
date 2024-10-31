@@ -199,8 +199,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'sender_id': receiver_id
                     }
                 )
-            else:
-                print("No messages were deleted.")
 
             # Уведомляем получателя и передаем last_message в виде словаря
             await self.channel_layer.group_send(

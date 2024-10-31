@@ -350,38 +350,41 @@
       const chatSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
 
       chatSocket.onmessage = function(e) {
-          const data = JSON.parse(e.data);
-          console.log('Received WebSocket message:', data);
-          const action = data['action'];
-          const messageId = data['message_id'];
+    const data = JSON.parse(e.data);
+    console.log('Received WebSocket message:', data);
+    const action = data['action'];
+    const messageId = data['message_id'];
 
-          if (action === 'new') {
-              if (!messageIds.has(messageId)) {
-                  messageIds.add(messageId);
-                  addMessageToChat(data);
-              }
-          } else if (action === 'edit') {
-              const messageElement = document.querySelector(`#message-text-${messageId}`);
-              if (messageElement) {
-                  messageElement.innerText = data['message'];
-              }
-          } else if (action === 'delete') {
-              const messageElement = document.querySelector(`#message-${messageId}`);
-              if (messageElement) {
-                  messageElement.remove();
-                  checkForNoMessages();
-              }
-          } else if (action === 'status_update') {
-              const lastActivityDate = new Date(data['last_activity']);
-              if (data['is_online']) {
-                  statusIndicator.innerText = 'online';
-                  statusIndicator.style.marginLeft = '50px';
-              } else {
-                  statusIndicator.innerText = `Был в сети ${formatDate(lastActivityDate)}`;
-                  statusIndicator.style.marginLeft = '-25px';
-              }
-          }
-      };
+    if (action === 'new') {
+        if (!messageIds.has(messageId)) {
+            messageIds.add(messageId);
+            addMessageToChat(data);
+        }
+    } else if (action === 'edit') {
+        const messageElement = document.querySelector(`#message-text-${messageId}`);
+        if (messageElement) {
+            messageElement.innerText = data['message'];
+        }
+    } else if (action === 'delete') {
+        const messageElement = document.querySelector(`#message-${messageId}`);
+        if (messageElement) {
+            messageElement.remove();
+            checkForNoMessages();
+        }
+    } else if (action === 'status_update') {
+        const lastActivityDate = new Date(data['last_activity']);
+        if (data['is_online']) {
+            statusIndicator.innerText = 'online';
+            statusIndicator.style.marginLeft = '50px';
+        } else {
+            statusIndicator.innerText = `Был в сети ${formatDate(lastActivityDate)}`;
+            statusIndicator.style.marginLeft = '-25px';
+        }
+    } else if (action === 'delete_chat') {
+        // Очистка чата и отображение сообщения об отсутствии переписки
+        messagesContainer.innerHTML = ``;
+    }
+};
 
       chatSocket.onclose = function(e) {
           console.error('Chat socket closed unexpectedly');

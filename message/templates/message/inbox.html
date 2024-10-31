@@ -348,7 +348,7 @@
             {% endfor %}
          {% else %}
             <div class="no-contacts">
-               <p>У вас нет переписки с другими пользователями</p>
+               <p>У вас нет чатов с другими пользователями</p>
             </div>
          {% endif %}
       </div>
@@ -553,7 +553,6 @@
     // Обработка удаления чата
     if (data.action === 'delete_chat') {
       console.log(`Получено уведомление о удалении чата для контакта ID: ${data.contact_id}`);
-
       const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
       if (contactCard) {
          contactCard.remove();
@@ -570,7 +569,7 @@
          if (!noContactsMessage) {
                const newNoContactsMessage = document.createElement('div');
                newNoContactsMessage.classList.add('no-contacts');
-               newNoContactsMessage.innerHTML = '<p>У вас нет переписки с другими пользователями</p>';
+               newNoContactsMessage.innerHTML = '<p>У вас нет чатов с другими пользователями</p>';
                contactListContainer.appendChild(newNoContactsMessage);
          }
 
@@ -589,6 +588,18 @@
       }
    }
 };
+   if (data.type === 'edit') {
+      console.log('Editing message data:', data); // Логирование данных
+      const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+      if (contactCard) {
+         const lastMessage = contactCard.querySelector('.last-message');
+         if (lastMessage) { // Убедитесь, что lastMessage существует
+               lastMessage.innerHTML = `
+                  <img src="${data.sender_profile_icon_url || '/static/images/default-profile.png'}" alt="${data.sender_first_name}"> ${data.message}
+               `;
+         }
+      }
+   }
 
    inboxSocket.onclose = function(event) {
        console.log('WebSocket closed:', event);
