@@ -4,6 +4,7 @@ from users.models import User
 from asgiref.sync import sync_to_async
 from .models import Message
 from datetime import datetime
+from django.db.models import Q
 
 # Хранилище для подключенных пользователей
 connected_users = {}
@@ -59,6 +60,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_edit_message(data)
         elif action == 'delete':
             await self.handle_delete_message(data)
+        elif action == 'delete_chat':
+            await self.handle_delete_chat(data)
         elif action == 'request_status':
             await self.handle_request_status(data)
 
@@ -86,7 +89,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         timestamp = datetime.now().isoformat()
 
         # Передача статуса онлайн
-        is_online = receiver.is_online  # Получаем статус пользователя
+        is_online = receiver.is_online
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -100,7 +103,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp': timestamp,
                 'profile_icon': sender.profile_icon.url if sender.profile_icon else '/static/images/default-profile.png',
                 'is_read': is_read,
-                'is_online': is_online  # Передаем статус онлайн
+                'is_online': is_online
             }
         )
         
@@ -147,7 +150,71 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         try:
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
+            receiver_id = await sync_to_async(lambda: message.receiver.id)()
             await sync_to_async(message.delete)()
+                
+            # Получаем последнее сообщение и извлекаем его данные
+            last_message = await sync_to_async(
+                lambda: Message.objects.filter(
+                    (Q(sender_id=sender_id, receiver_id=receiver_id) | Q(sender_id=receiver_id, receiver_id=sender_id))
+                ).order_by('-timestamp').first()
+            )()
+
+            # Получаем фото отправителя и получателя по их ID
+            sender_user = await sync_to_async(lambda: User.objects.get(id=sender_id))()
+            receiver_user = await sync_to_async(lambda: User.objects.get(id=receiver_id))()
+
+            sender_photo_url = sender_user.profile_icon.url if sender_user.profile_icon else '/static/images/default-profile.png'
+            receiver_photo_url = receiver_user.profile_icon.url if receiver_user.profile_icon else '/static/images/default-profile.png'
+
+            # Преобразуем последнее сообщение в словарь
+            last_message_data = {
+                'id': last_message.pk,
+                'sender_id': last_message.sender_id,
+                'receiver_id': last_message.receiver_id,
+                'content': last_message.content,
+                'timestamp': last_message.timestamp.isoformat() if last_message else None
+            } if last_message else None
+            
+            # Проверяем, есть ли последнее сообщение
+            if last_message is None:
+                # Уведомляем об удалении чата
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'action': 'delete_chat',
+                        'contact_id': receiver_id,
+                        'sender_id': sender_id
+                    }
+                )
+                
+                # Уведомляем вторую сторону об удалении чата
+                await self.channel_layer.group_send(
+                    f'notifications_{receiver_id}',  # Или другой идентификатор, чтобы гарантировать уведомление второй стороне
+                    {
+                        'type': 'chat_message',
+                        'action': 'delete_chat',
+                        'contact_id': sender_id,
+                        'sender_id': receiver_id
+                    }
+                )
+            else:
+                print("No messages were deleted.")
+
+            # Уведомляем получателя и передаем last_message в виде словаря
+            await self.channel_layer.group_send(
+                f'notifications_{receiver_id}',
+                {
+                    'type': 'notify_deleted_message',
+                    'message_id': message_id,
+                    'sender_id': sender_id,
+                    'receiver_id': receiver_id,
+                    'last_message': last_message_data,
+                    'sender_photo_url': sender_photo_url,
+                    'receiver_photo_url': receiver_photo_url,
+                }
+            )
 
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -155,11 +222,55 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'type': 'chat_message',
                     'action': 'delete',
                     'message_id': message_id,
+                    'sender_id': sender_id,
+                    'receiver_id': receiver_id,
+                    'last_message': last_message_data,
+                    'sender_photo_url': sender_photo_url,
+                    'receiver_photo_url': receiver_photo_url,
                 }
             )
         except Message.DoesNotExist:
             pass
 
+    async def handle_delete_chat(self, data):
+        sender_id = self.user.id
+        receiver_id = data['contact_id']
+
+        #print(f"Sender ID: {sender_id}, Receiver ID: {receiver_id}")
+
+        # Удаление всех сообщений между пользователями
+        deleted_count, _ = await sync_to_async(Message.objects.filter(
+            Q(sender_id=sender_id, receiver_id=receiver_id) |
+            Q(sender_id=receiver_id, receiver_id=sender_id)
+        ).delete)()
+        
+        #print(f"Messages deleted: {deleted_count}")
+
+        # Если удаление прошло успешно, уведомляем обе стороны
+        if deleted_count > 0:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'action': 'delete_chat',
+                    'contact_id': receiver_id,
+                    'sender_id': sender_id
+                }
+            )
+            
+            # Уведомляем вторую сторону об удалении чата
+            await self.channel_layer.group_send(
+                f'notifications_{receiver_id}',  # Или другой идентификатор, чтобы гарантировать уведомление второй стороне
+                {
+                    'type': 'chat_message',
+                    'action': 'delete_chat',
+                    'contact_id': sender_id,
+                    'sender_id': receiver_id
+                }
+            )
+        else:
+            print("No messages were deleted.")
+            
     async def handle_request_status(self, data):
         user_id = data['user_id']
         other_user = await sync_to_async(User.objects.get)(id=user_id)
@@ -187,7 +298,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp': event['timestamp'],
                 'profile_icon': event['profile_icon'],
                 'is_read': event['is_read'],
-                'is_online': event['is_online'],  # Получаем статус пользователя
+                'is_online': event['is_online'],
             }))
         
         elif action == 'edit':
@@ -200,7 +311,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif action == 'delete':
             await self.send(text_data=json.dumps({
                 'action': action,
-                'message_id': event['message_id']
+                'message_id': event['message_id'],
+                'sender_id': event['sender_id'],
+                'receiver_id': ['receiver_id'],
+                'last_message': event['last_message'],
+                'sender_photo_url': event['sender_photo_url'],
+                'receiver_photo_url': event['receiver_photo_url'],
+            }))
+        
+        elif action == 'delete_chat':
+            await self.send(text_data=json.dumps({
+                'action': action,
+                'contact_id': event['contact_id'],
+                'message': 'Chat has been deleted'  # Можно передать сообщение, если нужно
             }))
         
         elif action == 'status_update':
@@ -219,5 +342,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_profile_icon_url': event.get('sender_profile_icon_url'),
             'sender_first_name': event.get('sender_first_name'),
             'sender_last_name': event.get('sender_last_name'),
-            'is_online': event.get('is_online')  # Передаем статус пользователя
+            'is_online': event.get('is_online')
+        }))
+
+    async def notify_deleted_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'delete',
+            'message_id': event['message_id'],
+            'sender_id': event['sender_id'],
+            'receiver_id': ['receiver_id'],
+            'last_message': event['last_message'],
+            'sender_photo_url': event['sender_photo_url'],
+            'receiver_photo_url': event['receiver_photo_url'],
         }))

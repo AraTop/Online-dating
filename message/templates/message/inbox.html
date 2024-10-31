@@ -341,7 +341,7 @@
                           onmouseenter="showDropdown(this.previousElementSibling)" 
                           onmouseleave="hideDropdown(this)">
                          <a href="#" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить только у себя</a>
-                         <a href="/message/delete_chat/both/{{ item.contact.id }}" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить у себя и у {{ item.contact.first_name }}</a>
+                         <a href="/message/delete_chat/both/{{ item.contact.id }}" data-contact-id="{{ item.contact.id }}" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить у себя и у {{ item.contact.first_name }}</a>
                      </div>
                  </div>
                </div>
@@ -412,7 +412,6 @@
         const contactListContainer = document.querySelector('.contact-list-container');
         let searchContainer = document.querySelector('.search-container');
         const noContactsMessage = document.querySelector('.no-contacts'); // Элемент с сообщением о том, что нет переписок
-        const messageInputContainer = document.querySelector('.input-message-container'); // Поле для ввода сообщений
 
         // Если карточки контакта не существует, создаем новую карточку
         if (!contactCard) {
@@ -431,6 +430,7 @@
                 `;
                 contactListContainer.prepend(searchContainer);
             }
+            searchContainer.style.display = 'block';
 
             // Создаем новую карточку чата
             const newContactCard = document.createElement('div');
@@ -505,9 +505,89 @@
 
             // Перемещаем карточку в начало списка
             contactCard.remove(); // Удаляем текущую карточку
+            if (searchContainer) {
+               searchContainer.style.display = 'block';
+            }
             contactListContainer.insertBefore(contactCard, searchContainer.nextSibling); // Вставляем её в начало списка
         }
     }
+    console.log('Получено сообщение:', data); // Логируем полученное сообщение
+
+    if (data.type === 'delete') {
+    console.log(`Последние смс: ${data.last_message.content}`);
+    console.log(`Сообщение с ID ${data.message_id} было удалено пользователем с ID ${data.sender_id}.`);
+    
+    const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.sender_id}"]`);
+
+    if (contactCard) {
+        const lastMessage = contactCard.querySelector('.last-message');
+        const unreadCount = contactCard.querySelector('.unread-count');
+
+        // Если удаленное сообщение было последним непрочитанным
+        if (data.last_message) {
+            // Добавляем фото отправителя сообщения
+            const senderPhoto = data.last_message.sender_id === data.sender_id ? data.sender_photo_url : data.receiver_photo_url;
+            lastMessage.innerHTML = `
+                <img src="${senderPhoto}" alt="${data.sender_first_name}"> ${data.last_message.content}
+            `;
+
+            // Обновляем счетчик непрочитанных
+            if (unreadCount) {
+                let newUnreadCount = Math.max(0, parseInt(unreadCount.textContent) - 1);
+                unreadCount.textContent = newUnreadCount > 0 ? `${newUnreadCount} new ` : '';
+            }
+        } else {
+            lastMessage.textContent = data.last_message.content;
+            if (unreadCount) unreadCount.textContent = '';
+        }
+
+        // Если непрочитанных больше нет, удаляем их счетчик
+        if (unreadCount && unreadCount.textContent === '') {
+            contactCard.classList.remove('new-message');
+            if (unreadCount.parentNode) {
+                unreadCount.parentNode.removeChild(unreadCount);
+            }
+        }
+    }
+}
+    // Обработка удаления чата
+    if (data.action === 'delete_chat') {
+      console.log(`Получено уведомление о удалении чата для контакта ID: ${data.contact_id}`);
+
+      const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+      if (contactCard) {
+         contactCard.remove();
+         console.log(`Удалена карточка контакта с ID: ${data.contact_id}`);
+      }
+
+      const contactCards = document.querySelectorAll('.contact-card');
+      const contactListContainer = document.querySelector('.contact-list-container');
+      const searchContainer = document.querySelector('.search-container');
+      const noContactsMessage = document.querySelector('.no-contacts');
+
+      if (contactCards.length === 0) {
+         // Если нет контактов, показываем сообщение и скрываем поле поиска
+         if (!noContactsMessage) {
+               const newNoContactsMessage = document.createElement('div');
+               newNoContactsMessage.classList.add('no-contacts');
+               newNoContactsMessage.innerHTML = '<p>У вас нет переписки с другими пользователями</p>';
+               contactListContainer.appendChild(newNoContactsMessage);
+         }
+
+         if (searchContainer) {
+               searchContainer.style.display = 'none'; // Скрываем поле поиска
+         }
+      } else {
+         // Если есть контакты, убираем сообщение и показываем поле поиска
+         if (noContactsMessage) {
+               noContactsMessage.remove(); // Убираем сообщение
+         }
+
+         if (searchContainer) {
+               searchContainer.style.display = 'block'; // Показываем поле поиска
+         }
+      }
+   }
 };
 
    inboxSocket.onclose = function(event) {
@@ -517,5 +597,19 @@
    inboxSocket.onerror = function(error) {
        console.error('WebSocket error:', error);
    };
+
+   document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-button')) {
+            event.preventDefault();
+            const contactId = event.target.getAttribute('data-contact-id');
+            console.log(`Удаление чата для контакта ID: ${contactId}`); // Логируем ID контакта
+            inboxSocket.send(JSON.stringify({
+                'action': 'delete_chat',
+                'contact_id': contactId
+            }));
+        }
+    });
+});
 </script>
 {% endblock %}
