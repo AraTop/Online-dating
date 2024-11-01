@@ -514,42 +514,37 @@
     console.log('Получено сообщение:', data); // Логируем полученное сообщение
 
     if (data.type === 'delete') {
-    console.log(`Последние смс: ${data.last_message.content}`);
-    console.log(`Сообщение с ID ${data.message_id} было удалено пользователем с ID ${data.sender_id}.`);
-    
-    const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.sender_id}"]`);
+      console.log(`Сообщение с ID ${data.message_id} было удалено пользователем с ID ${data.sender_id}.`);
+      console.log(`Сообщение которое пришло ${data.last_message.content}`);
+      const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.sender_id}"]`);
 
-    if (contactCard) {
-        const lastMessage = contactCard.querySelector('.last-message');
-        const unreadCount = contactCard.querySelector('.unread-count');
+      if (contactCard) {
+         const lastMessage = contactCard.querySelector('.last-message');
+         const unreadCount = contactCard.querySelector('.unread-count');
 
-        // Если удаленное сообщение было последним непрочитанным
-        if (data.last_message) {
-            // Добавляем фото отправителя сообщения
-            const senderPhoto = data.last_message.sender_id === data.sender_id ? data.sender_photo_url : data.receiver_photo_url;
-            lastMessage.innerHTML = `
-                <img src="${senderPhoto}" alt="${data.sender_first_name}"> ${data.last_message.content}
-            `;
+         if (data.last_message) {
+               // Добавляем фото отправителя сообщения
+               const senderPhoto = data.last_message.sender_id === data.sender_id ? data.sender_photo_url : data.receiver_photo_url;
+               lastMessage.innerHTML = `
+                  <img src="${senderPhoto}" alt="${data.sender_first_name}"> ${data.last_message.content}
+               `;
 
-            // Обновляем счетчик непрочитанных
-            if (unreadCount) {
-                let newUnreadCount = Math.max(0, parseInt(unreadCount.textContent) - 1);
-                unreadCount.textContent = newUnreadCount > 0 ? `${newUnreadCount} new ` : '';
-            }
-        } else {
-            lastMessage.textContent = data.last_message.content;
-            if (unreadCount) unreadCount.textContent = '';
-        }
+               // Обновляем счетчик непрочитанных
+               if (unreadCount) {
+                  let newUnreadCount = Math.max(0, parseInt(unreadCount.textContent) - 1);
+                  unreadCount.textContent = newUnreadCount > 0 ? `${newUnreadCount} new ` : '';
+               }
+         }
 
-        // Если непрочитанных больше нет, удаляем их счетчик
-        if (unreadCount && unreadCount.textContent === '') {
-            contactCard.classList.remove('new-message');
-            if (unreadCount.parentNode) {
-                unreadCount.parentNode.removeChild(unreadCount);
-            }
-        }
-    }
-}
+         // Если непрочитанных больше нет, удаляем их счетчик
+         if (unreadCount && unreadCount.textContent === '') {
+               contactCard.classList.remove('new-message');
+               if (unreadCount.parentNode) {
+                  unreadCount.parentNode.removeChild(unreadCount);
+               }
+         }
+      }
+   }
     // Обработка удаления чата
     if (data.action === 'delete_chat') {
       console.log(`Получено уведомление о удалении чата для контакта ID: ${data.contact_id}`);
@@ -587,19 +582,16 @@
          }
       }
    }
-};
-   if (data.type === 'edit') {
-      console.log('Editing message data:', data); // Логирование данных
-      const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
-      if (contactCard) {
-         const lastMessage = contactCard.querySelector('.last-message');
-         if (lastMessage) { // Убедитесь, что lastMessage существует
-               lastMessage.innerHTML = `
-                  <img src="${data.sender_profile_icon_url || '/static/images/default-profile.png'}" alt="${data.sender_first_name}"> ${data.message}
-               `;
-         }
-      }
-   }
+   if (data.action === 'edit') {
+    const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+    if (contactCard) {
+        const lastMessage = contactCard.querySelector('.last-message');
+        if (lastMessage) {
+            lastMessage.innerText = data.message; // Просто заменяем текст
+        }
+    }
+}
+}
 
    inboxSocket.onclose = function(event) {
        console.log('WebSocket closed:', event);

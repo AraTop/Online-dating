@@ -137,8 +137,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'chat_message',
                     'action': 'edit',
+                    'contact_id': sender_id,
                     'message_id': message_id,
                     'message': new_content,
+                }
+            )
+            receiver_id = await sync_to_async(lambda: message.receiver.id)()
+            await self.channel_layer.group_send(
+                f'notifications_{receiver_id}',
+                {
+                    'type': 'chat_message',
+                    'action': 'edit',
+                    'contact_id': sender_id,
+                    'message_id': message_id,
+                    'message': new_content,
+                    'sender_profile_icon_url': data.get('sender_profile_icon_url'),
+                    'sender_first_name': data.get('sender_first_name'),
                 }
             )
         except Message.DoesNotExist:
@@ -303,7 +317,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({
                 'action': action,
                 'message_id': event['message_id'],
-                'message': event['message']
+                'message': event['message'],
+                'contact_id': event['contact_id']
             }))
         
         elif action == 'delete':
