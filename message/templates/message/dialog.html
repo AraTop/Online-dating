@@ -349,9 +349,17 @@
       // Открытие WebSocket соединения
       const chatSocket = new WebSocket(`ws://${window.location.host}/ws/messages/${userId}/`);
 
+      chatSocket.onopen = function() {
+          // Уведомление о том, что пользователь зашёл в чат
+          chatSocket.send(JSON.stringify({
+              'action': 'send',
+              'user_id': "{{ user.id }}",
+              
+          }));
+      };
+
       chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    console.log('Received WebSocket message:', data);
     const action = data['action'];
     const messageId = data['message_id'];
 
@@ -383,6 +391,20 @@
     } else if (action === 'delete_chat') {
         // Очистка чата и отображение сообщения об отсутствии переписки
         messagesContainer.innerHTML = ``;
+
+    } else if (action === 'user_joined') {
+        // Получаем ID текущего пользователя на странице
+        const currentUserId = userId;  // Замените на переменную с текущим ID пользователя
+
+        if (data['user_id'] !== currentUserId) {
+            console.log(`уходи`);
+            // Если это другой пользователь, а не текущий, то обновляем стили сообщений
+            const unreadMessages = document.querySelectorAll('.message-sent-unread');
+            unreadMessages.forEach((messageElement) => {
+                messageElement.classList.remove('message-sent-unread'); // Удаляем класс непрочитанного
+                messageElement.classList.add('message-sent'); // Добавляем класс прочитанного
+            });
+        }
     }
 };
 
@@ -404,7 +426,6 @@
       };
 
       function sendMessage(message) {
-          console.log('Sending new message:', message);
           chatSocket.send(JSON.stringify({
               'action': 'new',
               'message': message

@@ -533,8 +533,11 @@
                   unreadCount.textContent = data.unread_count > 0 ? `${data.unread_count} new ` : '';
                }
          } else {
+               const senderPhoto = data.last_message.sender_id === data.sender_id ? data.sender_photo_url : data.receiver_photo_url;
                // Обновляем последнее сообщение и убираем счетчик, если сообщений нет
-               lastMessage.textContent = data.last_message.content;
+               lastMessage.innerHTML = `
+                  <img src="${senderPhoto}"> ${data.last_message.content}
+               `;
                if (unreadCount) unreadCount.textContent = data.unread_count > 0 ? `${data.unread_count} new ` : '';
                
                if (data.unread_count === 0) {
@@ -584,14 +587,26 @@
       }
    }
    if (data.action === 'edit') {
-    const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
-    if (contactCard) {
-        const lastMessage = contactCard.querySelector('.last-message');
-        if (lastMessage) {
-            lastMessage.innerText = data.message; // Просто заменяем текст
-        }
-    }
-}
+      const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
+      if (contactCard) {
+         const lastMessage = contactCard.querySelector('.last-message');
+         if (lastMessage) {
+               lastMessage.innerText = data.message; // Просто заменяем текст
+         }
+      }
+   }
+   if (data.action === 'status_update') {
+      const statusIcon = document.querySelector('.status-icon');
+      
+      if (statusIcon) {
+         // Добавляем класс `online`, если пользователь в сети, иначе убираем его
+         if (data.is_online) {
+               statusIcon.classList.add('online');
+         } else {
+               statusIcon.classList.remove('online');
+         }
+      }
+   }
 }
 
    inboxSocket.onclose = function(event) {

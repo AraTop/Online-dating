@@ -64,6 +64,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_delete_chat(data)
         elif action == 'request_status':
             await self.handle_request_status(data)
+        elif action == 'send':
+            await self.handle_send(data)
+    
+    async def handle_send(self, data):
+        # Логика для обработки входа в чат и чтения сообщений
+        user_id = data['user_id']  # ID текущего пользователя
+        print(data)
+        await self.send_user_notification(user_id)
+    
+    async def send_user_notification(self, sender_id):
+        # Извлечение сообщения из базы данных с учетом обеих комбинаций sender и receiver
+        message = await sync_to_async(
+            lambda: Message.objects.filter(
+                Q(receiver_id=sender_id) | 
+                Q(sender_id=sender_id)
+            ).first()
+        )()
+
+        if message:  # Проверяем, что сообщение действительно найдено
+            #receiver_id = message.receiver_id  # Получаем ID получателя
+
+            # Уведомление для отправителя
+            await self.channel_layer.group_send(
+                f'notifications_{self.other_user_id}',  # Группа для уведомлений отправителя
+                {
+                    'type': 'user_joined',
+                    'user_id': self.other_user_id,  # ID отправителя
+                    
+                }
+            )
+            
+
+        else:
+            # Обработайте случай, когда сообщение не найдено
+            print("Сообщение не найдено.")
 
     async def handle_new_message(self, data):
         message_content = data['message']
@@ -129,7 +164,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             message.content = new_content
-            message.timestamp = datetime.now()
             await sync_to_async(message.save)()
 
             await self.channel_layer.group_send(
@@ -381,4 +415,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_photo_url': event['sender_photo_url'],
             'receiver_photo_url': event['receiver_photo_url'],
             'unread_count': event['unread_count'],
+        }))
+    
+    
+    async def user_joined(self, event):
+        await self.send(text_data=json.dumps({
+            'action': 'user_joined',
+            'user_id': event['user_id']
         }))
