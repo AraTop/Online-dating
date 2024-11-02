@@ -511,36 +511,37 @@
             contactListContainer.insertBefore(contactCard, searchContainer.nextSibling); // Вставляем её в начало списка
         }
     }
-    console.log('Получено сообщение:', data); // Логируем полученное сообщение
+    //console.log('Получено сообщение:', data); // Логируем полученное сообщение
 
     if (data.type === 'delete') {
-      console.log(`Сообщение с ID ${data.message_id} было удалено пользователем с ID ${data.sender_id}.`);
-      console.log(`Сообщение которое пришло ${data.last_message.content}`);
+      //console.log(`Сообщение с ID ${data.message_id} было удалено пользователем с ID ${data.sender_id}.`);
       const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.sender_id}"]`);
 
       if (contactCard) {
          const lastMessage = contactCard.querySelector('.last-message');
          const unreadCount = contactCard.querySelector('.unread-count');
 
-         if (data.last_message) {
-               // Добавляем фото отправителя сообщения
+         // Если сообщение непрочитано
+         if (!data.last_message.is_read) {
                const senderPhoto = data.last_message.sender_id === data.sender_id ? data.sender_photo_url : data.receiver_photo_url;
                lastMessage.innerHTML = `
-                  <img src="${senderPhoto}" alt="${data.sender_first_name}"> ${data.last_message.content}
+                  <img src="${senderPhoto}"> ${data.last_message.content}
                `;
 
-               // Обновляем счетчик непрочитанных
+               // Устанавливаем счетчик непрочитанных сообщений из data.unread_count
                if (unreadCount) {
-                  let newUnreadCount = Math.max(0, parseInt(unreadCount.textContent) - 1);
-                  unreadCount.textContent = newUnreadCount > 0 ? `${newUnreadCount} new ` : '';
+                  unreadCount.textContent = data.unread_count > 0 ? `${data.unread_count} new ` : '';
                }
-         }
-
-         // Если непрочитанных больше нет, удаляем их счетчик
-         if (unreadCount && unreadCount.textContent === '') {
-               contactCard.classList.remove('new-message');
-               if (unreadCount.parentNode) {
-                  unreadCount.parentNode.removeChild(unreadCount);
+         } else {
+               // Обновляем последнее сообщение и убираем счетчик, если сообщений нет
+               lastMessage.textContent = data.last_message.content;
+               if (unreadCount) unreadCount.textContent = data.unread_count > 0 ? `${data.unread_count} new ` : '';
+               
+               if (data.unread_count === 0) {
+                  contactCard.classList.remove('new-message');
+                  if (unreadCount && unreadCount.parentNode) {
+                     unreadCount.parentNode.removeChild(unreadCount);
+                  }
                }
          }
       }
@@ -551,7 +552,7 @@
       const contactCard = document.querySelector(`.contact-card[data-contact-id="${data.contact_id}"]`);
       if (contactCard) {
          contactCard.remove();
-         console.log(`Удалена карточка контакта с ID: ${data.contact_id}`);
+         //console.log(`Удалена карточка контакта с ID: ${data.contact_id}`);
       }
 
       const contactCards = document.querySelectorAll('.contact-card');

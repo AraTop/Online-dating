@@ -166,7 +166,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message = await sync_to_async(Message.objects.get)(id=message_id, sender_id=sender_id)
             receiver_id = await sync_to_async(lambda: message.receiver.id)()
             await sync_to_async(message.delete)()
-                
+            
+            # Получаем количество непрочитанных сообщений между пользователями
+            unread_count = await sync_to_async(
+                lambda: Message.objects.filter(
+                    Q(sender_id=receiver_id, receiver_id=sender_id) | Q(sender_id=sender_id, receiver_id=receiver_id),
+                    is_read=False
+                ).count()
+            )()
             # Получаем последнее сообщение и извлекаем его данные
             last_message = await sync_to_async(
                 lambda: Message.objects.filter(
@@ -187,7 +194,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender_id': last_message.sender_id,
                 'receiver_id': last_message.receiver_id,
                 'content': last_message.content,
-                'timestamp': last_message.timestamp.isoformat() if last_message else None
+                'timestamp': last_message.timestamp.isoformat() if last_message else None,
+                'is_read': last_message.is_read
             } if last_message else None
             
             # Проверяем, есть ли последнее сообщение
@@ -199,7 +207,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'type': 'chat_message',
                         'action': 'delete_chat',
                         'contact_id': receiver_id,
-                        'sender_id': sender_id
+                        'sender_id': sender_id,
+                        'unread_count': unread_count,
                     }
                 )
                 
@@ -210,7 +219,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'type': 'chat_message',
                         'action': 'delete_chat',
                         'contact_id': sender_id,
-                        'sender_id': receiver_id
+                        'sender_id': receiver_id,
+                        'unread_count': unread_count,
                     }
                 )
 
@@ -225,6 +235,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'last_message': last_message_data,
                     'sender_photo_url': sender_photo_url,
                     'receiver_photo_url': receiver_photo_url,
+                    'unread_count': unread_count,
                 }
             )
 
@@ -239,6 +250,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'last_message': last_message_data,
                     'sender_photo_url': sender_photo_url,
                     'receiver_photo_url': receiver_photo_url,
+                    'unread_count': unread_count,
                 }
             )
         except Message.DoesNotExist:
@@ -330,6 +342,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'last_message': event['last_message'],
                 'sender_photo_url': event['sender_photo_url'],
                 'receiver_photo_url': event['receiver_photo_url'],
+                'unread_count': event['unread_count'],
             }))
         
         elif action == 'delete_chat':
@@ -367,4 +380,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'last_message': event['last_message'],
             'sender_photo_url': event['sender_photo_url'],
             'receiver_photo_url': event['receiver_photo_url'],
+            'unread_count': event['unread_count'],
         }))
