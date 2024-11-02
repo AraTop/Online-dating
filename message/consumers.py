@@ -70,7 +70,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def handle_send(self, data):
         # Логика для обработки входа в чат и чтения сообщений
         user_id = data['user_id']  # ID текущего пользователя
-        print(data)
         await self.send_user_notification(user_id)
     
     async def send_user_notification(self, sender_id):
@@ -83,8 +82,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )()
 
         if message:  # Проверяем, что сообщение действительно найдено
-            #receiver_id = message.receiver_id  # Получаем ID получателя
-
             # Уведомление для отправителя
             await self.channel_layer.group_send(
                 f'notifications_{self.other_user_id}',  # Группа для уведомлений отправителя
