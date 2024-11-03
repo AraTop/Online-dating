@@ -36,15 +36,14 @@ def search_users(request):
         if user_orientation == 'not_specified':
             # Без ориентации - ищем противоположный пол
             if user_sex == 'male':
-                users = users.filter(userprofile__sex='female', userprofile__looking_for='relationship')
+                users = users.filter(userprofile__sex='female', userprofile__orientation='not_specified', userprofile__looking_for='relationship')
             elif user_sex == 'female':
-                users = users.filter(userprofile__sex='male', userprofile__looking_for='relationship')
+                users = users.filter(userprofile__sex='male', userprofile__orientation='not_specified', userprofile__looking_for='relationship')
         else:
-            # С учетом ориентации
             if user_orientation == 'Homosexuality':
-                users = users.filter(userprofile__sex=user_sex, userprofile__looking_for='relationship')
+                users = users.filter(userprofile__sex=user_sex, userprofile__orientation='Homosexuality', userprofile__looking_for='relationship')
             elif user_orientation == 'Bisexuality':
-                users = users.filter(userprofile__sex__in=['male', 'female'], userprofile__looking_for='relationship')
+                users = users.filter(userprofile__sex__in=['male', 'female'], userprofile__orientation='Bisexuality', userprofile__looking_for='relationship')
             elif user_orientation == 'Asexuality':
                 users = users.filter(userprofile__orientation='Asexuality', userprofile__looking_for='relationship')
 
