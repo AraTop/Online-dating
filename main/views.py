@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-
+from datetime import timedelta
 from friends.models import Friend
 from .models import Interest, UserAction, UserProfile
 from users.models import User
@@ -20,63 +20,152 @@ def search_users(request):
     # Получаем список скрытых пользователей для текущего пользователя
     hidden_users = UserAction.objects.filter(user=request.user, hide=True).values_list('receiver_id', flat=True)
 
-    # Получаем интересы и параметры поиска текущего пользователя
-    user_interests = request.user.userprofile.interests.all()
-    user_gender = request.user.userprofile.gender
-    looking_for = request.user.userprofile.looking_for
+    # Получаем данные текущего пользователя
+    user_profile = request.user.userprofile
+    user_sex = user_profile.sex
+    user_orientation = user_profile.orientation
+    looking_for = user_profile.looking_for
+    from_age = user_profile.from_age
+    to_age = user_profile.to_age
 
-    # Инициализируем базовый запрос для пользователей
+    # Базовый запрос для пользователей, исключая текущего пользователя и скрытых
     users = User.objects.exclude(id=request.user.id).exclude(id__in=hidden_users).distinct()
 
-    # Фильтруем пользователей на основе их пола и поиска
+    # Фильтрация по looking_for, sex и orientation
     if looking_for == 'relationship':
-        if user_gender == 'male':
-            users = users.filter(userprofile__gender='female', userprofile__looking_for='relationship')
-        elif user_gender == 'female':
-            users = users.filter(userprofile__gender='male', userprofile__looking_for='relationship')
-        elif user_gender == 'gay':
-            users = users.filter(userprofile__gender='gay', userprofile__looking_for='relationship')
-        elif user_gender == 'Lesbian':
-            users = users.filter(userprofile__gender='Lesbian', userprofile__looking_for='relationship')
-        elif user_gender == 'other':
-            users = users.filter(userprofile__gender='other', userprofile__looking_for='relationship')
+        if user_orientation == 'not_specified':
+            # Без ориентации - ищем противоположный пол
+            if user_sex == 'male':
+                users = users.filter(userprofile__sex='female', userprofile__looking_for='relationship')
+            elif user_sex == 'female':
+                users = users.filter(userprofile__sex='male', userprofile__looking_for='relationship')
+        else:
+            # С учетом ориентации
+            if user_orientation == 'Homosexuality':
+                users = users.filter(userprofile__sex=user_sex, userprofile__looking_for='relationship')
+            elif user_orientation == 'Bisexuality':
+                users = users.filter(userprofile__sex__in=['male', 'female'], userprofile__looking_for='relationship')
+            elif user_orientation == 'Asexuality':
+                users = users.filter(userprofile__orientation='Asexuality', userprofile__looking_for='relationship')
+
     elif looking_for == 'friendship':
         # Для дружбы показываем всех, кто ищет дружбу
         users = users.filter(userprofile__looking_for='friendship')
+
     elif looking_for == 'business_partner':
-        # Показываем только тех, кто тоже ищет бизнес-партнеров
+        # Для бизнес-партнеров показываем всех, кто также ищет бизнес-партнера
         users = users.filter(userprofile__looking_for='business_partner')
-
+    
     # Добавляем фильтрацию по интересам
-    users = users.filter(userprofile__interests__in=user_interests).distinct()
+    user_interests = user_profile.interests.all()
+    interest_users = users.filter(userprofile__interests__in=user_interests).distinct()
 
-    return render(request, 'main/search_users.html', {'users': users})
+    # Добавляем фильтрацию по возрасту
+    today = date.today()
+    current_year = today.year
+
+    # Проверка возрастного диапазона
+    if from_age is not None and to_age is not None:
+        # Устанавливаем границы для минимального и максимального года рождения
+        max_birth_year = current_year - from_age
+        min_birth_year = current_year - to_age
+        users = users.filter(userprofile__date_of_birth__year__gte=min_birth_year, userprofile__date_of_birth__year__lte=max_birth_year)
+        users = users.filter(userprofile__interests__in=user_interests).distinct()
+        return render(request, 'main/search_users.html', {'users': users})
+    elif from_age is not None:
+        max_birth_year = current_year - from_age
+        users = users.filter(userprofile__date_of_birth__year__lte=max_birth_year)
+        # Добавляем фильтрацию по интересам
+        users = users.filter(userprofile__interests__in=user_interests).distinct()
+        return render(request, 'main/search_users.html', {'users': users})
+    elif to_age is not None:
+        print("3")
+        min_birth_year = current_year - to_age
+        users = users.filter(userprofile__date_of_birth__year__gte=min_birth_year)
+        users = users.filter(userprofile__interests__in=user_interests).distinct()
+        return render(request, 'main/search_users.html', {'users': users})
+   
+    else: 
+        user_birth_year = user_profile.date_of_birth.year
+        final_users = []
+
+        # Ищем ровесников
+        same_age_users = users.filter(userprofile__date_of_birth__year=user_birth_year)
+        if same_age_users.exists():
+            final_users.extend(same_age_users)
+
+        # Переменная для контроля разницы в возрасте
+        year_difference = 1
+        max_year_difference = 10
+
+        # Ищем пользователей с разницей в возрасте
+        while year_difference <= max_year_difference:
+            younger_users = users.filter(userprofile__date_of_birth__year=user_birth_year - year_difference)
+            older_users = users.filter(userprofile__date_of_birth__year=user_birth_year + year_difference)
+
+            if younger_users.exists():
+                final_users.extend(younger_users)
+            if older_users.exists():
+                final_users.extend(older_users)
+
+            year_difference += 1
+
+            # Удаляем дубликаты, но сохраняем порядок
+        final_users = list(dict.fromkeys(final_users))
+
+        # Объединяем результаты по интересам и возрасту, сохраняя порядок
+        final_users_set = set(final_users)
+        interest_users_set = set(interest_users)
+
+        # Объединяем наборы, сохраняя порядок из final_users
+        final_users = [user for user in final_users if user in final_users_set.union(interest_users_set)]
+
+    return render(request, 'main/search_users.html', {'users': final_users})
 
 @login_required
 def search_night_partner(request):
+    # Проверяем, есть ли у пользователя профиль и интересы
     if not hasattr(request.user, 'userprofile') or not request.user.userprofile.interests:
         return redirect(reverse('main:profile_setup'))
 
     # Получаем список скрытых пользователей для текущего пользователя
     hidden_users = UserAction.objects.filter(user=request.user, hide=True).values_list('receiver_id', flat=True)
 
-    # Определяем пол, который будем искать в зависимости от пола текущего пользователя
-    if request.user.userprofile.gender == 'male':
-        search_gender = 'female'
-    elif request.user.userprofile.gender == 'female':
-        search_gender = 'male'
-    elif request.user.userprofile.gender == 'gay':
-        search_gender = 'gay'
-    elif request.user.userprofile.gender == 'Lesbian':
-        search_gender = 'Lesbian'
-    elif request.user.userprofile.gender == 'other':
-        search_gender = 'other' # или любой другой вариант, если есть
+    # Определяем пол для поиска
+    user_profile = request.user.userprofile
+    search_sex = None
+
+    if user_profile.orientation == 'not_specified':
+        # Если ориентация не указана, определяем пол для поиска по полу пользователя
+        if user_profile.sex == 'male':
+            search_sex = 'female'
+        elif user_profile.sex == 'female':
+            search_sex = 'male'
+    elif user_profile.orientation == 'Homosexuality':
+        search_sex = user_profile.sex  # Ищем пользователей того же пола
+    elif user_profile.orientation == 'Bisexuality':
+        # Ищем пользователей обоих полов
+        search_sex = ['male', 'female']
+    elif user_profile.orientation == 'Asexuality':
+        # Асексуалы ищут только других асексуалов
+        search_sex = 'Asexuality'
 
     # Фильтруем пользователей, исключая скрытых и текущего пользователя
-    users = User.objects.filter(
-        userprofile__search_night_partner=True,
-        userprofile__gender=search_gender
-    ).exclude(id=request.user.id).exclude(id__in=hidden_users)
+    if search_sex == 'Asexuality':
+        users = User.objects.filter(
+            userprofile__search_night_partner=True,
+            userprofile__sex='Asexuality'
+        ).exclude(id=request.user.id).exclude(id__in=hidden_users)
+    elif isinstance(search_sex, list):
+        users = User.objects.filter(
+            userprofile__search_night_partner=True,
+            userprofile__sex__in=search_sex
+        ).exclude(id=request.user.id).exclude(id__in=hidden_users)
+    else:
+        users = User.objects.filter(
+            userprofile__search_night_partner=True,
+            userprofile__sex=search_sex
+        ).exclude(id=request.user.id).exclude(id__in=hidden_users)
 
     return render(request, 'main/search_night_partner.html', {'users': users})
 
@@ -120,10 +209,11 @@ def like_dislike_user(request, user_id, action):
 
 @login_required
 def profile_setup(request):
-    if request.method == 'POST':
-        userprofile, created = UserProfile.objects.get_or_create(user=request.user)
+    # Пытаемся получить или создать профиль пользователя
+    userprofile, created = UserProfile.objects.get_or_create(user=request.user)
 
-        # Обновляем возраст, пол и ищем
+    if request.method == 'POST':
+        # Обновляем дату рождения
         date_of_birth_str = request.POST.get('date_of_birth')
         if date_of_birth_str:
             try:
@@ -133,23 +223,38 @@ def profile_setup(request):
                 # Обработка ошибки неверного формата даты
                 pass
 
-        userprofile.gender = request.POST.get('gender')
+        # Обновляем пол и ориентацию
+        userprofile.sex = request.POST.get('sex')
+        userprofile.orientation = request.POST.get('orientation')
+
+        # Обновляем возрастные рамки, обрабатывая пустые строки
+        from_age = request.POST.get('from_age', '').strip()
+        to_age = request.POST.get('to_age', '').strip()
+        
+        userprofile.from_age = int(from_age) if from_age.isdigit() else None
+        userprofile.to_age = int(to_age) if to_age.isdigit() else None
+
+        # Обновляем поле "looking_for"
         userprofile.looking_for = request.POST.get('looking_for')
 
-        # Получаем выбранные интересы
-        selected_interests = request.POST.getlist('interests')
-        # Очищаем текущие интересы пользователя
-        userprofile.interests.clear()
+        # Обновляем поле "search_night_partner"
+        search_night_partner = request.POST.get('search_night_partner')
+        userprofile.search_night_partner = bool(search_night_partner)
 
-        # Создаем и добавляем новые интересы
+        # Получаем выбранные интересы и обновляем их
+        selected_interests = request.POST.getlist('interests')
+        userprofile.interests.clear()
         for interest_name in selected_interests:
-            interest, created = Interest.objects.get_or_create(name=interest_name)
+            interest, _ = Interest.objects.get_or_create(name=interest_name)
             userprofile.interests.add(interest)
 
         userprofile.save()
-
         return redirect('main:search_users')
-    return render(request, 'main/profile_setup.html')
+    return render(request, 'main/profile_setup.html', {
+        'userprofile': userprofile,
+        'from_age': userprofile.from_age,
+        'to_age': userprofile.to_age
+    })
 
 def home(request):
     user = request.user

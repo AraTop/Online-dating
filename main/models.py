@@ -13,22 +13,28 @@ class Interest(models.Model):
 
 
 class UserProfile(models.Model):
-    GENDER_CHOICES = [
+    SEX_CHOICES = [
         ('male', 'Мужской'),
         ('female', 'Женский'),
-        ('gay', 'Гей'),
-        ('Lesbian', 'Лесбиянка'),
-        ('other', 'Другой'),
+    ]
+    ORIENTATION_CHOICES = [
+        ('not_specified', 'Не указан'),
+        ('Homosexuality', 'Гомосексуальность'),
+        ('Bisexuality', 'Бисексуальность'),
+        ('Asexuality', 'Асексуальность'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     interests = models.ManyToManyField(Interest, related_name='user_profiles')
     date_of_birth = models.DateField(blank=True, null=True)  # Дата рождения
-    gender = models.CharField(max_length=15, choices=GENDER_CHOICES, blank=True, null=True)
+    sex = models.CharField(max_length=15, choices=SEX_CHOICES, blank=True, null=True)
+    from_age = models.IntegerField(blank=True, null=True)
+    to_age = models.IntegerField(blank=True, null=True)
+    orientation = models.CharField(max_length=15, choices=ORIENTATION_CHOICES, blank=True, null=True)
     looking_for = models.CharField(max_length=16, blank=True, null=True)
     search_night_partner = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('user', 'gender')
+        unique_together = ('user', 'sex')
         verbose_name = 'Профиль для знакомств'
         verbose_name_plural = 'Профиль для знакомств'
     

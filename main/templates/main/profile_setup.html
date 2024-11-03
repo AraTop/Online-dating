@@ -4,8 +4,8 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
-            <label for="interests">Интересы</label>
-            <select class="form-control" id="interests" name="interests" multiple style="height: 250px;">
+            <label for="interests">Интересы · <small>ctrl - для множественого выделения</small> · <small>обязательно</small></label>
+            <select class="form-control" id="interests" name="interests" multiple style="height: 250px;" required>
                 <option value="Football" {% if user.userprofile.interests  == 'Football' %}selected{% endif %}>Футбол</option>
                 <option value="Basketball" {% if user.userprofile.interests  == 'Basketball' %}selected{% endif %}>Баскетбол</option>
                 <option value="Run" {% if user.userprofile.interests  == 'Run' %}selected{% endif %}>Бег</option>
@@ -106,24 +106,38 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="date_of_birth">Дата рождения:</label>
-            <input class="form-control" type="date" name="date_of_birth" id="date_of_birth" required>
+            <label for="date_of_birth">Дата рождения · <small>обязательно</small></label>
+            <input class="form-control" type="date" min="1900-01-01" name="date_of_birth" id="date_of_birth" required>
         </div>
         <div class="form-group">
-            <label for="gender">Пол</label>
-            <select class="form-control" id="gender" name="gender">
-                <option value="male" {% if user.userprofile.gender == 'male' %}selected{% endif %}>Мужской</option>
-                <option value="female" {% if user.userprofile.gender == 'female' %}selected{% endif %}>Женский</option>
-                <option value="gay" {% if user.userprofile.gender == 'gay' %}selected{% endif %}>Гомосексуальный мужчина</option>
-                <option value="Lesbian" {% if user.userprofile.gender == 'Lesbian' %}selected{% endif %}>Гомосексуальная женщина</option>
-                <option value="other" {% if user.userprofile.gender == 'other' %}selected{% endif %}>Другой</option>
+            <label for="from_age">От какого возраста · <small>Не обязательно</small></label>
+            <input class="form-control" type="number" max="300" name="from_age" id="from_age" value="{{ userprofile.from_age }}">
+        </div>
+        <div class="form-group">
+            <label for="to_age">До какого возраста · <small>Не обязательно</small></label>
+            <input class="form-control" type="number" max="300" min="1" name="to_age" id="to_age" value="{{ userprofile.to_age }}">
+        </div>
+        <div class="form-group">
+            <label for="sex">Пол · <small>обязательно</small></label>
+            <select class="form-control" id="sex" name="sex">
+                <option value="male" {% if user.userprofile.sex == 'male' %}selected{% endif %}>Мужской</option>
+                <option value="female" {% if user.userprofile.sex == 'female' %}selected{% endif %}>Женский</option>
             </select>
         </div>
         <div class="form-group">
-            <label for="looking_for">Ищу</label>
+            <label for="orientation">Ориентация · <small>Не обязательно</small></label>
+            <select class="form-control" id="orientation" name="orientation">
+                <option value="not_specified" {% if user.userprofile.orientation == 'not_specified' %}selected{% endif %}>Не указан</option>
+                <option value="Homosexuality" {% if user.userprofile.orientation == 'Homosexuality' %}selected{% endif %}>Гомосексуальность</option>
+                <option value="Bisexuality" {% if user.userprofile.orientation == 'Bisexuality' %}selected{% endif %}>Бисексуальность</option>
+                <option value="Asexuality" {% if user.userprofile.orientation == 'Asexuality' %}selected{% endif %}>Асексуальность</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="looking_for">Ищу · <small>обязательно</small></label>
             <select class="form-control" id="looking_for" name="looking_for">
+                <option value="relationship" {% if user.userprofile.looking_for == 'relationship' %}selected{% endif %}>Серьезные отношения</option>
                 <option value="friendship" {% if user.userprofile.looking_for == 'friendship' %}selected{% endif %}>Дружбу</option>
-                <option value="relationship" {% if user.userprofile.looking_for == 'relationship' %}selected{% endif %}>Отношения</option>
                 <option value="business_partner" {% if user.userprofile.looking_for == 'business_partner' %}selected{% endif %}>Бизнес-партнера</option>
             </select>
         </div>
