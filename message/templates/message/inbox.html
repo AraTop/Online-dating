@@ -340,7 +340,6 @@
                           style="display: none; position: absolute; left: -50px; top: 30px; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 5px;" 
                           onmouseenter="showDropdown(this.previousElementSibling)" 
                           onmouseleave="hideDropdown(this)">
-                         <a href="#" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить только у себя</a>
                          <a href="/message/delete_chat/both/{{ item.contact.id }}" data-contact-id="{{ item.contact.id }}" class="delete-button" style="color: red; text-decoration: none; display: block; padding: 8px;">Удалить у себя и у {{ item.contact.first_name }}</a>
                      </div>
                  </div>

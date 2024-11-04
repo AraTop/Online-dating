@@ -60,20 +60,7 @@
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      background-color: green;
-   }
-   .profile-picture-wrapper {
-      position: relative;
-      width: 150px;
-      height: 150px;
-      
-   }
-   .profile-picture {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      display: block;
-      object-fit: cover;
+      background-color: rgb(34, 169, 0);
    }
    .profile, .notifications {
       padding: 20px;
@@ -185,10 +172,15 @@
    .right-section details summary:hover {
       background: #ff80ab;
    }
+   .fixed-left {
+    position: fixed;
+    top: 131px;
+    left: 8px;
+}
 </style>
 <div class="container">
    <div class="row">
-      <div class="card mb-4 color_backgraung" style="width: 440px; display: block; right: 340px; top: 10px; margin: auto; height: 522px;">
+      <div class="card mb-4 color_backgraung fixed-left" style="width: 440px; height: 522px;">
          <div class="card mb-4 color_backgraung">
             <div class="card-body profile" id="auto-resize-card">
                {% if user.profile_icon %}
@@ -216,93 +208,134 @@
             </div>
          </div>
       </div>
-      <div class="card mb-4 box-shadow color_1 right-section" style="width: 610px; display: block; top: 10px; height: 400px;">
-         <div class="card-body" id="auto-resize-card">
-            <div style="float: left; margin-right: 20px;">
-               <div class="profile-picture-wrapper">
-                  {% if object.profile_icon %}
-                     <img src="{{ object.profile_icon.url }}" class="profile-picture" >
-                  {% else %}
-                     <img src="/static/images/default-profile.png" class="profile-picture">
-                  {% endif %}
-                  {% if object.is_online %}
-                     <img src="/static/images/online-icon.png" class="online-icon" alt="Online">
-                  {% else %}
-                  {% endif %}
-               </div>
-            </div>
-            {% if user %}
-               {% if is_friend %}
-                  <div style="float: right;">
-                     <details><summary class="color_2">Действие</summary>
-                        <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
-                           {% csrf_token %}
-                           <input type="submit" value="Удалить друга" class="btn btn-danger">
-                     </details>
-                  </div>
-               {% endif %}
-               {% if friend_request_sent %}
-                  <div style="float: right;">
-                     <details><summary class="color_2">Действие</summary>
-                        <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
-                     </details>
-                  </div>
-               {% endif %}
-               {% if friend_request_received %}
-                  <div style="float: right;">
-                     <details><summary class="color_2">Действие</summary>
-                        <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
-                     </details>
-                  </div>
-               {% endif %}
-               {% if no_friend %}
-                  <div style="float: right;">
-                     <details><summary class="color_2">Действие</summary>
-                        <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
-                     </details>
-                  </div>
-               {% else %}
-               {% endif %}
-               <script>
-                  document.getElementById('add-friend-btn').addEventListener('click', function(event) {
-                      event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-                      
-                      var friendId = this.getAttribute('data-friend-id');
-                      var xhr = new XMLHttpRequest();
-                      xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
-                      xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-                      xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-                      xhr.onreadystatechange = function() {
-                          if (xhr.readyState === XMLHttpRequest.DONE) {
-                              if (xhr.status === 200) {
-                                  location.reload(); // Перезагружаем страницу после успешного добавления в друзья
-                              } else {
-                                  alert('Произошла ошибка: ' + xhr.responseText);
-                              }
-                          }
-                      };
-                      xhr.send(JSON.stringify({}));
-                  });
-               </script>
-            {% else %}
-            {% endif %}
-            <div style="float: left;">
-               <h4 class="color_2">{{ object.nickname }}</h4>
-               <h4 class="color_2">{{ object.first_name }} {{ object.last_name }}</h4>
-            </div>
-            <br><br><br><br>
-            <div style="overflow:auto;">
-               <div style="float: left;" class="card-body">
-                  <h5 class="color_2">{{ object.description }}</h5>
-               </div>
-            </div>
-            <br>
-            <div class="card-body">
-               <a href="/message/dialog/{{ object.pk }}"><h6>Написать сообщение</h6></a>
-            </div>
-            <div style="clear: both;"></div>
+      <div class="card mb-4 box-shadow color_1 right-section" style="width: 700px; display: block; top: -20px; height: auto; margin-left: 480px;">
+         <div style="display: flex;">
+             <!-- Фотография профиля -->
+             <div style="margin-right: 80px;">
+                 <div class="profile-picture-wrapper" style="width: 240px; height: 380px;">
+                     {% if object.profile_icon %}
+                         <img src="{{ object.profile_icon.url }}" class="profile-picture" style="width: 300px; height: 400px; border-radius: 10px;">
+                     {% else %}
+                         <img src="/static/images/default-profile.png" class="profile-picture" style="width: 300px; height: 400px; border-radius: 10px;">
+                     {% endif %}
+                 </div>
+             </div>
+     
+             <!-- Информация о пользователе -->
+             <div style="display: flex; flex-direction: column; justify-content: space-between; height: 380px;">
+                 {% if object.is_online %}
+                     <h5 style="color: rgb(58, 58, 58);">{{ object.first_name }} {{ object.last_name }} ✔ <small style="color: rgb(19, 255, 70);">Online</small></h5>
+                 {% else %}
+                     <h5 style="color: rgb(58, 58, 58);">{{ object.first_name }} {{ object.last_name }} <small>✔</small> <small style="color: rgb(134, 134, 134);">Не в сети</small></h5>
+                 {% endif %}
+                 <div>
+                     {% if object.location %}
+                        <h7 style="color: rgb(0, 0, 0);">Город</h7>
+                        <p style="width: 310px; overflow-y: auto; max-height: 40px;">{{ object.location }}</p>
+                     {% endif %}
+                     <h7 style="color: black;">День рождения</h7>
+                     <p>{{ object.userprofile.date_of_birth }} ({{ object.userprofile.age }} лет)</p>
+                     {% if object.description %}
+                         <h7 style="color: black;">Описание</h7>
+                         <div class="description" style="width: 310px; overflow-y: auto; max-height: 150px;">
+                             <p>{{ object.description }}</p>
+                         </div>
+                     {% endif %}
+                     <h7 style="color: black;">Интересы</h7>
+                     <div style="overflow-y: auto; max-height: 100px;">
+                         <p style="width: 290px;">
+                             {% for item in interests %}
+                                 {{ item.name }}{% if not forloop.last %}, {% endif %}
+                             {% endfor %}
+                         </p>
+                     </div>
+                 </div>
+                 <div class="action-buttons" style="margin-top: auto;">
+                 </div>
+             </div>
          </div>
-      </div>
+     
+         <!-- Раздел для фотографий и альбомов -->
+         <div class="album-section" style="margin-top: 35px;">
+             <div>
+                  <a href="/message/dialog/{{ object.pk }}" class="btn">Написать сообщение</a>
+                  <div style="margin-top: 5px;">
+                     {% if user %}
+                              {% if is_friend %}
+                                 <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
+                                       {% csrf_token %}
+                                    <input type="submit" value="Удалить друга" class="btn btn-danger">
+                                 </form>
+                              {% elif friend_request_sent %}
+                                 <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
+                              {% elif friend_request_received %}
+                                 <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
+                              {% elif no_friend %}
+                                 <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
+                              {% endif %}
+                     {% endif %}
+                  </div>
+             </div>
+             <h6 style="margin-top: 10px;">Фотографии и альбомы</h6>
+             <div style="margin-top: 10px;">
+                 <button id="view-photos" class="btn btn-secondary" onclick="showPhotos()">Все фотографии</button>
+                 <button id="view-albums" class="btn btn-secondary" onclick="showAlbums()">Все альбомы</button>
+             </div>
+         </div>
+     
+         <!-- Галерея фотографий и альбомов -->
+         <div style="margin-top: 35px;">
+             <div id="photo-gallery" style="display: block; margin-top: 10px;">
+                  <div class="photo-item" style="display: inline-block; margin: 5px;">
+                     <img src="" alt="Фото 1" style="width: 100px; height: 100px; border-radius: 5px;">
+                  </div>
+             </div>
+             
+             <div id="album-gallery" style="display: none; margin-top: 10px;">
+                 <div class="album-item" style="margin: 5px;">
+                     <img src="" alt="Обложка Альбома 1" style="width: 100px; height: 100px; border-radius: 5px;">
+                 </div>
+             </div>
+         </div>
+     </div>
    </div>
 </div>
+<script>
+   // Функция для отображения фотографий
+   function showPhotos() {
+       document.getElementById('photo-gallery').style.display = 'block';
+       document.getElementById('album-gallery').style.display = 'none';
+       document.getElementById('view-photos').classList.add('active');
+       document.getElementById('view-albums').classList.remove('active');
+   }
+
+   // Функция для отображения альбомов
+   function showAlbums() {
+       document.getElementById('photo-gallery').style.display = 'none';
+       document.getElementById('album-gallery').style.display = 'block';
+       document.getElementById('view-albums').classList.add('active');
+       document.getElementById('view-photos').classList.remove('active');
+   }
+
+   // Обработчик для добавления в друзья
+   document.getElementById('add-friend-btn').addEventListener('click', function(event) {
+       event.preventDefault(); // Предотвращаем стандартное поведение ссылки
+
+       var friendId = this.getAttribute('data-friend-id');
+       var xhr = new XMLHttpRequest();
+       xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
+       xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+       xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+       xhr.onreadystatechange = function() {
+           if (xhr.readyState === XMLHttpRequest.DONE) {
+               if (xhr.status === 200) {
+                   location.reload(); // Перезагружаем страницу после успешного добавления в друзья
+               } else {
+                   alert('Произошла ошибка: ' + xhr.responseText);
+               }
+           }
+       };
+       xhr.send(JSON.stringify({}));
+   });
+</script>
 {% endblock %}

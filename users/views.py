@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from friends.models import Friend
+from main.models import UserProfile
 from users.forms import UserForm, UserProfileForm
 from users.models import User
 from django.contrib.auth.decorators import login_required
@@ -108,6 +109,9 @@ class UserDetailView(DetailView):
                         context['no_friend'] = user_detail
 
         context['user'] = current_user
+        user_profile = UserProfile.objects.get(user=user_detail)
+        interests = user_profile.interests.all()
+        context['interests'] = interests
         return context
 
 @csrf_exempt
