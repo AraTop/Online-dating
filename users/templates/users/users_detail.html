@@ -278,43 +278,87 @@
              </div>
              <h6 style="margin-top: 10px;">Фотографии и альбомы</h6>
              <div style="margin-top: 10px;">
-                 <button id="view-photos" class="btn btn-secondary" onclick="showPhotos()">Все фотографии</button>
-                 <button id="view-albums" class="btn btn-secondary" onclick="showAlbums()">Все альбомы</button>
+                  <button id="view-photos" class="btn btn-secondary active" onclick="showPhotos()">Все фотографии</button>
+                  <button id="view-albums" class="btn btn-secondary" onclick="showAlbums()">Все альбомы</button>
              </div>
          </div>
      
-         <!-- Галерея фотографий и альбомов -->
          <div style="margin-top: 35px;">
-             <div id="photo-gallery" style="display: block; margin-top: 10px;">
-                  <div class="photo-item" style="display: inline-block; margin: 5px;">
-                     <img src="" alt="Фото 1" style="width: 100px; height: 100px; border-radius: 5px;">
+            <!-- Галерея фотографий, отображаемая по умолчанию -->
+            <div id="photo-gallery" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+               {% for photo in photos %}
+                  <div class="photo-item" style="background-color: #fd7e39; padding: 10px; text-align: center; border-radius: 10px;">
+                     <img src="{{ photo.image.url }}" style="width: 170px; height: 170px; object-fit: cover; border-radius: 10px;">
+                     {% if photo.description %}
+                        <p style="width: 170px;">{{ photo.description }}</p>
+                     {% endif %}
                   </div>
-             </div>
-             
-             <div id="album-gallery" style="display: none; margin-top: 10px;">
-                 <div class="album-item" style="margin: 5px;">
-                     <img src="" alt="Обложка Альбома 1" style="width: 100px; height: 100px; border-radius: 5px;">
-                 </div>
-             </div>
-         </div>
+               {% endfor %}
+            </div>
+            
+            <!-- Галерея альбомов, скрытая по умолчанию -->
+            <div id="album-gallery" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+               {% for album in albums %}
+                   <div class="album-item" style="background-color: #fd7e39; padding: 10px; text-align: center; border-radius: 10px; width: 170px; height: 170px;">
+                       <a href="">
+                           <div style="width: 100%; height: 100%;">
+                               {% if album.cover_photos %}
+                                   {% if album.cover_photos.count == 4 %}
+                                       <!-- Сетка 2x2 для 4 фото -->
+                                       <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2px; width: 100%; height: 100%;">
+                                           {% for photo in album.cover_photos|slice:":4" %}
+                                               <img src="{{ photo.image.url }}" style="width: 75px; object-fit: cover; height: 75px; border-radius: 5px;">
+                                           {% endfor %}
+                                       </div>
+                                   {% elif album.cover_photos.count == 3 %}
+                                       <!-- Специальная структура для 3 фото -->
+                                       <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; width: 100%; height: 100%;">
+                                           {% for photo in album.cover_photos|slice:":2" %}
+                                               <img src="{{ photo.image.url }}" style="width: 100%; object-fit: cover; height: 100%; border-radius: 5px;">
+                                           {% endfor %}
+                                           <!-- Нижнее фото занимает всю ширину -->
+                                           <img src="{{ album.cover_photos.2.image.url }}" style="grid-column: span 2; width: 100%; object-fit: cover; height: 36px; border-radius: 5px;">
+                                       </div>
+                                   {% elif album.cover_photos.count == 2 %}
+                                       <!-- Сетка для 2 фото -->
+                                       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 100%; height: 100%;">
+                                           {% for photo in album.cover_photos %}
+                                               <img src="{{ photo.image.url }}" style="width: 100%; object-fit: cover; height: 100%; border-radius: 5px;">
+                                           {% endfor %}
+                                       </div>
+                                   {% elif album.cover_photos.count == 1 %}
+                                       <!-- Одно фото заполняет весь блок -->
+                                       <img src="{{ album.cover_photos.first.image.url }}" style="width: 100%; object-fit: cover; height: 100%; border-radius: 10px;">
+                                   {% endif %}
+                               {% else %}
+                                   <!-- Плейсхолдер, если фото нет -->
+                                   <div style="background-color: #ccc; width: 100%; height: 100%; border-radius: 10px; color: #555; display: flex; align-items: center; justify-content: center;">
+                                       No Photos
+                                   </div>
+                               {% endif %}
+                           </div>
+                       </a>
+                   </div>
+               {% endfor %}
+           </div>
+        </div>
      </div>
    </div>
 </div>
 <script>
-   // Функция для отображения фотографий
    function showPhotos() {
-       document.getElementById('photo-gallery').style.display = 'block';
-       document.getElementById('album-gallery').style.display = 'none';
-       document.getElementById('view-photos').classList.add('active');
-       document.getElementById('view-albums').classList.remove('active');
-   }
+    document.getElementById('photo-gallery').style.display = 'grid';
+    document.getElementById('album-gallery').style.display = 'none';
+    document.getElementById('view-photos').classList.add('active');
+    document.getElementById('view-albums').classList.remove('active');
+}
 
    // Функция для отображения альбомов
    function showAlbums() {
-       document.getElementById('photo-gallery').style.display = 'none';
-       document.getElementById('album-gallery').style.display = 'block';
-       document.getElementById('view-albums').classList.add('active');
-       document.getElementById('view-photos').classList.remove('active');
+      document.getElementById('photo-gallery').style.display = 'none';
+      document.getElementById('album-gallery').style.display = 'grid';
+      document.getElementById('view-albums').classList.add('active');
+      document.getElementById('view-photos').classList.remove('active');
    }
 
    // Обработчик для добавления в друзья

@@ -5,16 +5,16 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from friends.models import Friend
 from main.models import UserProfile
-from users.forms import UserForm, UserProfileForm
-from users.models import User
+from users.forms import AlbumForm, PhotoForm, UserForm, UserProfileForm
+from users.models import Album, Photo, User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django.utils import timezone
-from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 class LoginView(BaseLoginView):
     template_name = 'users/login.html'
@@ -43,6 +43,11 @@ class RegisterView(CreateView):
     template_name = 'users/users_register.html'
     success_url = '/users/login/'
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # Создаем альбом после успешной регистрации пользователя
+        Album.objects.create(user=self.object, title="Мой Альбом", is_default=True)
+        return response
 
 @method_decorator(login_required, name='dispatch')
 class UserDeleteView(DeleteView):
@@ -112,6 +117,15 @@ class UserDetailView(DetailView):
         user_profile = UserProfile.objects.get(user=user_detail)
         interests = user_profile.interests.all()
         context['interests'] = interests
+
+        albums = Album.objects.filter(user=user_detail)
+        context['albums'] = albums
+
+        for album in albums:
+            album.cover_photos = album.photos.order_by('-uploaded_at')[:4]
+
+        photos = Photo.objects.filter(album__user=user_detail)
+        context['photos'] = photos
         return context
 
 @csrf_exempt
@@ -134,3 +148,49 @@ def update_status(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid method"}, status=405)
+
+
+@login_required
+def add_album(request):
+    if request.method == 'POST':
+        form = AlbumForm(request.POST)
+        if form.is_valid():
+            album = form.save(commit=False)
+            album.user = request.user
+            album.save()
+            return redirect('album_list')
+    else:
+        form = AlbumForm()
+    return render(request, 'albums/add_album.html', {'form': form})
+
+
+@login_required
+def add_photo(request):
+    if request.method == "POST":
+        form = PhotoForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            photo = form.save(commit=False)
+            if not photo.album:
+                default_album = Album.objects.filter(user=request.user, is_default=True).first()
+                photo.album = default_album
+            photo.save()
+            return redirect('album_detail', album_id=photo.album.id if photo.album else 'home')
+    else:
+        form = PhotoForm(user=request.user)
+    return render(request, 'albums/add_photo.html', {'form': form})
+
+
+@login_required
+def delete_album(request, album_id):
+    album = get_object_or_404(Album, id=album_id, user=request.user)  # Проверяем, что альбом принадлежит текущему пользователю
+    if album.is_default:
+        return HttpResponseForbidden("Невозможно удалить альбом по умолчанию.")  # Защищаем альбом по умолчанию от удаления
+    album.delete()
+    return redirect('album_list')
+
+
+@login_required
+def delete_photo(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id, album__user=request.user)  # Проверка, что фото принадлежит текущему пользователю
+    photo.delete()
+    return redirect('album_detail', album_id=photo.album.id)
