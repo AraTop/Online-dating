@@ -15,11 +15,11 @@ from django.utils.decorators import method_decorator
 def AddFriendView(request, pk):
     friend_pk = pk
     friend = get_object_or_404(User, pk=friend_pk)
-    
+
     # Проверяем, существует ли уже запрос или отношение дружбы
     if Friend.objects.filter(user=request.user, friend=friend).exists():
         messages.info(request, 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.')
-        return JsonResponse({'status': 'exists', 'message': 'Запрос на добавление в друзья уже отправлен или пользователи уже друзья.'})
+        return redirect(request.META.get('HTTP_REFERER', 'main:search_friends'))
 
     # Создаем новый запрос на добавление в друзья
     friend_request, created = Friend.objects.get_or_create(
@@ -30,10 +30,11 @@ def AddFriendView(request, pk):
 
     if created:
         messages.success(request, 'Запрос на добавление в друзья отправлен.')
-        return JsonResponse({'status': 'created', 'message': 'Запрос на добавление в друзья отправлен.'})
     else:
         messages.info(request, 'Запрос на добавление в друзья уже отправлен.')
-        return JsonResponse({'status': 'exists', 'message': 'Запрос на добавление в друзья уже отправлен.'})
+
+    # После выполнения действий всегда делаем редирект на предыдущую страницу или на 'main:search_friends'
+    return redirect(request.META.get('HTTP_REFERER', 'main:search_friends'))
 
 @method_decorator(login_required, name='dispatch')
 class RemoveFriendView(LoginRequiredMixin, View):
@@ -157,16 +158,16 @@ def friend_outgoing(request):
 def friend_add(request, pk):
     friend = get_object_or_404(User, id=pk)
     Friends = Friend.objects.filter(user=friend).first()
-    
-    # Находим первый запрос на добавление в друзья
-    friend_request = get_object_or_404(Friend, id=Friends.pk)
-    if friend_request.status == 'pending':
-        friend_request.status = 'accepted'
-        friend_request.save()
-        messages.success(request, f'Теперь вы друзья с {friend.id}.')
-
-    else:
-        messages.error(request, 'Запрос на добавление в друзья не найден.')
+    if Friends:
+        # Находим первый запрос на добавление в друзья
+        friend_request = get_object_or_404(Friend, id=Friends.pk)
+        if friend_request.status == 'pending':
+            print(friend_request)
+            friend_request.status = 'accepted'
+            friend_request.save()
+            messages.success(request, f'Теперь вы друзья с {friend.id}.')
+        else:
+            messages.error(request, 'Запрос на добавление в друзья не найден.')
     
     # Перенаправляем на предыдущую страницу или на список друзей
     return redirect(request.META.get('HTTP_REFERER', 'friends:friend_list'))

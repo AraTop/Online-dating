@@ -19,6 +19,10 @@ urlpatterns = [
    path('albums/<int:album_id>/delete/', views.delete_album, name='delete_album'),
    path('photos/add/', views.add_photo, name='add_photo'),
    path('photos/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
+   path('photo/edit/<int:photo_id>/', views.edit_photo, name='edit_photo'),
+   path('album/edit/<int:album_id>/', views.edit_album, name='edit_album'),
+   path('album/<int:album_id>/', views.album_detail, name='album_detail'),
+   path('album/<int:album_id>/add_photo/', views.add_photo_in_album, name='add_photo_in_album'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

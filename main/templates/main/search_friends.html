@@ -361,7 +361,7 @@
                 
               {% else %}
                   <!-- Если не друг и нет заявок -->
-                <button id="add-friend-btn" class="btn btn-primary" data-friend-id="{{ user.pk }}">Добавить в друзья</button>
+                <a href="/friends/add/{{ user.pk }}/" class="btn btn-primary">Добавить в друзья</a>
               {% endif %} 
             </div>
             <div style="clear: both;"></div>
@@ -373,31 +373,4 @@
     </div>
   </div>
 </div>
-
-<script>
-  document.getElementById('filterButton').addEventListener('click', function() {
-    const filterContainer = document.getElementById('filterContainer');
-    filterContainer.classList.toggle('show');
-  });
-
-  document.getElementById('add-friend-btn').addEventListener('click', function(event) {
-    event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-                      
-    var friendId = this.getAttribute('data-friend-id');
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '{% url "friends:add_friend" 0 %}'.replace('0', friendId), true);
-    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                location.reload(); // Перезагружаем страницу после успешного добавления в друзья
-            } else {
-                alert('Произошла ошибка: ' + xhr.responseText);
-            }
-        }
-    };
-    xhr.send(JSON.stringify({}));
-  });
-</script>
 {% endblock %}

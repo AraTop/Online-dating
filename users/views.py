@@ -158,10 +158,10 @@ def add_album(request):
             album = form.save(commit=False)
             album.user = request.user
             album.save()
-            return redirect('album_list')
+            return redirect('users:user_profile', pk=request.user.pk)
     else:
         form = AlbumForm()
-    return render(request, 'albums/add_album.html', {'form': form})
+    return render(request, 'users/add_album.html', {'form': form})
 
 
 @login_required
@@ -170,27 +170,118 @@ def add_photo(request):
         form = PhotoForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             photo = form.save(commit=False)
+            # Проверка на пустой альбом
             if not photo.album:
                 default_album = Album.objects.filter(user=request.user, is_default=True).first()
                 photo.album = default_album
             photo.save()
-            return redirect('album_detail', album_id=photo.album.id if photo.album else 'home')
+            return redirect('users:user_profile', pk=request.user.pk)
     else:
         form = PhotoForm(user=request.user)
-    return render(request, 'albums/add_photo.html', {'form': form})
+    
+    return render(request, 'users/add_photo.html', {'form': form})
 
 
 @login_required
 def delete_album(request, album_id):
-    album = get_object_or_404(Album, id=album_id, user=request.user)  # Проверяем, что альбом принадлежит текущему пользователю
+    album = get_object_or_404(Album, id=album_id)
+    # Проверяем, что альбом принадлежит текущему пользователю
+    if album.user != request.user:
+        return HttpResponseForbidden("Вы не можете удалить чужой альбом.")
+    
     if album.is_default:
-        return HttpResponseForbidden("Невозможно удалить альбом по умолчанию.")  # Защищаем альбом по умолчанию от удаления
+        return HttpResponseForbidden("Невозможно удалить альбом по умолчанию.")  # Защита альбома по умолчанию
+    
     album.delete()
-    return redirect('album_list')
+    return redirect('users:user_profile', pk=request.user.pk)
 
 
 @login_required
 def delete_photo(request, photo_id):
-    photo = get_object_or_404(Photo, id=photo_id, album__user=request.user)  # Проверка, что фото принадлежит текущему пользователю
+    photo = get_object_or_404(Photo, id=photo_id)
+    
+    # Проверяем, что фото принадлежит альбому текущего пользователя
+    if photo.album.user != request.user:
+        return HttpResponseForbidden("Вы не можете удалить чужую фотографию.")
+    
     photo.delete()
-    return redirect('album_detail', album_id=photo.album.id)
+    return redirect('users:user_profile', pk=request.user.pk)
+
+
+@login_required
+def edit_photo(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id)
+    
+    # Проверка, что фото принадлежит альбому текущего пользователя
+    if photo.album.user != request.user:
+        return HttpResponseForbidden("Вы не можете редактировать чужую фотографию.")
+    
+    if request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES, instance=photo, user=request.user)
+        if form.is_valid():
+            edited_photo = form.save(commit=False)
+            if not edited_photo.album:
+                default_album = Album.objects.filter(user=request.user, is_default=True).first()
+                edited_photo.album = default_album
+            edited_photo.save()
+            return redirect('users:user_profile', pk=request.user.pk)
+    else:
+        form = PhotoForm(instance=photo, user=request.user)
+    
+    return render(request, 'users/edit_photo.html', {'form': form, 'photo': photo})
+
+
+@login_required
+def edit_album(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    
+    # Проверка, что альбом принадлежит текущему пользователю
+    if album.user != request.user:
+        return HttpResponseForbidden("Вы не можете редактировать чужой альбом.")
+    
+    if request.method == 'POST':
+        form = AlbumForm(request.POST, instance=album)
+        if form.is_valid():
+            form.save()
+            return redirect('users:user_profile', pk=request.user.pk)
+    else:
+        form = AlbumForm(instance=album)
+    
+    return render(request, 'users/edit_album.html', {'form': form, 'album': album})
+
+
+@login_required
+def album_detail(request, album_id):
+    # Получаем альбом по ID
+    album = get_object_or_404(Album, id=album_id)
+    
+    # Получаем все фотографии, связанные с этим альбомом
+    photos = Photo.objects.filter(album=album)
+    # Передаем в шаблон текущего пользователя и владельца альбома
+    return render(request, 'users/album_detail.html', {
+        'album': album,
+        'photos': photos,
+        'current_user': request.user,
+        'album_owner': album.user  # Предполагаем, что у Album есть поле `user`
+    })
+
+@login_required
+def add_photo_in_album(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    
+    # Проверка, что альбом принадлежит текущему пользователю
+    if album.user != request.user:
+        return HttpResponseForbidden("Вы не можете добавлять фотографии в чужой альбом.")
+    
+    if request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            photo = form.save(commit=False)
+            # Привязываем фото к выбранному альбому
+            photo.album = album
+            photo.save()
+            return redirect('users:album_detail', album_id=album.id)
+    else:
+        form = PhotoForm(user=request.user)
+    
+    return render(request, 'users/add_photo_in_album.html', {'form': form, 'album': album})

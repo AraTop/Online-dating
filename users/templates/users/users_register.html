@@ -17,68 +17,85 @@
 }
 </style>
 <div class="form-container">
-    <form class="form-signin" method="POST">
-      {% csrf_token %}
-      <h1 class="h3 mb-3 font-weight-normal">Пожалуйста зарегистрируйтесь</h1>
-      <div class="form-group">
-        {{ form.phone_number.label_tag }}
-        <br>
-        {{ form.phone_number }}
-        {% if form.phone_number.errors %}
-          <ul class="errorlist">
-            {% for error in form.phone_number.errors %}
-              <li class="red">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-      <div class="form-group">
-        {{ form.email.label_tag }}
-        <br>
-        {{ form.email }}
-        {% if form.email.errors %}
-          <ul class="errorlist">
-            {% for error in form.email.errors %}
-              <li class="red">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-      <h7>Пароль не должен быть слишком похож на другую вашу личную информацию.</h7>
-      <h7>Ваш пароль должен содержать как минимум 8 символов.</h7>
-      <h7>Пароль не должен быть слишком простым и распространенным.</h7>
-      <h7>Пароль не может состоять только из цифр.</h7>
-      <div class="form-group">
-        {{ form.password1.label_tag }}
-        <br>
-        {{ form.password1 }}
-        {% if form.password1.errors %}
-          <ul class="errorlist">
-            {% for error in form.password1.errors %}
-              <li class="red">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-      <div class="form-group">
-        {{ form.password2.label_tag }}
-        <br>
-        {{ form.password2 }}
-        {% if form.password2.errors %}
-          <ul class="errorlist">
-            {% for error in form.password2.errors %}
-              <li class="red">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-      <div class="checkbox mb-3">
-        <label>
-            уже есть аккаунт? <a href="/users/login">Войдите</a>
-        </label>
-      </div>
-      <button class="btn btn-lg btn-success" type="submit">Регистрация</button>
-      <p class="mt-5 mb-3 text-muted">&copy; 2024</p>
-    </form>
+  <form class="form-signin" method="POST">
+    {% csrf_token %}
+    <h1 class="h3 mb-3 font-weight-normal">Пожалуйста зарегистрируйтесь</h1>
+  
+    <!-- Почта -->
+    <div class="form-group">
+      <label for="email" style="color: #c15cff;">Почта · <small style="color:#ff0000;">Обязательно</small></label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <ul class="errorlist">
+          {% for error in form.email.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  
+    <div class="form-group">
+      <label for="password1" style="color: #c15cff;">Пароль · <small style="color:#ff0000;">Обязательно</small></label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <ul class="errorlist">
+          {% for error in form.password1.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    
+    <!-- Пароль 2 -->
+    <div class="form-group">
+      <label for="password2" style="color: #c15cff;">Подтверждение пароля · <small style="color:#ff0000;">Обязательно</small></label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <ul class="errorlist">
+          {% for error in form.password2.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  
+    <!-- Имя -->
+    <div class="form-group">
+      <label for="first_name" style="color: #c15cff;">Имя · <small style="color:#ff0000;">Обязательно</small></label>
+      {{ form.first_name }}
+      {% if form.first_name.errors %}
+        <ul class="errorlist">
+          {% for error in form.first_name.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  
+    <!-- Фамилия -->
+    <div class="form-group">
+      <label for="last_name" style="color: #c15cff;">Фамилия · <small style="color:#ff0000;">Обязательно</small></label>
+      {{ form.last_name }}
+      {% if form.last_name.errors %}
+        <ul class="errorlist">
+          {% for error in form.last_name.errors %}
+            <li class="red">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  
+    <!-- Ссылка на вход -->
+    <div class="checkbox mb-3">
+      <label>
+        Уже есть аккаунт? <a href="/users/login">Войдите</a>
+      </label>
+    </div>
+  
+    <!-- Кнопка регистрации -->
+    <button class="btn btn-lg btn-success btn-block" type="submit">Регистрация</button>
+  
+    <p class="mt-5 mb-3 text-muted">&copy; 2024</p>
+  </form>
 </div>
 {% endblock %}

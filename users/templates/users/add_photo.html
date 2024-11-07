@@ -1,0 +1,284 @@
+{% extends 'users/base.html' %}     
+{% block content %}
+<style>
+   .color_noting {
+      background-color: rgb(214, 230, 253);
+   }
+   .color_backgraung {
+      background-color: rgb(187, 136, 255);
+   }
+   .com_color {
+      background-color: rgb(151, 255, 206);
+   }
+   .sub_color {
+      background-color: rgb(216, 229, 255);
+   }
+   .posts_color {
+      background-color: rgb(185, 255, 230);
+   }
+   .mm {
+      background-color: rgb(255, 198, 252);
+      transition: color 0.6s;
+   }
+   .mm:hover {
+      color: #000000;
+      background-color: #d796ff;
+   }
+   .mmmmm {
+      color: #5e5e5e;
+      background-color: #56ffd8;
+   }
+   .mmmmm:hover {
+      color: #5e5e5e;
+      background-color: #49bfff;
+   }
+   .button {
+      color: #ffffff;
+      background: scroll;
+      background-color: rgb(255, 162, 0);
+   }
+   .profile {
+      color: #ffffff;
+      background-color: rgb(255, 118, 44);
+   }
+   h1 {
+      color: #ffffff;
+   }
+   .notifications {
+      background-color: #ffe417;
+   }
+   .color_1 {
+      background-color: #7e7e7e;
+   }
+   .color_2 {
+      color: #ffffff;
+   }
+   .online-icon {
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: rgb(34, 169, 0);
+   }
+   .profile, .notifications {
+      padding: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+   }
+   .profile {
+      background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+      color: white;
+   }
+   .notifications {
+      background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+      color: white;
+   }
+   .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+   }
+   .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgb(187, 136, 255);
+      min-width: 160px;
+      z-index: 1;
+      border-radius: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+   }
+   .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s ease;
+   }
+   .dropdown-content a:hover {
+      background-color: rgb(62, 107, 127);
+   }
+   .dropdown:hover .dropdown-content {
+      display: block;
+   }
+   .dropbtn {
+      background: #764ba2 100%;
+      color: rgb(255, 255, 255);
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+   }
+   .card-body a, .card-body p {
+      display: block;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      background: #5f4ba2 100%;
+      color: white;
+      text-decoration: none;
+   }
+   .card-body a:hover, .card-body p:hover {
+      background: rgb(75, 35, 128);
+   }
+
+   /* Новые стили для правой части */
+   .right-section {
+      background: linear-gradient(135deg, #ffeb3b 0%, #ff4081 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   }
+   .right-section h4, .right-section h6, .right-section p {
+      color: white;
+   }
+   .right-section .card-body a {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px;
+      transition: background 0.3s ease;
+   }
+   .right-section .card-body a:hover {
+      background: #ff80ab;
+   }
+   .right-section .btn {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px 20px;
+      transition: background 0.3s ease;
+   }
+   .right-section .btn:hover {
+      background: #ff80ab;
+   }
+   .right-section details summary {
+      background: #ff4081;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+   }
+   .right-section details summary:hover {
+      background: #ff80ab;
+   }
+   .fixed-left {
+    position: fixed;
+    top: 131px;
+    left: 8px;
+}
+   /* Общие стили */
+   .photo-item, .album-item {
+        background-color: #fd7e39;
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border-radius: 10px;
+        width: auto;
+        height: auto;
+    }
+
+    /* Скрытие иконок по умолчанию */
+    .icons {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: none;
+    }
+
+    /* Появление иконок при наведении на блок */
+    .photo-item:hover .icons,
+    .album-item:hover .icons {
+        display: block;
+    }
+
+    /* Стили иконок */
+    .icon-link {
+        margin-right: 5px;
+        font-size: 20px;
+        text-decoration: none;
+        color: black;
+    }
+
+    .icon-link:hover {
+        color: red;
+    }
+</style>
+<div class="container">
+   <div class="row">
+      <div class="card mb-4 color_backgraung fixed-left" style="width: 440px; height: 522px;">
+         <div class="card mb-4 color_backgraung">
+            <div class="card-body profile" id="auto-resize-card">
+               {% if user.profile_icon %}
+                  <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+               {% else %}
+               {% endif %}
+               <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
+            </div>
+            <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
+               <a href="/users/settings/"><h3>Уведомления</h3></a>
+            </div>
+            <div class="card-body" id="auto-resize-card">
+               <a href="/friends/list"><h4>Друзья</h4></a>
+               <a href="/message/inbox"><h5>Сообщения</h5></a>
+               <a href="/users/settings">Настройки</a>
+               <div class="dropdown">
+                  <a href="/search_users/" class="dropbtn">Поиск девушек</a>
+                  <div class="dropdown-content">
+                     <a href="/search_night_partner/">Партнера на ночь</a>
+                     <a href="/search/girls/location">По местоположению</a>
+                     <a href="/search/girls/interests">По интересам</a>
+                     <a href="/search/girls/new">Новые анкеты</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="card mb-4 box-shadow color_1 right-section" style="width: 700px; display: block; top: -20px; height: auto; margin-left: 480px;">
+         <div>
+            <a href="/users/{{ user.id }}/" style="margin: 10px;">Назад</a>
+            <h4 style="color: #9d00ff; margin-top: -40px; text-align: center;">Загрузка фото</h4>
+            <hr style="margin: 10px;">
+         </div>
+         <form action="{% url 'users:add_photo' %}" method="post" enctype="multipart/form-data">
+             {% csrf_token %}
+             <div class="form-group">
+                 <!-- Поле загрузки фото -->
+                 <label for="image" style="color: #c15cff;">Загрузите фото · <small style="color:#ff0000;">обязательно</small></label>
+                 <br>
+                 {{ form.image }}
+                 <br>
+                 <!-- Поле выбора альбома -->
+                 <label for="album" style="color: #c15cff; margin-top: 10px;">Выберите альбом · <small style="color:#4970ff;">Не обязательно</small></label>
+                 <select class="form-control" id="album" name="album">
+                     <option value="">Не выбрано</option>  <!-- По умолчанию пустой выбор -->
+                     {% for album in form.album.field.queryset %}
+                         <option value="{{ album.id }}" {% if album.id == form.album.value %}selected{% endif %}>
+                             {{ album.title }}
+                         </option>
+                     {% endfor %}
+                 </select>
+                 <br>
+     
+                 <!-- Поле описания -->
+                 <label for="description" style="color: #c15cff;">Описание · <small style="color:#4970ff;">Не обязательно</small></label>
+                 <input type="text" class="form-control" maxlength="100" name="description" id="description" 
+                     value="{% if form.description.value %}{{ form.description.value }}{% else %} {% endif %}">
+             </div>
+     
+             <button type="submit" class="btn">Добавить фото</button>
+         </form>
+     </div>
+   </div>
+</div>
+{% endblock %}

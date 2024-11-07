@@ -1,0 +1,442 @@
+{% extends 'users/base.html' %}     
+{% block content %}
+<style>
+   .color_noting {
+      background-color: rgb(214, 230, 253);
+   }
+   .color_backgraung {
+      background-color: rgb(187, 136, 255);
+   }
+   .com_color {
+      background-color: rgb(151, 255, 206);
+   }
+   .sub_color {
+      background-color: rgb(216, 229, 255);
+   }
+   .posts_color {
+      background-color: rgb(185, 255, 230);
+   }
+   .mm {
+      background-color: rgb(255, 198, 252);
+      transition: color 0.6s;
+   }
+   .mm:hover {
+      color: #000000;
+      background-color: #d796ff;
+   }
+   .mmmmm {
+      color: #5e5e5e;
+      background-color: #56ffd8;
+   }
+   .mmmmm:hover {
+      color: #5e5e5e;
+      background-color: #49bfff;
+   }
+   .button {
+      color: #ffffff;
+      background: scroll;
+      background-color: rgb(255, 162, 0);
+   }
+   .profile {
+      color: #ffffff;
+      background-color: rgb(255, 118, 44);
+   }
+   h1 {
+      color: #ffffff;
+   }
+   .notifications {
+      background-color: #ffe417;
+   }
+   .color_1 {
+      background-color: #7e7e7e;
+   }
+   .color_2 {
+      color: #ffffff;
+   }
+   .online-icon {
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: rgb(34, 169, 0);
+   }
+   .profile, .notifications {
+      padding: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+   }
+   .profile {
+      background: linear-gradient(135deg, #0004ff 0%, #ff0000 100%);
+      color: white;
+   }
+   .notifications {
+      background: linear-gradient(135deg, #fae484 0%, #ff00f7 100%);
+      color: white;
+   }
+   .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+   }
+   .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgb(187, 136, 255);
+      min-width: 160px;
+      z-index: 1;
+      border-radius: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+   }
+   .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s ease;
+   }
+   .dropdown-content a:hover {
+      background-color: rgb(62, 107, 127);
+   }
+   .dropdown:hover .dropdown-content {
+      display: block;
+   }
+   .dropbtn {
+      background: #764ba2 100%;
+      color: rgb(255, 255, 255);
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+   }
+   .card-body a, .card-body p {
+      display: block;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      background: #5f4ba2 100%;
+      color: white;
+      text-decoration: none;
+   }
+   .card-body a:hover, .card-body p:hover {
+      background: rgb(75, 35, 128);
+   }
+
+   /* Новые стили для правой части */
+   .right-section {
+      background: linear-gradient(135deg, #ffeb3b 0%, #ff4081 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   }
+   .right-section h4, .right-section h6, .right-section p {
+      color: white;
+   }
+   .right-section .card-body a {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px;
+      transition: background 0.3s ease;
+   }
+   .right-section .card-body a:hover {
+      background: #ff80ab;
+   }
+   .right-section .btn {
+      background: #ff4081;
+      color: white;
+      border-radius: 5px;
+      padding: 10px 20px;
+      transition: background 0.3s ease;
+   }
+   .right-section .btn:hover {
+      background: #ff80ab;
+   }
+   .right-section details summary {
+      background: #ff4081;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+   }
+   .right-section details summary:hover {
+      background: #ff80ab;
+   }
+   .fixed-left {
+    position: fixed;
+    top: 131px;
+    left: 8px;
+}
+   /* Стили для карточки с фото */
+.photo-card {
+    position: relative;
+}
+
+/* Иконки редактирования и удаления */
+.icons {
+    position: absolute;
+    bottom: 10px; /* Расположение внизу */
+    right: 10px; /* Расположение справа */
+    display: none; /* Скрываем иконки по умолчанию */
+    z-index: 10;
+}
+
+.photo-card:hover .icons {
+    display: block; /* Показываем иконки при наведении на карточку */
+}
+
+/* Стили для ссылок-иконок */
+.icon-link {
+    font-size: 15px;
+    margin-left: 10px;
+    color: #9d00ff;
+    text-decoration: none;
+}
+
+.icon-link:hover {
+    color: #ff5733;
+}
+/* Основной стиль для модального окна */
+.modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: scale(0.8);
+        opacity: 0;
+        animation: zoomIn 0.4s forwards;
+    }
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #aaa;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .close:hover {
+        color: #333;
+    }
+    h2 {
+        color: #ff4d4d;
+    }
+    .modal p {
+        font-size: 16px;
+        color: #555;
+    }
+    .modal-buttons {
+        margin-top: 20px;
+    }
+    .btn-confirm {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .btn-confirm:hover {
+        background-color: #ff1a1a;
+        transform: scale(1.05);
+    }
+    .btn-cancel {
+        background-color: #bbb;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #999;
+        transform: scale(1.05);
+    }
+
+    /* Анимации для модального окна */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes zoomIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+</style>
+<div class="container">
+   <div class="row">
+      <div class="card mb-4 color_backgraung fixed-left" style="width: 440px; height: 522px;">
+         <div class="card mb-4 color_backgraung">
+            <div class="card-body profile" id="auto-resize-card">
+               {% if user.profile_icon %}
+                  <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
+               {% else %}
+               {% endif %}
+               <a href="/users/{{user.pk}}/"><h2 style="color: white;">Мой профиль</h2></a>
+            </div>
+            <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
+               <a href="/users/settings/"><h3>Уведомления</h3></a>
+            </div>
+            <div class="card-body" id="auto-resize-card">
+               <a href="/friends/list"><h4>Друзья</h4></a>
+               <a href="/message/inbox"><h5>Сообщения</h5></a>
+               <a href="/users/settings">Настройки</a>
+               <div class="dropdown">
+                  <a href="/search_users/" class="dropbtn">Поиск девушек</a>
+                  <div class="dropdown-content">
+                     <a href="/search_night_partner/">Партнера на ночь</a>
+                     <a href="/search/girls/location">По местоположению</a>
+                     <a href="/search/girls/interests">По интересам</a>
+                     <a href="/search/girls/new">Новые анкеты</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="card mb-4 box-shadow color_1 right-section" style="width: 700px; display: block; top: -20px; height: auto; margin-left: 480px;">
+         <div>
+            <a href="/users/{{ album.user.id }}/" style="margin: 10px;">Назад</a>
+            <h3 style="color: #b03ff6; margin-top: -40px; text-align: center;">{{ album.title }}</h3>
+            <hr style="margin: 10px;">
+         </div>
+         
+         {% if album.description %}
+            <!-- Описание альбома -->
+            <div class="album-description">
+               <h5 style="color: #c15cff;">Описание</h5>
+               <small style="color:#4970ff;">{{ album.description }}</small>
+            </div>
+         {% endif %}
+         {% if album.user == request.user %}
+            <!-- Кнопка для редактирования альбома -->
+            <div style="margin: 10px;">
+               <a href="{% url 'users:add_photo_in_album' album_id=album.id %}" class="btn">Загрузить Фотографию</a>
+               <a href="/users/album/edit/{{ album.id }}/" class="btn">Редактировать альбом</a>
+               <a href="#" class="btn" onclick="openConfirmModal('album', this)" data-id="{{ album.id }}">Удалить альбом</a>
+         </div>
+         {% endif %}
+      
+         <!-- Модальное окно подтверждения удаления альбома -->
+         <div id="confirmModal_album" class="modal">
+            <div class="modal-content animate">
+               <span class="close" onclick="closeConfirmModal('album')">&times;</span>
+               <h2>Удаление альбома</h2>
+               <p>Вы уверены, что хотите удалить этот альбом? Это действие необратимо.</p>
+               <div class="modal-buttons">
+                  <button class="btn-confirm" onclick="confirmDeletion('album')">Да, удалить</button>
+                  <button class="btn-cancel" onclick="closeConfirmModal('album')">Отмена</button>
+               </div>
+            </div>
+         </div>
+      
+         <div class="album-photos">
+            <h4 style="color: #9d00ff; text-align: center;">Фотографии альбома</h4>
+            {% if photos %}
+               <div class="row">
+                  {% for photo in photos %}
+                     <div class="col-md-4">
+                        <div class="card mb-4 photo-card">
+                           <img src="{{ photo.image.url }}" alt="Фото">
+                           {% if current_user == album_owner %}
+                              <div class="icons">
+                                 <a href="/users/photo/edit/{{ photo.id }}" class="icon-link">✏️</a>
+                                 <a href="#" class="icon-link" onclick="openConfirmModal('photo', this)" data-id="{{ photo.id }}">🗑️</a>
+                              </div>
+                           {% endif %}
+                        </div>
+                     </div>
+                  {% endfor %}
+               </div>
+            {% else %}
+               <p style="color: #c15cff;">Нет фотографий в этом альбоме.</p>
+            {% endif %}
+         </div>
+      </div>
+      
+      <!-- Модальное окно подтверждения удаления фотографии -->
+      <div id="confirmModal_photo" class="modal">
+         <div class="modal-content animate">
+            <span class="close" onclick="closeConfirmModal('photo')">&times;</span>
+            <h2>Удаление фото</h2>
+            <p>Вы уверены, что хотите удалить это фото? Это действие необратимо.</p>
+            <div class="modal-buttons">
+               <button class="btn-confirm" onclick="confirmDeletion('photo')">Да, удалить</button>
+               <button class="btn-cancel" onclick="closeConfirmModal('photo')">Отмена</button>
+            </div>
+         </div>
+      </div>
+      
+      <script>
+         // Открытие модального окна для удаления альбома или фотографии
+         function openConfirmModal(type, element) {
+             var id = element.getAttribute('data-id'); // Получаем id через data-id
+             if (type === 'album') {
+                 document.getElementById('confirmModal_album').style.display = 'flex';
+                 window.currentAlbumId = id; // Сохраняем ID альбома для удаления
+             } else if (type === 'photo') {
+                 document.getElementById('confirmModal_photo').style.display = 'flex';
+                 window.currentPhotoId = id; // Сохраняем ID фотографии для удаления
+             }
+         }
+      
+         // Закрытие модального окна для удаления альбома или фотографии
+         function closeConfirmModal(type) {
+             if (type === 'album') {
+                 document.getElementById('confirmModal_album').style.display = 'none';
+             } else if (type === 'photo') {
+                 document.getElementById('confirmModal_photo').style.display = 'none';
+             }
+         }
+      
+         // Подтверждение удаления альбома или фотографии
+         function confirmDeletion(type) {
+             if (type === 'album') {
+                 window.location.href = "/users/albums/" + window.currentAlbumId + "/delete"; // Удалить альбом
+             } else if (type === 'photo') {
+                 window.location.href = "/users/photos/" + window.currentPhotoId + "/delete"; // Удалить фото
+             }
+         }
+      
+         // Закрытие модального окна при клике за его пределами
+         window.onclick = function(event) {
+             const modal_album = document.getElementById('confirmModal_album');
+             const modal_photo = document.getElementById('confirmModal_photo');
+             if (event.target === modal_album) {
+                 closeConfirmModal('album');
+             } else if (event.target === modal_photo) {
+                 closeConfirmModal('photo');
+             }
+         }
+      </script>
+{% endblock %}

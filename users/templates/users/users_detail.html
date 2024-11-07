@@ -177,6 +177,129 @@
     top: 131px;
     left: 8px;
 }
+   /* Общие стили */
+   .photo-item, .album-item {
+        background-color: #fd7e39;
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border-radius: 10px;
+        width: auto;
+        height: auto;
+    }
+
+    /* Скрытие иконок по умолчанию */
+    .icons {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: none;
+    }
+
+    /* Появление иконок при наведении на блок */
+    .photo-item:hover .icons,
+    .album-item:hover .icons {
+        display: block;
+    }
+
+    /* Стили иконок */
+    .icon-link {
+        margin-right: 5px;
+        font-size: 20px;
+        text-decoration: none;
+        color: black;
+    }
+
+    .icon-link:hover {
+        color: red;
+    }
+    /* Основной стиль для модального окна */
+.modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: scale(0.8);
+        opacity: 0;
+        animation: zoomIn 0.4s forwards;
+    }
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #aaa;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .close:hover {
+        color: #333;
+    }
+    h2 {
+        color: #ff4d4d;
+    }
+    .modal p {
+        font-size: 16px;
+        color: #555;
+    }
+    .modal-buttons {
+        margin-top: 20px;
+    }
+    .btn-confirm {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .btn-confirm:hover {
+        background-color: #ff1a1a;
+        transform: scale(1.05);
+    }
+    .btn-cancel {
+        background-color: #bbb;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #999;
+        transform: scale(1.05);
+    }
+
+    /* Анимации для модального окна */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes zoomIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
 </style>
 <div class="container">
    <div class="row">
@@ -187,7 +310,7 @@
                   <img src="{{ user.profile_icon.url }}" style="height: 100px; width: 100px; border-radius: 50%; object-fit: cover; float: left;">
                {% else %}
                {% endif %}
-               <a href="/users/{{user.pk}}/"><h2>Мой профиль</h2></a>
+               <a href="/users/{{user.pk}}/"><h2 style="color: white;">Мой профиль</h2></a>
             </div>
             <div class="card-body notifications" id="auto-resize-card" style="margin-top: -10px;">
                <a href="/users/settings/"><h3>Уведомления</h3></a>
@@ -261,18 +384,18 @@
                   <a href="/message/dialog/{{ object.pk }}" class="btn">Написать сообщение</a>
                   <div style="margin-top: 5px;">
                      {% if user %}
-                              {% if is_friend %}
-                                 <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
-                                       {% csrf_token %}
-                                    <input type="submit" value="Удалить друга" class="btn btn-danger">
-                                 </form>
-                              {% elif friend_request_sent %}
-                                 <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
-                              {% elif friend_request_received %}
-                                 <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
-                              {% elif no_friend %}
-                                 <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
-                              {% endif %}
+                        {% if is_friend %}
+                           <form action="{% url 'friends:remove_friend' friend_id=object.pk %}" method="post">
+                                 {% csrf_token %}
+                              <input type="submit" value="Удалить друга" class="btn btn-danger">
+                           </form>
+                        {% elif friend_request_sent %}
+                           <a href="{% url 'friends:friend_reject' friend_request_sent %}" class="btn btn-danger">Отклонить заявку</a>
+                        {% elif friend_request_received %}
+                           <a href="/friends/friend_add/{{ friend_request_received }}" class="btn btn-success">Принять заявку</a>
+                        {% elif no_friend %}
+                           <button id="add-friend-btn" class="btn btn-success" data-friend-id="{{ no_friend.pk }}">Добавить в друзья</button>
+                        {% endif %}
                      {% endif %}
                   </div>
              </div>
@@ -281,16 +404,39 @@
                   <button id="view-photos" class="btn btn-secondary active" onclick="showPhotos()">Все фотографии</button>
                   <button id="view-albums" class="btn btn-secondary" onclick="showAlbums()">Все альбомы</button>
              </div>
-         </div>
-     
+         </div>  
+            {% if is_friend %}
+               
+            {% elif friend_request_sent %}
+               
+            {% elif friend_request_received %}
+            
+            {% elif no_friend %}   
+            {% else %}
+               <div style="margin-top: 15px;">
+                  <a class="btn" href="/users/photos/add/">Загрузить фото</a>
+                  <a class="btn" href="/users/albums/add/">Создать альбом</a>
+               </div>
+            {% endif %}
          <div style="margin-top: 35px;">
             <!-- Галерея фотографий, отображаемая по умолчанию -->
             <div id="photo-gallery" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
                {% for photo in photos %}
                   <div class="photo-item" style="background-color: #fd7e39; padding: 10px; text-align: center; border-radius: 10px;">
                      <img src="{{ photo.image.url }}" style="width: 170px; height: 170px; object-fit: cover; border-radius: 10px;">
-                     {% if photo.description %}
-                        <p style="width: 170px;">{{ photo.description }}</p>
+                     <!-- Иконки для редактирования и удаления -->
+                     {% if is_friend %}
+               
+                     {% elif friend_request_sent %}
+                        
+                     {% elif friend_request_received %}
+                     
+                     {% elif no_friend %}   
+                     {% else %}
+                        <div class="icons">
+                           <a href="/users/photo/edit/{{ photo.id }}/" class="icon-link">✏️</a>
+                           <a href="#" data-contact-id="{{ photo.id }}" onclick="openConfirmModalPhoto(this)" class="icon-link">🗑️</a>
+                        </div>
                      {% endif %}
                   </div>
                {% endfor %}
@@ -300,7 +446,7 @@
             <div id="album-gallery" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
                {% for album in albums %}
                    <div class="album-item" style="background-color: #fd7e39; padding: 10px; text-align: center; border-radius: 10px; width: 170px; height: 170px;">
-                       <a href="">
+                       <a href="/users/album/{{ album.id }}/">
                            <div style="width: 100%; height: 100%;">
                                {% if album.cover_photos %}
                                    {% if album.cover_photos.count == 4 %}
@@ -337,7 +483,35 @@
                                    </div>
                                {% endif %}
                            </div>
-                       </a>
+                        </a>
+                        {% if is_friend %}
+               
+                        {% elif friend_request_sent %}
+                           
+                        {% elif friend_request_received %}
+                        
+                        {% elif no_friend %}   
+                        {% else %}
+                           <!-- Иконки для редактирования и удаления -->
+                           <div class="icons">
+                              <a href="/users/album/edit/{{ album.id }}" class="icon-link">✏️</a>
+                              {% if not album.is_default %}
+                                 <a href="#" data-contact-id="{{ album.id }}" onclick="openConfirmModal(this)" class="icon-link">🗑️</a>
+                              {% endif %}
+                           </div>
+                           <!-- Модальное окно подтверждения -->
+                           <div id="confirmModal" class="modal" style="display: none;">
+                              <div class="modal-content animate">
+                                 <span class="close" onclick="closeConfirmModal()">&times;</span>
+                                 <h2>Удаление альбома</h2>
+                                 <p>Вы уверены, что хотите удалить этот альбом? Это действие необратимо.</p>
+                                 <div class="modal-buttons">
+                                    <button class="btn-confirm" id="confirmDeleteBtn" onclick="confirmDeletion()">Да, удалить</button>
+                                    <button class="btn-cancel" onclick="closeConfirmModal()">Отмена</button>
+                                 </div>
+                              </div>
+                           </div>
+                        {% endif %}
                    </div>
                {% endfor %}
            </div>
@@ -345,7 +519,98 @@
      </div>
    </div>
 </div>
+<div id="confirmModalPhoto" class="modal" style="display: none;">
+   <div class="modal-content animate">
+      <span class="close" onclick="closeConfirmModalPhoto()">&times;</span>
+      <h2>Удаление фотографии</h2>
+      <p>Вы уверены, что хотите удалить эту фотографию? Это действие необратимо.</p>
+      <div class="modal-buttons">
+         <button class="btn-confirm" id="confirmDeleteBtnPhoto" onclick="confirmDeletionPhoto()">Да, удалить</button>
+         <button class="btn-cancel" onclick="closeConfirmModalPhoto()">Отмена</button>
+      </div>
+   </div>
+</div>
 <script>
+   var currentAlbumId;
+   var currentPhotoId;
+
+   // Открытие модального окна для удаления альбома
+   function openConfirmModal(element) {
+      currentAlbumId = element.getAttribute('data-contact-id');
+      var deleteUrl = "/users/albums/" + currentAlbumId + "/delete/";
+      console.log("Delete URL:", deleteUrl); 
+      document.getElementById('confirmModal').style.display = 'flex';
+   }
+
+   // Открытие модального окна для удаления фотографии
+   function openConfirmModalPhoto(element) {
+      currentPhotoId = element.getAttribute('data-contact-id');
+      var deleteUrl = "/users/photos/" + currentPhotoId + "/delete/";
+      console.log("Delete URL:", deleteUrl); 
+      document.getElementById('confirmModalPhoto').style.display = 'flex';
+   }
+
+   // Закрытие модального окна для удаления альбома
+   function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+   }
+
+   // Закрытие модального окна для удаления фотографии
+   function closeConfirmModalPhoto() {
+      document.getElementById('confirmModalPhoto').style.display = 'none';
+   }
+
+   // Подтверждение удаления альбома
+   function confirmDeletion() {
+      fetch("/users/albums/" + currentAlbumId + "/delete/", {
+         method: "POST",
+         headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+         },
+         body: JSON.stringify({ 'album_id': currentAlbumId })
+      })
+      .then(response => {
+         if (response.ok) {
+            location.reload();
+         } else {
+            alert('Ошибка при удалении альбома');
+         }
+      });
+      closeConfirmModal();
+   }
+
+   // Подтверждение удаления фотографии
+   function confirmDeletionPhoto() {
+      fetch("/users/photos/" + currentPhotoId + "/delete/", {
+         method: "POST",
+         headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+         },
+         body: JSON.stringify({ 'photo_id': currentPhotoId })
+      })
+      .then(response => {
+         if (response.ok) {
+            location.reload();
+         } else {
+            alert('Ошибка при удалении фотографии');
+         }
+      });
+      closeConfirmModalPhoto();
+   }
+
+   // Получение CSRF токена для запросов
+   function getCookie(name) {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+         var cookie = cookies[i].trim();
+         if (cookie.startsWith(name + '=')) {
+            return cookie.substring(name.length + 1);
+         }
+      }
+      return '';
+   }
    function showPhotos() {
     document.getElementById('photo-gallery').style.display = 'grid';
     document.getElementById('album-gallery').style.display = 'none';

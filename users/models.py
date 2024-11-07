@@ -18,13 +18,13 @@ class User(AbstractUser):
     is_in_chat = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
 
 class Album(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="albums")
     title = models.CharField(max_length=100)
-    description = models.TextField(max_length=255, blank=True, null=True)
+    description = models.TextField(max_length=520, blank=True, null=True)
     is_default = models.BooleanField(default=False)  # Поле для альбома по умолчанию
     created_at = models.DateTimeField(auto_now_add=True)
 
